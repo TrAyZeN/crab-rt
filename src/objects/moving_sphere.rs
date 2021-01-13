@@ -30,7 +30,7 @@ impl<M: Material> MovingSphere<M> {
     #[inline]
     fn center(&self, time: f32) -> Vec3 {
         self.center_interval.0
-            + ((time - self.time_interval.0) / (self.time_interval.1 - self.time_interval.1))
+            + ((time - self.time_interval.0) / (self.time_interval.1 - self.time_interval.0))
                 * (self.center_interval.1 - self.center_interval.0)
     }
 }

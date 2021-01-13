@@ -39,9 +39,7 @@ impl Vec3 {
     ///
     /// let u = Vec3::zero();
     ///
-    /// assert_eq!(u.x, 0.);
-    /// assert_eq!(u.y, 0.);
-    /// assert_eq!(u.z, 0.);
+    /// assert_eq!(u, Vec3::new(0., 0., 0.));
     /// ```
     #[inline]
     pub const fn zero() -> Self {
@@ -121,11 +119,16 @@ impl Vec3 {
         }
     }
 
-    /// Computes the dot product of the with the given vector.
+    /// Computes the [dot product](https://en.wikipedia.org/wiki/Dot_product) of the with the given vector.
     ///
-    /// TODO: Add example
     /// # Examples
     /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.);
+    /// let v = Vec3::new(4., 5., 6.);
+    ///
+    /// assert_eq!(u.dot(&v), 1.*4. + 2.*5. + 3.*6.);
     /// ```
     #[inline]
     pub fn dot(&self, v: &Self) -> f32 {
