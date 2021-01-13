@@ -90,9 +90,9 @@ impl RayTracer {
                     }
 
                     let mut image_pixels = image_pixels.lock().unwrap();
-                    for x in 0..raytracer.get_width() {
+                    for (x, pixel) in line_pixels.iter().enumerate() {
                         // image_pixels[x + y * raytracer.get_width()] = line_pixels[x].into();
-                        image_pixels.put_pixel(x as u32, y as u32, line_pixels[x].into());
+                        image_pixels.put_pixel(x as u32, y as u32, pixel.into());
                     }
                 }
             }));
@@ -163,8 +163,10 @@ impl RayTracer {
     /// # Examples
     /// ```
     /// use crab_rt::raytracer::RayTracer;
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::scene::Scene;
     ///
-    /// let raytracer = RayTracer::new(200, 100, 50, 20, camera, scene);
+    /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
     /// assert_eq!(raytracer.get_width(), 200);
     /// ```
     #[inline]
@@ -177,8 +179,10 @@ impl RayTracer {
     /// # Examples
     /// ```
     /// use crab_rt::raytracer::RayTracer;
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::scene::Scene;
     ///
-    /// let raytracer = RayTracer::new(200, 100, 50, 20, camera, scene);
+    /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
     /// assert_eq!(raytracer.get_height(), 100);
     /// ```
     #[inline]
@@ -191,8 +195,10 @@ impl RayTracer {
     /// # Examples
     /// ```
     /// use crab_rt::raytracer::RayTraycer;
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::scene::Scene;
     ///
-    /// let raytracer = RayTracer::new(200, 100, 50, 20, camera, scene);
+    /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
     /// assert_eq!(raytracer.get_height(), 50);
     /// ```
     #[inline]

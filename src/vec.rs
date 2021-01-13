@@ -376,6 +376,17 @@ impl convert::Into<Rgb<u8>> for Vec3 {
     }
 }
 
+impl convert::Into<Rgb<u8>> for &Vec3 {
+    #[inline]
+    fn into(self) -> Rgb<u8> {
+        Rgb([
+            (255. * clamp(self.x, 0., 1.)) as u8,
+            (255. * clamp(self.y, 0., 1.)) as u8,
+            (255. * clamp(self.z, 0., 1.)) as u8,
+        ])
+    }
+}
+
 // Needed if using rayon
 impl iter::Sum<Vec3> for Vec3 {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {

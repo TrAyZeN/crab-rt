@@ -4,7 +4,7 @@ use crate::ray::Ray;
 use crate::utils::random_unit_vector;
 use crate::vec::Vec3;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default)]
 pub struct Lambertian {
     albedo: Vec3,
 }

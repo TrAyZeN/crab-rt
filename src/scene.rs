@@ -1,5 +1,6 @@
 use crate::objects::Object;
 
+#[derive(Default)]
 pub struct Scene {
     objects: Vec<Object>,
 }
