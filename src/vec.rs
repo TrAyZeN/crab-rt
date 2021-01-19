@@ -5,11 +5,14 @@ use std::{
     ops::{self, Add, Sub},
 };
 
-#[repr(C)]
+/// A 3D mathematical vector.
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct Vec3 {
+    /// Coordinate along the x-axis.
     pub x: f32,
+    /// Coordinate along the y-axis.
     pub y: f32,
+    /// Coordinate along the z-axis.
     pub z: f32,
 }
 
@@ -28,7 +31,7 @@ impl Vec3 {
     /// ```
     #[inline]
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
-        Vec3 { x, y, z }
+        Self { x, y, z }
     }
 
     /// Contructs the zero vector.
@@ -43,20 +46,20 @@ impl Vec3 {
     /// ```
     #[inline]
     pub const fn zero() -> Self {
-        Vec3 {
+        Self {
             x: 0.,
             y: 0.,
             z: 0.,
         }
     }
 
-    /// Checks if the given vector is the zero vector.
+    /// Checks if the given vector is the zero vector ie all the coordinates of the vector are zero.
     ///
     /// # Examples
     /// ```
     /// use crab_rt::vec::Vec3;
     ///
-    /// assert_eq!(Vec3::new(1., 2., 3.).is_zero(), false);
+    /// assert_eq!(Vec3::new(0., 1., 2.).is_zero(), false);
     /// assert_eq!(Vec3::new(0., 0., 0.).is_zero(), true);
     /// ```
     #[inline]
@@ -64,6 +67,15 @@ impl Vec3 {
         self.x == 0. && self.y == 0. && self.z == 0.
     }
 
+    /// Checks if all the vector coordinates are below a threshold close to zero.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// assert_eq!(Vec3::new(0., 1., 2.).is_near_zero(), false);
+    /// assert_eq!(Vec3::new(1e-9, 1e-10, 1e-11).is_near_zero(), true);
+    /// ```
     #[inline]
     pub fn is_near_zero(&self) -> bool {
         const THRESH: f32 = 1e-8f32;
@@ -79,18 +91,41 @@ impl Vec3 {
     ///
     /// let u = Vec3::new(1., 2., 3.);
     ///
-    /// assert_eq!(u.length(), f32::sqrt(1.*1. + 2.*2. + 3.*3.));
+    /// assert_eq!(u.length(), f32::sqrt(1. * 1. + 2. * 2. + 3. * 3.));
     /// ```
     #[inline]
     pub fn length(&self) -> f32 {
         f32::sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
     }
 
+    /// Returns the squared [length](https://en.wikipedia.org/wiki/Euclidean_vector#Length) of the vector.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.);
+    ///
+    /// assert_eq!(u.squared_length(), 1. * 1. + 2. * 2. + 3. * 3.);
+    /// ```
     #[inline]
     pub fn squared_length(&self) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
+    /// Consumes the vector and return its normalized vector.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.).unit();
+    ///
+    /// let length = f32::sqrt(1. * 1. + 2. * 2. + 3. * 3.);
+    /// assert_eq!(u.x, 1. / length);
+    /// assert_eq!(u.y, 2. / length);
+    /// assert_eq!(u.z, 3. / length);
+    /// ```
     pub fn unit(self) -> Self {
         if self.is_zero() {
             self
@@ -107,7 +142,11 @@ impl Vec3 {
     ///
     /// let mut u = Vec3::new(1., 2., 3.);
     /// u.normalize();
-    /// assert_eq!(u.length(), 1.);
+    ///
+    /// let length = f32::sqrt(1. * 1. + 2. * 2. + 3. * 3.);
+    /// assert_eq!(u.x, 1. / length);
+    /// assert_eq!(u.y, 2. / length);
+    /// assert_eq!(u.z, 3. / length);
     /// ```
     pub fn normalize(&mut self) {
         if !self.is_zero() {
@@ -119,7 +158,7 @@ impl Vec3 {
         }
     }
 
-    /// Computes the [dot product](https://en.wikipedia.org/wiki/Dot_product) of the with the given vector.
+    /// Computes the [dot product](https://en.wikipedia.org/wiki/Dot_product) with the given vector.
     ///
     /// # Examples
     /// ```
@@ -128,21 +167,45 @@ impl Vec3 {
     /// let u = Vec3::new(1., 2., 3.);
     /// let v = Vec3::new(4., 5., 6.);
     ///
-    /// assert_eq!(u.dot(&v), 1.*4. + 2.*5. + 3.*6.);
+    /// assert_eq!(u.dot(&v), 1. * 4. + 2. * 5. + 3. * 6.);
     /// ```
     #[inline]
     pub fn dot(&self, v: &Self) -> f32 {
         self.x * v.x + self.y * v.y + self.z * v.z
     }
 
+    /// Computes the dot product of the vector with itself.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.);
+    ///
+    /// assert_eq!(u.square(), u.dot(&u));
+    /// ```
     #[inline]
     pub fn square(&self) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
+    /// Computes the [cross product](https://en.wikipedia.org/wiki/Cross_product) with the given vector.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.);
+    /// let v = Vec3::new(4., 2., 5.);
+    ///
+    /// let w = u.cross(&v);
+    /// assert_eq!(w.x, 2. * 5. - 3. * 2.);
+    /// assert_eq!(w.y, 3. * 4. - 1. * 5.);
+    /// assert_eq!(w.z, 1. * 2. - 2. * 4.);
+    /// ```
     #[inline]
     pub fn cross(&self, v: &Self) -> Self {
-        Vec3 {
+        Self {
             x: self.y * v.z - self.z * v.y,
             y: self.z * v.x - self.x * v.z,
             z: self.x * v.y - self.y * v.x,
