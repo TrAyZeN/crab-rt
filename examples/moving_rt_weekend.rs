@@ -7,7 +7,7 @@ use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::{MovingSphere, Object, Sphere};
 use crab_rt::raytracer::RayTracer;
-use crab_rt::scene::Scene;
+use crab_rt::scene::{Background, Scene};
 use crab_rt::vec::Vec3;
 
 fn main() {
@@ -51,7 +51,10 @@ fn main() {
 }
 
 fn random_scene() -> Scene {
-    let mut scene = Scene::new();
+    let mut scene = Scene::new(Background::Gradient(
+        Vec3::new(0.5, 0.7, 1.),
+        Vec3::new(1., 1., 1.),
+    ));
     let uniform1 = Uniform::from(0.0..0.9);
     let uniform2 = Uniform::from(0.5..1.0);
     let mut rng = rand::thread_rng();

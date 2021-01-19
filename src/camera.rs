@@ -42,7 +42,7 @@ impl Camera {
         let horizontal = viewport_width * focus_dist * u;
         let vertical = viewport_height * focus_dist * v;
 
-        Camera {
+        Self {
             origin,
             horizontal,
             vertical,

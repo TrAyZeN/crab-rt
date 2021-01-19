@@ -76,3 +76,15 @@ pub fn schlick(cosine: f32, refraction_index: f32) -> f32 {
     r0 *= r0;
     r0 + (1. - r0) * f32::powf(1. - cosine, 5.)
 }
+
+const GAMMA: f32 = 2.2;
+
+#[inline]
+pub fn gamma_encode(x: f32) -> f32 {
+    x.powf(1. / GAMMA)
+}
+
+#[inline]
+pub fn gamma_decode(x: f32) -> f32 {
+    x.powf(GAMMA)
+}

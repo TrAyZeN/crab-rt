@@ -1,15 +1,18 @@
-use crate::camera::Camera;
-use crate::hitable::Hitable;
-use crate::ray::Ray;
-use crate::scene::Scene;
-use crate::vec::Vec3;
 use image::{ImageBuffer, Rgb, RgbImage};
 use rand::{prelude::*, thread_rng};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+use crate::camera::Camera;
+use crate::hitable::Hitable;
+use crate::ray::Ray;
+use crate::scene::Scene;
+use crate::utils::gamma_encode;
+use crate::vec::Vec3;
+
 const NB_THREADS: usize = 10;
 
+#[derive(Debug)]
 pub struct RayTracer {
     width: usize,
     height: usize,
@@ -85,8 +88,11 @@ impl RayTracer {
                         color /= raytracer.get_samples() as f32;
 
                         // We gamma correct the color
-                        line_pixels[x] =
-                            Vec3::new(f32::sqrt(color.x), f32::sqrt(color.y), f32::sqrt(color.z));
+                        line_pixels[x] = Vec3::new(
+                            gamma_encode(color.x),
+                            gamma_encode(color.y),
+                            gamma_encode(color.z),
+                        );
                     }
 
                     let mut image_pixels = image_pixels.lock().unwrap();
@@ -152,7 +158,7 @@ impl RayTracer {
         } else {
             let unit_direction = ray.get_direction().unit();
             let t = 0.5 * (unit_direction.y + 1.);
-            return (1. - t) * Vec3::new(1., 1., 1.) + t * Vec3::new(0.5, 0.7, 1.);
+            return self.scene.get_background().color(t);
         }
 
         Vec3::zero()

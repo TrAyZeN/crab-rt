@@ -9,7 +9,7 @@ use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::{Object, Sphere};
 use crab_rt::raytracer::RayTracer;
-use crab_rt::scene::Scene;
+use crab_rt::scene::{Background, Scene};
 use crab_rt::vec::Vec3;
 
 fn bench_default(c: &mut Criterion) {
@@ -145,10 +145,13 @@ fn sample_raytracer() -> RayTracer {
         2.,
         2.,
         (lookfrom - lookat).length(),
-        (0., 0.),
+        (0., 0.1),
     );
 
-    let mut scene = Scene::new();
+    let mut scene = Scene::new(Background::Gradient(
+        Vec3::new(0.5, 0.7, 1.),
+        Vec3::new(1., 1., 1.),
+    ));
     scene.add_object(Object::new(Box::new(Sphere::new(
         Vec3::new(0., 0., -1.),
         0.5,
