@@ -1,15 +1,21 @@
+use std::fmt::Debug;
+
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::ray::Ray;
 
+#[derive(Debug)]
 pub struct Object {
-    volume: Box<dyn Hitable + Send + Sync>,
+    volume: Box<dyn Hitable>,
+    bbox: Option<Aabb>,
 }
 
 impl Object {
+    /// Constructs a new object.
     #[inline]
-    pub fn new(volume: Box<dyn Hitable + Send + Sync>) -> Object {
-        Object { volume }
+    pub fn new(volume: Box<dyn Hitable>) -> Object {
+        let bbox = volume.bounding_box((0., 0.1)); // TODO: Fix time interval
+        Object { volume, bbox }
     }
 }
 
@@ -21,6 +27,6 @@ impl Hitable for Object {
 
     #[inline]
     fn bounding_box(&self, time_interval: (f32, f32)) -> Option<Aabb> {
-        self.volume.bounding_box(time_interval)
+        self.bbox.clone() // TODO: This clone is bad I think
     }
 }

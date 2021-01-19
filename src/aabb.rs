@@ -4,6 +4,7 @@ use crate::ray::Ray;
 use crate::vec::Vec3;
 
 /// An Axis-Aligned Bounding Box (AABB) represented by two opposite points.
+#[derive(Debug, Clone)]
 pub struct Aabb {
     min: Vec3,
     max: Vec3,
@@ -13,12 +14,12 @@ impl Aabb {
     /// Constructs an AABB from two opposite points.
     #[inline]
     pub const fn new(min: Vec3, max: Vec3) -> Self {
-        Aabb { min, max }
+        Self { min, max }
     }
 
     #[inline]
-    pub fn surrounding_box(box0: &Aabb, box1: &Aabb) -> Aabb {
-        Aabb::new(
+    pub fn surrounding_box(box0: &Self, box1: &Self) -> Self {
+        Self::new(
             Vec3::new(
                 f32::min(box0.get_min().x, box1.get_min().x),
                 f32::min(box0.get_min().y, box1.get_min().y),

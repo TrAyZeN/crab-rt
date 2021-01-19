@@ -1,9 +1,11 @@
+use std::fmt::Debug;
+
 use crate::aabb::Aabb;
 use crate::materials::Material;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
-pub trait Hitable {
+pub trait Hitable: Debug + Send + Sync {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
     fn bounding_box(&self, time_interval: (f32, f32)) -> Option<Aabb>;
 }
@@ -39,6 +41,7 @@ impl<H: Hitable> Hitable for Vec<H> {
     }
 }
 
+#[derive(Debug)]
 pub struct HitRecord<'a> {
     t: f32,
     hit_point: Vec3,
@@ -50,7 +53,7 @@ pub struct HitRecord<'a> {
 impl<'a> HitRecord<'a> {
     #[inline]
     pub fn new(t: f32, hit_point: Vec3, normal: Vec3, material: &'a dyn Material) -> Self {
-        HitRecord {
+        Self {
             t,
             hit_point,
             normal,

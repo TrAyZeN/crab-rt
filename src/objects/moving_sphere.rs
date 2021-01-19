@@ -4,6 +4,7 @@ use crate::materials::Material;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
+#[derive(Debug)]
 pub struct MovingSphere<M: Material> {
     center_interval: (Vec3, Vec3),
     time_interval: (f32, f32),

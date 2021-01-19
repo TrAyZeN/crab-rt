@@ -1,5 +1,6 @@
 use crate::vec::Vec3;
 
+#[derive(Debug)]
 pub struct Ray {
     origin: Vec3, // We could try to use a Cow here :thinking:
     direction: Vec3,

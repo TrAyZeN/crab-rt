@@ -4,7 +4,7 @@ use crate::ray::Ray;
 use crate::utils::{random_in_unit_sphere, reflect};
 use crate::vec::Vec3;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Metal {
     albedo: Vec3,
     fuzziness: f32,

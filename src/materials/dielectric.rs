@@ -10,23 +10,47 @@ use rand::prelude::*;
 const WATER_REFRACTIVE_INDEX: f32 = 1.333;
 const DIAMOND_REFRACTIVE_INDEX: f32 = 2.417;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Dielectric {
     /// https://en.wikipedia.org/wiki/List_of_refractive_indices
     refractive_index: f32,
 }
 
 impl Dielectric {
+    /// Constructs a new `Dielectric` material with the given refractive index.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::materials::Dielectric;
+    ///
+    /// let material = Dielectric::new(0.1);
+    /// ```
     #[inline]
     pub const fn new(refractive_index: f32) -> Self {
         Dielectric { refractive_index }
     }
 
+    /// Constructs a new `Dielecric` material with the water's refractive index.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::materials::Dielectric;
+    ///
+    /// let water_material = Dielectric::water();
+    /// ```
     #[inline]
     pub const fn water() -> Self {
         Self::new(WATER_REFRACTIVE_INDEX)
     }
 
+    /// Constructs a new `Dielectric` material with the diamond's refractive index.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::materials::Dielectric;
+    ///
+    /// let diamond_material = Dielectric::diamond();
+    /// ```
     #[inline]
     pub const fn diamond() -> Self {
         Self::new(DIAMOND_REFRACTIVE_INDEX)
