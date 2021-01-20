@@ -12,18 +12,13 @@ fn main() {
     // TODO: Remove that
     let start = std::time::Instant::now();
 
-    let lookfrom = Vec3::new(3., 3., 2.);
-    let lookat = Vec3::new(0., 0., -1.);
     let camera = Camera::new(
-        lookfrom,
-        lookat,
-        Vec3::new(0., 1., 0.),
+        Vec3::new(3., 3., 2.),
+        Vec3::new(0., 0., -1.),
         20.,
         WIDTH as f32 / HEIGHT as f32,
-        2.,
-        (lookfrom - lookat).length(),
-        (0., 0.1),
-    );
+    )
+    .aperture(1.);
 
     let mut scene = Scene::new(Background::Gradient(
         Vec3::new(0.5, 0.7, 1.),

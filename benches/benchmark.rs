@@ -8,18 +8,7 @@ use crab_rt::scene::{Background, Scene};
 use crab_rt::vec::Vec3;
 
 fn raytrace() {
-    let lookfrom = Vec3::new(3., 3., 2.);
-    let lookat = Vec3::new(0., 0., -1.);
-    let camera = Camera::new(
-        lookfrom,
-        lookat,
-        Vec3::new(0., 1., 0.),
-        20.,
-        2.,
-        2.,
-        (lookfrom - lookat).length(),
-        (0., 0.),
-    );
+    let camera = Camera::new(Vec3::new(3., 3., 2.), Vec3::new(0., 0., -1.), 20., 2.).aperture(2.);
 
     let mut scene = Scene::new(Background::Gradient(
         Vec3::new(0.5, 0.7, 1.),

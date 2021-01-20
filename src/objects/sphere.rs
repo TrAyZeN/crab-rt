@@ -20,9 +20,9 @@ impl<M: Material> Sphere<M> {
     ///
     /// # Examples
     /// ```
+    /// use crab_rt::materials::Lambertian;
     /// use crab_rt::objects::Sphere;
     /// use crab_rt::vec::Vec3;
-    /// use crab_rt::materials::Lambertian;
     ///
     /// let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
     /// ```

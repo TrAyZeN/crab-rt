@@ -46,7 +46,7 @@ impl Scene {
     /// ```
     /// use crab_rt::scene::{Scene, Background};
     /// use crab_rt::vec::Vec3;
-    /// use crab_rt::objects::Object;
+    /// use crab_rt::objects::{Object, Sphere};
     /// use crab_rt::materials::Lambertian;
     ///
     /// let scene = Scene::new(Background::Color(Vec3::zero()));

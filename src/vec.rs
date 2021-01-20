@@ -413,6 +413,19 @@ impl ops::DivAssign<f32> for Vec3 {
     }
 }
 
+impl ops::Div<Vec3> for Vec3 {
+    type Output = Self;
+
+    #[inline]
+    fn div(self, rhs: Vec3) -> Self::Output {
+        Self {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+            z: self.z / rhs.z,
+        }
+    }
+}
+
 impl ops::Index<usize> for Vec3 {
     type Output = f32;
 

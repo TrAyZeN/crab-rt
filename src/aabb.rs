@@ -34,8 +34,8 @@ impl Aabb {
     /// use crab_rt::aabb::Aabb;
     /// use crab_rt::vec::Vec3;
     ///
-    /// let bbox0 = Aabb::new(Vec::new(1., 2., 3.), Vec::new(4., 5., 6.));
-    /// let bbox1 = Aabb::new(Vec::new(7., 8., 9.), Vec::new(10., 11., 12.));
+    /// let bbox0 = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
+    /// let bbox1 = Aabb::new(Vec3::new(7., 8., 9.), Vec3::new(10., 11., 12.));
     ///
     /// let surrounding_bbox = Aabb::surrounding_box(&bbox0, &bbox1);
     /// assert_eq!(surrounding_bbox.get_min(), &Vec3::new(1., 2., 3.));

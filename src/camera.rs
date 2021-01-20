@@ -14,30 +14,23 @@ pub struct Camera {
     v: Vec3,
     w: Vec3,
     lens_radius: f32,
+    focus_dist: f32,
     uniform_time: Uniform<f32>,
 }
 
 impl Camera {
-    #[inline]
-    pub fn new(
-        lookfrom: Vec3,
-        lookat: Vec3,
-        vup: Vec3,
-        vfov: f32,
-        aspect_ratio: f32,
-        aperture: f32,
-        focus_dist: f32,
-        time_interval: (f32, f32),
-    ) -> Self {
+    pub fn new(lookfrom: Vec3, lookat: Vec3, vfov: f32, aspect_ratio: f32) -> Self {
         let theta = f32::to_radians(vfov);
         let half_height = f32::tan(theta / 2.);
         let viewport_height = 2. * half_height;
         let viewport_width = aspect_ratio * viewport_height;
 
+        let vup = Vec3::new(0., 1., 0.);
         let w = (lookfrom - lookat).unit();
         let u = vup.cross(&w).unit();
         let v = w.cross(&u);
 
+        let focus_dist = (lookfrom - lookat).length();
         let origin = lookfrom;
         let horizontal = viewport_width * focus_dist * u;
         let vertical = viewport_height * focus_dist * v;
@@ -50,12 +43,65 @@ impl Camera {
             u,
             v,
             w,
-            lens_radius: aperture / 2.,
-            uniform_time: Uniform::from(time_interval.0..time_interval.1),
+            lens_radius: 0.,
+            focus_dist,
+            uniform_time: Uniform::from(0.0..0.1),
         }
     }
 
-    #[inline]
+    pub fn vup(self, vup: Vec3) -> Self {
+        assert_ne!(vup, Vec3::zero());
+
+        let u = vup.cross(&self.w).unit();
+        let v = self.w.cross(&u);
+
+        let horizontal = self.horizontal / self.u * u;
+        let vertical = self.vertical / self.v * v;
+
+        Self {
+            horizontal,
+            vertical,
+            lower_left_corner: self.origin
+                - horizontal / 2.
+                - vertical / 2.
+                - self.focus_dist * self.w,
+            u,
+            v,
+            ..self
+        }
+    }
+
+    pub fn aperture(self, aperture: f32) -> Self {
+        assert!(aperture >= 0.);
+
+        Self {
+            lens_radius: aperture / 2.,
+            ..self
+        }
+    }
+
+    pub fn focus_dist(self, focus_dist: f32) -> Self {
+        assert_ne!(focus_dist, 0.);
+
+        let horizontal = self.horizontal / self.focus_dist * focus_dist;
+        let vertical = self.vertical / self.focus_dist * focus_dist;
+
+        Self {
+            horizontal,
+            vertical,
+            lower_left_corner: self.origin - horizontal / 2. - vertical / 2. - focus_dist * self.w,
+            focus_dist,
+            ..self
+        }
+    }
+
+    pub fn time_interval(self, time_interval: (f32, f32)) -> Self {
+        Self {
+            uniform_time: Uniform::from(time_interval.0..time_interval.1),
+            ..self
+        }
+    }
+
     pub fn get_ray(&self, s: f32, t: f32) -> Ray {
         let mut rng = rand::thread_rng();
         let rd = self.lens_radius * random_in_unit_disk();
@@ -75,12 +121,8 @@ impl Default for Camera {
         Self::new(
             Vec3::default(),
             Vec3::default(),
-            Vec3::default(),
             f32::default(),
             f32::default(),
-            f32::default(),
-            f32::default(),
-            (0., 0.1),
         )
     }
 }
