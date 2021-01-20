@@ -10,9 +10,10 @@ use rand::prelude::*;
 const WATER_REFRACTIVE_INDEX: f32 = 1.333;
 const DIAMOND_REFRACTIVE_INDEX: f32 = 2.417;
 
+/// A dielectric material.
 #[derive(Debug, Default)]
 pub struct Dielectric {
-    /// https://en.wikipedia.org/wiki/List_of_refractive_indices
+    /// [Refractive index](https://en.wikipedia.org/wiki/List_of_refractive_indices) of the material.
     refractive_index: f32,
 }
 

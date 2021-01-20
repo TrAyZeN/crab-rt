@@ -4,12 +4,24 @@ use crate::ray::Ray;
 use crate::utils::random_unit_vector;
 use crate::vec::Vec3;
 
+/// A diffuse material that follows the Lambertian reflectance model.
 #[derive(Debug, Default)]
 pub struct Lambertian {
+    /// Albedo of the material.
     albedo: Vec3,
 }
 
 impl Lambertian {
+    /// Constructs a new `Lambertian` material with the given albedo.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::materials::Lambertian;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// // Creates a red diffuse material
+    /// let material = Lambertian::new(Vec3::new(1., 0., 0.));
+    /// ```
     #[inline]
     pub const fn new(albedo: Vec3) -> Self {
         Lambertian { albedo }

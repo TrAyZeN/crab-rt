@@ -8,7 +8,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    /// Constructs a new empty scene.
+    /// Constructs a new empty `Scene`.
     ///
     /// # Examples
     /// ```
@@ -26,7 +26,7 @@ impl Scene {
         }
     }
 
-    /// Constructs a scenes containing the given objects.
+    /// Constructs a new `Scene` containing the given objects.
     ///
     /// # Examples
     /// ```
@@ -44,7 +44,22 @@ impl Scene {
     ///
     /// # Examples
     /// ```
+    /// use crab_rt::scene::{Scene, Background};
+    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::objects::Object;
+    /// use crab_rt::materials::Lambertian;
     ///
+    /// let scene = Scene::new(Background::Color(Vec3::zero()));
+    /// scene.add_object(Object::new(Sphere::new(
+    ///     Vec3::zero(),
+    ///     1.,
+    ///     Lambertian::default(),
+    /// )));
+    /// assert_eq!(scene.get_objects()[0], Object::new(Sphere::new(
+    ///     Vec3::zero(),
+    ///     1.,
+    ///     Lambertian::default(),
+    /// )));
     /// ```
     #[inline]
     pub fn add_object(&mut self, object: Object) {

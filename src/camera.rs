@@ -68,3 +68,33 @@ impl Camera {
         )
     }
 }
+
+impl Default for Camera {
+    #[inline]
+    fn default() -> Self {
+        Self::new(
+            Vec3::default(),
+            Vec3::default(),
+            Vec3::default(),
+            f32::default(),
+            f32::default(),
+            f32::default(),
+            f32::default(),
+            (0., 0.1),
+        )
+    }
+}
+
+impl PartialEq for Camera {
+    fn eq(&self, other: &Self) -> bool {
+        self.origin == other.origin
+            && self.lower_left_corner == other.lower_left_corner
+            && self.horizontal == other.horizontal
+            && self.vertical == other.vertical
+            && self.u == other.u
+            && self.v == other.v
+            && self.w == other.w
+            && self.lens_radius == other.lens_radius
+        // TODO: Find a way to compare uniforms
+    }
+}

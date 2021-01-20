@@ -4,15 +4,28 @@ use crate::materials::Material;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
-#[derive(Debug, Clone)]
+/// A sphere.
+#[derive(Debug, Clone, PartialEq)]
 pub struct Sphere<M: Material> {
+    /// Center of the sphere.
     center: Vec3,
+    /// Radius of the sphere.
     radius: f32,
+    /// Material of the sphere.
     material: M,
 }
 
 impl<M: Material> Sphere<M> {
     /// Constructs a sphere from the given center, radius and material.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::objects::Sphere;
+    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::materials::Lambertian;
+    ///
+    /// let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+    /// ```
     #[inline]
     pub fn new(center: Vec3, radius: f32, material: M) -> Self {
         Sphere {

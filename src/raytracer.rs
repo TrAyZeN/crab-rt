@@ -168,8 +168,8 @@ impl RayTracer {
     ///
     /// # Examples
     /// ```
-    /// use crab_rt::raytracer::RayTracer;
     /// use crab_rt::camera::Camera;
+    /// use crab_rt::raytracer::RayTracer;
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
@@ -184,8 +184,8 @@ impl RayTracer {
     ///
     /// # Examples
     /// ```
-    /// use crab_rt::raytracer::RayTracer;
     /// use crab_rt::camera::Camera;
+    /// use crab_rt::raytracer::RayTracer;
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
@@ -200,28 +200,61 @@ impl RayTracer {
     ///
     /// # Examples
     /// ```
-    /// use crab_rt::raytracer::RayTraycer;
     /// use crab_rt::camera::Camera;
+    /// use crab_rt::raytracer::RayTracer;
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_height(), 50);
+    /// assert_eq!(raytracer.get_samples(), 50);
     /// ```
     #[inline]
     pub const fn get_samples(&self) -> usize {
         self.samples
     }
 
+    /// Returns the maximum number of reflections of a ray.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::raytracer::RayTracer;
+    /// use crab_rt::scene::Scene;
+    ///
+    /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
+    /// assert_eq!(raytracer.get_max_reflections(), 20);
+    /// ```
     #[inline]
     pub const fn get_max_reflections(&self) -> usize {
         self.max_reflections
     }
 
+    /// Returns the camera of the raytracer.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::raytracer::RayTracer;
+    /// use crab_rt::scene::Scene;
+    ///
+    /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
+    /// assert_eq!(raytracer.get_camera(), &Camera::default());
+    /// ```
     #[inline]
     pub const fn get_camera(&self) -> &Camera {
         &self.camera
     }
 
+    /// Returns the scene of the raytracer.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::raytracer::RayTracer;
+    /// use crab_rt::scene::Scene;
+    ///
+    /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
+    /// assert_eq!(raytracer.get_scene(), &Scene::default());
+    /// ```
     #[inline]
     pub const fn get_scene(&self) -> &Scene {
         &self.scene

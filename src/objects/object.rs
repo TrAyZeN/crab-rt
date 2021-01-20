@@ -17,6 +17,11 @@ impl Object {
         let bbox = volume.bounding_box((0., 0.1)); // TODO: Fix time interval
         Object { volume, bbox }
     }
+
+    // #[inline]
+    // fn get_volume(&self) -> Box<dyn Hitable> {
+    //     self.volume
+    // }
 }
 
 impl Hitable for Object {
@@ -30,3 +35,9 @@ impl Hitable for Object {
         self.bbox.clone() // TODO: This clone is bad I think
     }
 }
+
+// impl PartialEq for Object {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.get_volume() == other.get_volume()
+//     }
+// }

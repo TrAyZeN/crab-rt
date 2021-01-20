@@ -1,9 +1,10 @@
-use crate::utils::clamp;
 use image::Rgb;
 use std::{
     convert, iter,
     ops::{self, Add, Sub},
 };
+
+use crate::utils::clamp;
 
 /// A 3D mathematical vector.
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
@@ -113,7 +114,7 @@ impl Vec3 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
-    /// Consumes the vector and return its normalized vector.
+    /// Consumes the vector and returns the unit vector with the same direction.
     ///
     /// # Examples
     /// ```
