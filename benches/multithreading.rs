@@ -6,9 +6,9 @@ use std::thread;
 
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
-use crab_rt::objects::{Object, Sphere};
+use crab_rt::objects::Sphere;
 use crab_rt::raytracer::RayTracer;
-use crab_rt::scene::{Background, Scene};
+use crab_rt::scene::{Background, SceneBuilder};
 use crab_rt::vec::Vec3;
 
 fn bench_singlethreaded(c: &mut Criterion) {
@@ -187,35 +187,36 @@ criterion_main!(benches);
 fn sample_raytracer() -> RayTracer {
     let camera = Camera::new(Vec3::new(3., 3., 2.), Vec3::new(0., 0., -1.), 20., 2.).aperture(2.);
 
-    let mut scene = Scene::new(Background::Gradient(
+    let scene = SceneBuilder::new(Background::Gradient(
         Vec3::new(0.5, 0.7, 1.),
         Vec3::new(1., 1., 1.),
-    ));
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    ))
+    .add_sphere(Sphere::new(
         Vec3::new(0., 0., -1.),
         0.5,
         Lambertian::new(Vec3::new(0.8, 0.3, 0.3)),
-    ))));
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    ))
+    .add_sphere(Sphere::new(
         Vec3::new(0., -100.5, -1.),
         100.,
         Lambertian::new(Vec3::new(0.8, 0.8, 0.)),
-    ))));
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    ))
+    .add_sphere(Sphere::new(
         Vec3::new(1., 0., -1.),
         0.5,
         Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0),
-    ))));
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    ))
+    .add_sphere(Sphere::new(
         Vec3::new(-1., 0., -1.),
         0.5,
         Dielectric::new(1.5),
-    ))));
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    ))
+    .add_sphere(Sphere::new(
         Vec3::new(-1., 0., -1.),
         -0.45,
         Dielectric::new(1.5),
-    ))));
+    ))
+    .build();
 
     RayTracer::new(200, 100, 100, 50, camera, scene)
 }

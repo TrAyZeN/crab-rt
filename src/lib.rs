@@ -1,4 +1,7 @@
+#![warn(missing_debug_implementations, missing_docs)]
+
 pub mod aabb;
+pub mod bvh;
 pub mod camera;
 pub mod hitable;
 pub mod materials;

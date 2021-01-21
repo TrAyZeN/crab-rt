@@ -4,7 +4,7 @@ use crate::ray::Ray;
 use crate::vec::Vec3;
 
 /// An Axis-Aligned Bounding Box (AABB) represented by two opposite points.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Aabb {
     /// Vertex with minimal coordinates on all axis.
     min: Vec3,
@@ -23,7 +23,9 @@ impl Aabb {
     /// let bbox = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
     /// ```
     #[inline]
-    pub const fn new(min: Vec3, max: Vec3) -> Self {
+    pub fn new(min: Vec3, max: Vec3) -> Self {
+        assert!(min.x <= max.x && min.y <= max.y && min.z <= max.z); // Should be < but for now let's say <=
+
         Self { min, max }
     }
 
@@ -58,7 +60,6 @@ impl Aabb {
     }
 
     /// Tests if the given ray hits the AABB.
-    #[inline]
     pub fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
         for axis in 0..3 {
             let inv_axis_direction = ray.get_direction()[axis].recip();
@@ -106,5 +107,51 @@ impl Aabb {
     #[inline]
     pub const fn get_max(&self) -> &Vec3 {
         &self.max
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn aabb_new() {
+        let testee = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
+
+        assert_eq!(testee.get_min(), &Vec3::new(1., 2., 3.));
+        assert_eq!(testee.get_max(), &Vec3::new(4., 5., 6.));
+    }
+
+    #[test]
+    fn surrounding_box_not_intersecting() {
+        let bbox0 = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
+        let bbox1 = Aabb::new(Vec3::new(-4., -5., -6.), Vec3::new(-1., -2., -3.));
+
+        let testee = Aabb::surrounding_box(&bbox0, &bbox1);
+
+        assert_eq!(testee.get_min(), &Vec3::new(-4., -5., -6.));
+        assert_eq!(testee.get_max(), &Vec3::new(4., 5., 6.));
+    }
+
+    #[test]
+    fn surrounding_box_overlapping() {
+        let bbox0 = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
+        let bbox1 = Aabb::new(Vec3::new(0., 3., 3.), Vec3::new(3., 6., 6.));
+
+        let testee = Aabb::surrounding_box(&bbox0, &bbox1);
+
+        assert_eq!(testee.get_min(), &Vec3::new(0., 2., 3.));
+        assert_eq!(testee.get_max(), &Vec3::new(4., 6., 6.));
+    }
+
+    #[test]
+    fn surrounding_box_containing() {
+        let bbox0 = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
+        let bbox1 = Aabb::new(Vec3::new(2., 3., 4.), Vec3::new(3., 4., 5.));
+
+        let testee = Aabb::surrounding_box(&bbox0, &bbox1);
+
+        assert_eq!(testee.get_min(), &Vec3::new(1., 2., 3.));
+        assert_eq!(testee.get_max(), &Vec3::new(4., 5., 6.));
     }
 }

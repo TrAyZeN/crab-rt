@@ -151,7 +151,7 @@ impl RayTracer {
             return Vec3::zero();
         }
 
-        if let Some(record) = self.scene.get_objects().hit(ray, 0.001, f32::INFINITY) {
+        if let Some(record) = self.scene.get_bvh().hit(ray, 0.001, f32::INFINITY) {
             if let Some((scattered, attenuation)) = record.get_material().scatter(ray, &record) {
                 return attenuation * self.cast(&scattered, depth + 1);
             }

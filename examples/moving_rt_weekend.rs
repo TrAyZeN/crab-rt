@@ -45,19 +45,16 @@ fn main() {
 }
 
 fn random_scene() -> Scene {
-    let mut scene = Scene::new(Background::Gradient(
-        Vec3::new(0.5, 0.7, 1.),
-        Vec3::new(1., 1., 1.),
-    ));
+    let mut objects = Vec::new();
     let uniform1 = Uniform::from(0.0..0.9);
     let uniform2 = Uniform::from(0.5..1.0);
     let mut rng = rand::thread_rng();
 
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    objects.push(Object::new(Sphere::new(
         Vec3::new(0., -1000., 0.),
         1000.,
         Lambertian::new(Vec3::new(0.5, 0.5, 0.5)),
-    ))));
+    )));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -71,7 +68,7 @@ fn random_scene() -> Scene {
             if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
                 if choose_mat < 0.8 {
                     let center2 = center + Vec3::new(0., rng.gen::<f32>() * 0.5, 0.);
-                    scene.add_object(Object::new(Box::new(MovingSphere::new(
+                    objects.push(Object::new(MovingSphere::new(
                         (center, center2),
                         (0., 1.),
                         0.2,
@@ -80,9 +77,9 @@ fn random_scene() -> Scene {
                             rng.gen::<f32>(),
                             rng.gen::<f32>(),
                         )),
-                    ))))
+                    )))
                 } else if choose_mat < 0.95 {
-                    scene.add_object(Object::new(Box::new(Sphere::new(
+                    objects.push(Object::new(Sphere::new(
                         center,
                         0.2,
                         Metal::new(
@@ -93,35 +90,34 @@ fn random_scene() -> Scene {
                             ),
                             rng.gen::<f32>() * 0.5,
                         ),
-                    ))))
+                    )))
                 } else {
-                    scene.add_object(Object::new(Box::new(Sphere::new(
-                        center,
-                        0.2,
-                        Dielectric::new(1.5),
-                    ))))
+                    objects.push(Object::new(Sphere::new(center, 0.2, Dielectric::new(1.5))))
                 }
             }
         }
     }
 
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    objects.push(Object::new(Sphere::new(
         Vec3::new(0., 1., 0.),
         1.,
         Dielectric::new(1.5),
-    ))));
+    )));
 
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    objects.push(Object::new(Sphere::new(
         Vec3::new(-4., 1., 0.),
         1.,
         Lambertian::new(Vec3::new(0.4, 0.2, 0.1)),
-    ))));
+    )));
 
-    scene.add_object(Object::new(Box::new(Sphere::new(
+    objects.push(Object::new(Sphere::new(
         Vec3::new(4., 1., 0.),
         1.,
         Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.),
-    ))));
+    )));
 
-    scene
+    Scene::new(
+        objects,
+        Background::Gradient(Vec3::new(0.5, 0.7, 1.), Vec3::new(1., 1., 1.)),
+    )
 }
