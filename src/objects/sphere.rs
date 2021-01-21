@@ -18,6 +18,9 @@ pub struct Sphere<M: Material> {
 impl<M: Material> Sphere<M> {
     /// Constructs a sphere from the given center, radius and material.
     ///
+    /// # Panic
+    /// Panics if `radius == 0.`.
+    ///
     /// # Examples
     /// ```
     /// use crab_rt::materials::Lambertian;
@@ -28,6 +31,8 @@ impl<M: Material> Sphere<M> {
     /// ```
     #[inline]
     pub fn new(center: Vec3, radius: f32, material: M) -> Self {
+        assert_ne!(radius, 0.);
+
         Sphere {
             center,
             radius,

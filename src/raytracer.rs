@@ -1,4 +1,4 @@
-use image::{ImageBuffer, Rgb, RgbImage};
+use image::{ImageBuffer, RgbImage};
 use rand::{prelude::*, thread_rng};
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -12,6 +12,7 @@ use crate::vec::Vec3;
 
 const NB_THREADS: usize = 10;
 
+/// A renderer using raytracing to produce images.
 #[derive(Debug)]
 pub struct RayTracer {
     width: usize,

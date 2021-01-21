@@ -5,7 +5,22 @@ use rand::{
 
 use crate::vec::Vec3;
 
+/// Returns the value bounded by a minimum and a maximum.
+///
+/// # Panic
+/// Panics in `debug` mode if `min > max`.
+///
+/// # Example
+/// ```
+/// use crab_rt::utils::clamp;
+///
+/// assert_eq!(clamp(0.5, 0., 1.), 0.5);
+/// assert_eq!(clamp(-1., 0., 1.), 0.);
+/// assert_eq!(clamp(1., 0., 1.), 1.);
+/// ```
 pub fn clamp(x: f32, min: f32, max: f32) -> f32 {
+    debug_assert!(min <= max);
+
     if x < min {
         min
     } else if x > max {
@@ -15,6 +30,7 @@ pub fn clamp(x: f32, min: f32, max: f32) -> f32 {
     }
 }
 
+#[inline]
 pub fn random_unit_vector() -> Vec3 {
     random_in_unit_sphere().unit()
 }
@@ -57,6 +73,17 @@ pub fn random_in_unit_disk() -> Vec3 {
     p
 }
 
+/// Computes the outcoming reflection vector with the given incoming vector and normal.
+/// We now that the angle between the incoming vector and the normal is equal to the angle
+/// between the outcoming vector and the normal.
+///
+/// # Examples
+/// ```
+/// use crab_rt::vec::Vec3;
+/// use crab_rt::utils::reflect;
+///
+/// assert_eq!(reflect(&Vec3::new(0.5, -0.5, 0.), &Vec3::new(0., 1., 0.)), Vec3::new(0.5, 0.5, 0.));
+/// ```
 #[inline]
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     v - 2. * v.dot(n) * n
@@ -69,7 +96,12 @@ pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f32) -> Vec3 {
     r_out_perp + r_out_parallel
 }
 
-// We use schlick approximation to compute the reflectance
+/// Computes the specular reflection coefficient by approximating the Fresnel equations.
+/// https://en.wikipedia.org/wiki/Schlick%27s_approximation
+/// R(theta) = R_0 + (1 - R_0)(1 - cos(theta))^5
+/// where
+/// R_0 = \frac{n_1 - n_2}{n_1 + n_2}^2
+/// Schlick-approximation is used to efficiently calculate vacuum-medium type of interactions.
 #[inline]
 pub fn schlick(cosine: f32, refraction_index: f32) -> f32 {
     let mut r0 = (1. - refraction_index) / (1. + refraction_index);

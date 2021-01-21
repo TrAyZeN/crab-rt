@@ -20,6 +20,9 @@ pub struct Dielectric {
 impl Dielectric {
     /// Constructs a new `Dielectric` material with the given refractive index.
     ///
+    /// # Panic
+    /// Panics if `refractive_index < 1.`.
+    ///
     /// # Examples
     /// ```
     /// use crab_rt::materials::Dielectric;
@@ -27,7 +30,9 @@ impl Dielectric {
     /// let material = Dielectric::new(0.1);
     /// ```
     #[inline]
-    pub const fn new(refractive_index: f32) -> Self {
+    pub fn new(refractive_index: f32) -> Self {
+        assert!(refractive_index >= 1.);
+
         Dielectric { refractive_index }
     }
 
@@ -40,7 +45,7 @@ impl Dielectric {
     /// let water_material = Dielectric::water();
     /// ```
     #[inline]
-    pub const fn water() -> Self {
+    pub fn water() -> Self {
         Self::new(WATER_REFRACTIVE_INDEX)
     }
 
@@ -53,7 +58,7 @@ impl Dielectric {
     /// let diamond_material = Dielectric::diamond();
     /// ```
     #[inline]
-    pub const fn diamond() -> Self {
+    pub fn diamond() -> Self {
         Self::new(DIAMOND_REFRACTIVE_INDEX)
     }
 }

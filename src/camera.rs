@@ -15,11 +15,27 @@ pub struct Camera {
     w: Vec3,
     lens_radius: f32,
     focus_dist: f32,
-    uniform_time: Uniform<f32>,
+    time_distribution: Option<Uniform<f32>>,
 }
 
 impl Camera {
+    /// Constructs a new `Camera` with the given lookfrom and lookat points and the vfov and aspect ratio.
+    ///
+    /// # Panic
+    /// Panics if `lookfrom == lookat`.
+    /// Panics if `aspect_ratio <= 0.`.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 1.);
+    /// ```
     pub fn new(lookfrom: Vec3, lookat: Vec3, vfov: f32, aspect_ratio: f32) -> Self {
+        assert_ne!(lookfrom, lookat);
+        assert!(aspect_ratio > 0.);
+
         let theta = f32::to_radians(vfov);
         let half_height = f32::tan(theta / 2.);
         let viewport_height = 2. * half_height;
@@ -45,10 +61,22 @@ impl Camera {
             w,
             lens_radius: 0.,
             focus_dist,
-            uniform_time: Uniform::from(0.0..0.1),
+            time_distribution: None,
         }
     }
 
+    /// Consumes the `Camera` and returns self after setting the vup.
+    ///
+    /// # Panic
+    /// Panics if `vup == Vec3::new(0., 0., 0.)`.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
+    /// ```
     pub fn vup(self, vup: Vec3) -> Self {
         assert_ne!(vup, Vec3::zero());
 
@@ -71,6 +99,18 @@ impl Camera {
         }
     }
 
+    /// Consumes the `Camera` and returns self after setting the aperture.
+    ///
+    /// # Panic
+    /// Panics if `aperture < 0.`.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).aperture(1.);
+    /// ```
     pub fn aperture(self, aperture: f32) -> Self {
         assert!(aperture >= 0.);
 
@@ -80,6 +120,18 @@ impl Camera {
         }
     }
 
+    /// Consumes the `Camera` and returns self after setting the focus distance.
+    ///
+    /// # Panic
+    /// Panics if `focus_dist == 0.`.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).focus_dist(1.);
+    /// ```
     pub fn focus_dist(self, focus_dist: f32) -> Self {
         assert_ne!(focus_dist, 0.);
 
@@ -95,9 +147,18 @@ impl Camera {
         }
     }
 
+    /// Consumes the `Camera` and returns self after setting the time interval.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::camera::Camera;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).time_interval((0., 1.));
+    /// ```
     pub fn time_interval(self, time_interval: (f32, f32)) -> Self {
         Self {
-            uniform_time: Uniform::from(time_interval.0..time_interval.1),
+            time_distribution: Some(Uniform::from(time_interval.0..time_interval.1)),
             ..self
         }
     }
@@ -110,7 +171,7 @@ impl Camera {
         Ray::new(
             self.origin + offset,
             self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
-            self.uniform_time.sample(&mut rng),
+            self.time_distribution.map_or(0., |d| d.sample(&mut rng)),
         )
     }
 }
@@ -118,12 +179,7 @@ impl Camera {
 impl Default for Camera {
     #[inline]
     fn default() -> Self {
-        Self::new(
-            Vec3::default(),
-            Vec3::default(),
-            f32::default(),
-            f32::default(),
-        )
+        Self::new(Vec3::zero(), Vec3::new(0., 0., 1.), f32::default(), 1.)
     }
 }
 
@@ -137,6 +193,8 @@ impl PartialEq for Camera {
             && self.v == other.v
             && self.w == other.w
             && self.lens_radius == other.lens_radius
+            && self.focus_dist == other.focus_dist
+
         // TODO: Find a way to compare uniforms
     }
 }
