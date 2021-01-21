@@ -5,7 +5,7 @@ use crate::utils::random_unit_vector;
 use crate::vec::Vec3;
 
 /// A diffuse material that follows the Lambertian reflectance model.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Lambertian {
     /// Albedo of the material.
     albedo: Vec3,

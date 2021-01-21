@@ -16,7 +16,7 @@ impl Ray {
     ///
     /// # Panic
     /// Panics in `debug` mode if `direction == Vec3::new(0., 0., 0.)`.
-    /// 
+    ///
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;

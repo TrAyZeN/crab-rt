@@ -75,7 +75,8 @@ impl Camera {
     /// use crab_rt::camera::Camera;
     /// use crab_rt::vec::Vec3;
     ///
-    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
+    /// let camera =
+    ///     Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
     /// ```
     pub fn vup(self, vup: Vec3) -> Self {
         assert_ne!(vup, Vec3::zero());

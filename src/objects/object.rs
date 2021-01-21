@@ -43,7 +43,7 @@ impl Hitable for Object {
     }
 
     #[inline]
-    fn bounding_box(&self, time_interval: (f32, f32)) -> Option<Aabb> {
+    fn bounding_box(&self, _time_interval: (f32, f32)) -> Option<Aabb> {
         self.bbox.clone() // TODO: This clone is bad I think
     }
 }
@@ -53,3 +53,19 @@ impl Hitable for Object {
 //         self.get_volume() == other.get_volume()
 //     }
 // }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::materials::Lambertian;
+    use crate::objects::Sphere;
+    use crate::vec::Vec3;
+
+    #[test]
+    fn object_bounding_box() {
+        let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+
+        let testee = Object::new(sphere.clone());
+        assert_eq!(testee.bounding_box((0., 0.)), sphere.bounding_box((0., 0.)));
+    }
+}

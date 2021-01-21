@@ -10,8 +10,8 @@ use rand::prelude::*;
 const WATER_REFRACTIVE_INDEX: f32 = 1.333;
 const DIAMOND_REFRACTIVE_INDEX: f32 = 2.417;
 
-/// A dielectric material.
-#[derive(Debug, Default)]
+/// A material with refractions and specular reflections.
+#[derive(Debug, Default, Clone)]
 pub struct Dielectric {
     /// [Refractive index](https://en.wikipedia.org/wiki/List_of_refractive_indices) of the material.
     refractive_index: f32,
@@ -27,7 +27,7 @@ impl Dielectric {
     /// ```
     /// use crab_rt::materials::Dielectric;
     ///
-    /// let material = Dielectric::new(0.1);
+    /// let material = Dielectric::new(1.1);
     /// ```
     #[inline]
     pub fn new(refractive_index: f32) -> Self {

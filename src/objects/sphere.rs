@@ -92,6 +92,24 @@ mod tests {
     use crate::materials::Lambertian;
 
     #[test]
+    fn sphere_hit_hitting_ray() {
+        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::new(Vec3::new(0., 0., 0.)));
+        let hitting_ray = Ray::new(Vec3::new(1., 0., 0.), Vec3::new(-1., 0., 0.), 0.);
+
+        assert!(testee.hit(&hitting_ray, 0.0001, f32::INFINITY).is_some());
+    }
+
+    #[test]
+    fn sphere_hit_not_hitting_ray() {
+        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::new(Vec3::new(0., 0., 0.)));
+        let not_hitting_ray = Ray::new(Vec3::new(1., 0., 0.), Vec3::new(-0.5, 0.5, 0.), 0.);
+
+        assert!(testee
+            .hit(&not_hitting_ray, 0.0001, f32::INFINITY)
+            .is_none());
+    }
+
+    #[test]
     fn sphere_bounding_box() {
         let testee = Sphere::new(
             Vec3::new(1., 2., 3.),

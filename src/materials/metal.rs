@@ -4,13 +4,25 @@ use crate::ray::Ray;
 use crate::utils::{random_in_unit_sphere, reflect};
 use crate::vec::Vec3;
 
-#[derive(Debug, Default)]
+/// A material with specular reflections.
+#[derive(Debug, Default, Clone)]
 pub struct Metal {
+    /// Albedo of the material.
     albedo: Vec3,
+    /// Fuzziness of the material.
     fuzziness: f32,
 }
 
 impl Metal {
+    /// Constructs a new `Metal` material with the given albedo and fuzziness.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::materials::Metal;
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let material = Metal::new(Vec3::new(1., 1., 1.), 0.);
+    /// ```
     #[inline]
     pub fn new(albedo: Vec3, fuzziness: f32) -> Self {
         Metal {

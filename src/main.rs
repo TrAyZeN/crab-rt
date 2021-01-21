@@ -1,6 +1,6 @@
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
-use crab_rt::objects::{Object, Sphere};
+use crab_rt::objects::Sphere;
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, SceneBuilder};
 use crab_rt::vec::Vec3;
@@ -44,14 +44,12 @@ fn main() {
         0.5,
         Dielectric::new(1.5),
     ))
-    .add_sphere(Sphere::new(
-        Vec3::new(-1., 0., -1.),
-        -0.45,
-        Dielectric::new(1.5),
-    ))
+    // .add_sphere(Sphere::new(
+    //     Vec3::new(-1., 0., -1.),
+    //     -0.45,
+    //     Dielectric::new(1.5),
+    // ))
     .build();
-
-    println!("{:#?}", scene);
 
     let raytracer = RayTracer::new(WIDTH, HEIGHT, 100, 50, camera, scene);
 

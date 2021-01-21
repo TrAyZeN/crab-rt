@@ -4,7 +4,7 @@ use crate::ray::Ray;
 use crate::vec::Vec3;
 
 /// An Axis-Aligned Bounding Box (AABB) represented by two opposite points.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct Aabb {
     /// Vertex with minimal coordinates on all axis.
     min: Vec3,
@@ -15,6 +15,9 @@ pub struct Aabb {
 impl Aabb {
     /// Constructs an AABB from two opposite points.
     ///
+    /// # Panic
+    /// Panics in `debug` mode if `min.x > max.x || min.y > max.y || min.z > max.z`.
+    ///
     /// # Examples
     /// ```
     /// use crab_rt::aabb::Aabb;
@@ -24,7 +27,7 @@ impl Aabb {
     /// ```
     #[inline]
     pub fn new(min: Vec3, max: Vec3) -> Self {
-        assert!(min.x <= max.x && min.y <= max.y && min.z <= max.z); // Should be < but for now let's say <=
+        debug_assert!(min.x <= max.x && min.y <= max.y && min.z <= max.z); // Should be < but for now let's say <=
 
         Self { min, max }
     }

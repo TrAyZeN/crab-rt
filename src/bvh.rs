@@ -1,7 +1,4 @@
-use rand::{
-    distributions::{Distribution, Uniform},
-    Rng,
-};
+use rand::distributions::{Distribution, Uniform};
 use std::cmp::Ordering;
 
 use crate::aabb::Aabb;
@@ -11,7 +8,7 @@ use crate::ray::Ray;
 
 #[derive(Debug, Default)]
 pub struct BvhNode {
-    bbox: Aabb,
+    bbox: Option<Aabb>,
 
     left: Option<Box<dyn Hitable>>,
     right: Option<Box<dyn Hitable>>,
@@ -26,7 +23,6 @@ impl BvhNode {
             let bbox_1 = object1.bounding_box((0., 0.));
             let bbox_2 = object2.bounding_box((0., 0.));
 
-            // TODO: Handle no bounding box
             if bbox_1.is_none() || bbox_2.is_none() {
                 return Ordering::Less;
             }
@@ -59,43 +55,94 @@ impl BvhNode {
                 }
             };
 
-        // TODO: Handle None bbox
         let left_bbox = left
             .as_ref()
             .map(|a| a.bounding_box(time_interval))
             .flatten();
-        let right_bbox = right
-            .as_ref()
-            .map(|a| a.bounding_box(time_interval))
-            .flatten();
-        Self {
-            bbox: left_bbox
+        let bbox = if right.is_none() {
+            left_bbox
+        } else {
+            let right_bbox = right
+                .as_ref()
+                .map(|a| a.bounding_box(time_interval))
+                .flatten();
+
+            left_bbox
                 .zip(right_bbox)
-                .map_or(Aabb::default(), |(lb, rb)| Aabb::surrounding_box(&lb, &rb)),
-            left,
-            right,
-        }
+                .map(|(lb, rb)| Aabb::surrounding_box(&lb, &rb))
+        };
+
+        Self { bbox, left, right }
     }
 }
 
 impl Hitable for BvhNode {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        if !self.bbox.hit(ray, t_min, t_max) {
+        if !self
+            .bbox
+            .as_ref()
+            .map_or(false, |b| b.hit(ray, t_min, t_max))
+        {
             return None;
         }
 
-        let left_record = self.left.as_ref().unwrap().hit(ray, t_min, t_max);
-        let right_record = self.right.as_ref().unwrap().hit(
-            ray,
-            t_min,
-            left_record.as_ref().map_or(t_max, |r| r.get_t()),
-        );
+        let left_record = self
+            .left
+            .as_ref()
+            .map(|r| r.hit(ray, t_min, t_max))
+            .flatten();
 
-        left_record.or(right_record)
+        let right_record = self
+            .right
+            .as_ref()
+            .map(|r| {
+                r.hit(
+                    ray,
+                    t_min,
+                    left_record.as_ref().map_or(t_max, |r| r.get_t()),
+                )
+            })
+            .flatten();
+
+        right_record.or(left_record)
     }
 
     #[inline]
     fn bounding_box(&self, _time_interval: (f32, f32)) -> Option<Aabb> {
-        Some(self.bbox.clone())
+        self.bbox
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::materials::Lambertian;
+    use crate::objects::Sphere;
+    use crate::vec::Vec3;
+
+    #[test]
+    fn new_with_one_object() {
+        let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+        let testee = BvhNode::new(vec![Object::new(sphere.clone())], (0., 0.));
+
+        assert_eq!(testee.bounding_box((0., 0.)), sphere.bounding_box((0., 0.)));
+    }
+
+    #[test]
+    fn new_with_two_object() {
+        let sphere1 = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+        let sphere2 = Sphere::new(Vec3::new(1., 2., 3.), 1., Lambertian::default());
+        let testee = BvhNode::new(
+            vec![Object::new(sphere1.clone()), Object::new(sphere2.clone())],
+            (0., 0.),
+        );
+
+        assert_eq!(
+            testee.bounding_box((0., 0.)),
+            Some(Aabb::surrounding_box(
+                &sphere1.bounding_box((0., 0.)).unwrap(),
+                &sphere2.bounding_box((0., 0.)).unwrap()
+            ))
+        );
     }
 }
