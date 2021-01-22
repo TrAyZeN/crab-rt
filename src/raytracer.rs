@@ -261,14 +261,3 @@ impl RayTracer {
         &self.scene
     }
 }
-
-// pub struct RayTracerBuilder {
-//     width: Option<usize>,
-//     height: Option<usize>,
-
-//     samples: Option<usize>,
-//     max_reflections: Option<usize>,
-
-//     camera: Option<Camera>,
-//     scene: Option<Scene>,
-// }

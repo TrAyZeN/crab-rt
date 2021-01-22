@@ -8,7 +8,7 @@ use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::{Object, Sphere};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene};
-use crab_rt::vec::Vec3;
+use crab_rt::vec::{Point3, Vec3};
 
 fn main() {
     let aspect_ratio = 3. / 2.;
@@ -19,8 +19,8 @@ fn main() {
 
     let scene = random_scene();
 
-    let lookfrom = Vec3::new(13., 2., 3.);
-    let lookat = Vec3::new(0., 0., 0.);
+    let lookfrom = Point3::new(13., 2., 3.);
+    let lookat = Point3::new(0., 0., 0.);
     let dist_to_focus = 10.;
     let aperture = 0.1;
     let camera = Camera::new(lookfrom, lookat, 20., aspect_ratio)
@@ -51,7 +51,7 @@ fn random_scene() -> Scene {
     objects.push(Object::new(Sphere::new(
         Vec3::new(0., -1000., 0.),
         1000.,
-        Lambertian::new(Vec3::new(0.5, 0.5, 0.5)),
+        Lambertian::from_rgb(0.5, 0.5, 0.5),
     )));
 
     for a in -11..11 {
@@ -68,11 +68,7 @@ fn random_scene() -> Scene {
                     objects.push(Object::new(Sphere::new(
                         center,
                         0.2,
-                        Lambertian::new(Vec3::new(
-                            rng.gen::<f32>(),
-                            rng.gen::<f32>(),
-                            rng.gen::<f32>(),
-                        )),
+                        Lambertian::from_rgb(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()),
                     )));
                 } else if choose_mat < 0.95 {
                     objects.push(Object::new(Sphere::new(
@@ -103,7 +99,7 @@ fn random_scene() -> Scene {
     objects.push(Object::new(Sphere::new(
         Vec3::new(-4., 1., 0.),
         1.,
-        Lambertian::new(Vec3::new(0.4, 0.2, 0.1)),
+        Lambertian::from_rgb(0.4, 0.2, 0.1),
     )));
 
     objects.push(Object::new(Sphere::new(

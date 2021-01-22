@@ -1,10 +1,10 @@
-use crate::vec::Vec3;
+use crate::vec::{Point3, Vec3};
 
 /// A mathematical ray.
 #[derive(Debug)]
 pub struct Ray {
     /// Origin point of the ray.
-    origin: Vec3, // We could try to use a Cow here :thinking:
+    origin: Point3, // We could try to use a Cow here :thinking:
     /// Direction vector of the ray.
     direction: Vec3,
     /// The time when the ray was casted.
@@ -20,12 +20,12 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
+    /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// ```
     #[inline]
-    pub fn new(origin: Vec3, direction: Vec3, time: f32) -> Self {
+    pub fn new(origin: Point3, direction: Vec3, time: f32) -> Self {
         debug_assert!(!direction.is_zero());
 
         // Should we force direction vector to be unit ?
@@ -41,13 +41,13 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
+    /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.get_origin(), &Vec3::new(0., 0., 0.));
     /// ```
     #[inline]
-    pub const fn get_origin(&self) -> &Vec3 {
+    pub const fn get_origin(&self) -> &Point3 {
         &self.origin
     }
 
@@ -56,9 +56,9 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
+    /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.get_direction(), &Vec3::new(1., 2., 3.));
     /// ```
     #[inline]
@@ -71,9 +71,9 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
+    /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.get_time(), 0.);
     /// ```
     #[inline]
@@ -86,13 +86,13 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
-    /// assert_eq!(ray.point(2.), Vec3::new(2., 4., 6.));
+    /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
+    /// assert_eq!(ray.point(2.), Point3::new(2., 4., 6.));
     /// ```
     #[inline]
-    pub fn point(&self, t: f32) -> Vec3 {
+    pub fn point(&self, t: f32) -> Point3 {
         self.origin + t * self.direction
     }
 }

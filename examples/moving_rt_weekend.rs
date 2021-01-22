@@ -7,8 +7,9 @@ use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::{MovingSphere, Object, Sphere};
 use crab_rt::raytracer::RayTracer;
-use crab_rt::scene::{Background, Scene};
-use crab_rt::vec::Vec3;
+use crab_rt::scene::{Background, Scene, SceneBuilder};
+use crab_rt::textures::{Checker, Monochrome};
+use crab_rt::vec::{Point3, Vec3};
 
 fn main() {
     let aspect_ratio = 3. / 2.;
@@ -17,17 +18,33 @@ fn main() {
     let samples_per_pixel = 500;
     let max_reflections = 50;
 
-    let scene = random_scene();
+    let scene_number = 2;
 
-    let camera = Camera::new(
-        Vec3::new(13., 2., 3.),
-        Vec3::new(0., 0., 0.),
-        20.,
-        aspect_ratio,
-    )
-    .aperture(0.1)
-    .focus_dist(10.)
-    .time_interval((0., 1.));
+    let (camera, scene) = match scene_number {
+        1 => (
+            Camera::new(
+                Point3::new(13., 2., 3.),
+                Point3::new(0., 0., 0.),
+                20.,
+                aspect_ratio,
+            )
+            .aperture(0.1)
+            .focus_dist(10.)
+            .time_interval((0., 1.)),
+            random_scene(),
+        ),
+        _ => (
+            Camera::new(
+                Point3::new(13., 2., 13.),
+                Point3::new(0., 0., 0.),
+                20.,
+                aspect_ratio,
+            )
+            .focus_dist(10.)
+            .time_interval((0., 1.)),
+            two_spheres(),
+        ),
+    };
 
     RayTracer::new(
         image_width,
@@ -40,7 +57,7 @@ fn main() {
     .raytrace()
     .lock()
     .unwrap()
-    .save("rt_weekend.png")
+    .save("moving_rt_weekend.png")
     .unwrap();
 }
 
@@ -53,7 +70,7 @@ fn random_scene() -> Scene {
     objects.push(Object::new(Sphere::new(
         Vec3::new(0., -1000., 0.),
         1000.,
-        Lambertian::new(Vec3::new(0.5, 0.5, 0.5)),
+        Lambertian::from_rgb(0.5, 0.5, 0.5),
     )));
 
     for a in -11..11 {
@@ -72,11 +89,7 @@ fn random_scene() -> Scene {
                         (center, center2),
                         (0., 1.),
                         0.2,
-                        Lambertian::new(Vec3::new(
-                            rng.gen::<f32>(),
-                            rng.gen::<f32>(),
-                            rng.gen::<f32>(),
-                        )),
+                        Lambertian::from_rgb(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()),
                     )))
                 } else if choose_mat < 0.95 {
                     objects.push(Object::new(Sphere::new(
@@ -107,7 +120,7 @@ fn random_scene() -> Scene {
     objects.push(Object::new(Sphere::new(
         Vec3::new(-4., 1., 0.),
         1.,
-        Lambertian::new(Vec3::new(0.4, 0.2, 0.1)),
+        Lambertian::from_rgb(0.4, 0.2, 0.1),
     )));
 
     objects.push(Object::new(Sphere::new(
@@ -120,4 +133,28 @@ fn random_scene() -> Scene {
         objects,
         Background::Gradient(Vec3::new(0.5, 0.7, 1.), Vec3::new(1., 1., 1.)),
     )
+}
+
+fn two_spheres() -> Scene {
+    SceneBuilder::new(Background::Gradient(
+        Vec3::new(0.5, 0.7, 1.),
+        Vec3::new(1., 1., 1.),
+    ))
+    .add_sphere(Sphere::new(
+        Point3::new(0., -10., 0.),
+        10.,
+        Lambertian::new(Box::new(Checker::new(
+            Box::new(Monochrome::from_rgb(0.2, 0.3, 0.1)),
+            Box::new(Monochrome::from_rgb(0.9, 0.9, 0.9)),
+        ))),
+    ))
+    .add_sphere(Sphere::new(
+        Point3::new(0., 10., 0.),
+        10.,
+        Lambertian::new(Box::new(Checker::new(
+            Box::new(Monochrome::from_rgb(0.2, 0.3, 0.1)),
+            Box::new(Monochrome::from_rgb(0.9, 0.9, 0.9)),
+        ))),
+    ))
+    .build()
 }

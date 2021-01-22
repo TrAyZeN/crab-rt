@@ -10,7 +10,7 @@ use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::Sphere;
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, SceneBuilder};
-use crab_rt::vec::Vec3;
+use crab_rt::vec::{Point3, Vec3};
 
 fn bench_default(c: &mut Criterion) {
     let mut group = c.benchmark_group("default");
@@ -66,7 +66,7 @@ fn raytrace_rayon_singlethread() {
         })
         .collect();
 
-    let image: RgbImage = ImageBuffer::from_fn(
+    let _image: RgbImage = ImageBuffer::from_fn(
         raytracer.get_width() as u32,
         raytracer.get_height() as u32,
         |x, y| pixels[y as usize][x as usize],
@@ -135,7 +135,8 @@ criterion_group!(benches, bench_default, bench_rayon);
 criterion_main!(benches);
 
 fn sample_raytracer() -> RayTracer {
-    let camera = Camera::new(Vec3::new(3., 3., 2.), Vec3::new(0., 0., -1.), 20., 2.).aperture(2.);
+    let camera =
+        Camera::new(Point3::new(3., 3., 2.), Point3::new(0., 0., -1.), 20., 2.).aperture(2.);
 
     let scene = SceneBuilder::new(Background::Gradient(
         Vec3::new(0.5, 0.7, 1.),
@@ -144,12 +145,12 @@ fn sample_raytracer() -> RayTracer {
     .add_sphere(Sphere::new(
         Vec3::new(0., 0., -1.),
         0.5,
-        Lambertian::new(Vec3::new(0.8, 0.3, 0.3)),
+        Lambertian::from_rgb(0.8, 0.3, 0.3),
     ))
     .add_sphere(Sphere::new(
         Vec3::new(0., -100.5, -1.),
         100.,
-        Lambertian::new(Vec3::new(0.8, 0.8, 0.)),
+        Lambertian::from_rgb(0.8, 0.8, 0.),
     ))
     .add_sphere(Sphere::new(
         Vec3::new(1., 0., -1.),

@@ -1,11 +1,13 @@
+use std::f32::consts::PI;
+
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::materials::Material;
 use crate::ray::Ray;
-use crate::vec::Vec3;
+use crate::vec::{Point3, Vec3};
 
 /// A sphere.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Sphere<M: Material> {
     /// Center of the sphere.
     center: Vec3,
@@ -39,6 +41,32 @@ impl<M: Material> Sphere<M> {
             material,
         }
     }
+
+    /// Maps a point on the sphere to texture coordinates in range [0, 1].
+    fn get_texture_coordinates(p: &Point3) -> (f32, f32) {
+        // We want to map spherical coordinates to 2D texture coordinates in range [0, 1].
+        // theta is defined as the angle up from the bottom pole
+        // so theta is in range [0, PI]
+        // phi is defined as the angle around the y axis starting at -x in the direction of +z
+        // so phi is in range [0, 2*PI]
+        //
+        // So for a point (x, y, z) on the sphere we have:
+        // x = -sin(theta) * cos(phi)
+        // y = -cos(theta)
+        // z = sin(theta) * sin(phi)
+        //
+        // Thus:
+        // theta = arccos(-y)
+        // phi = arctan(z / -x)
+        let theta = f32::acos(-p.y);
+
+        // Since atan2 returns an angle in range [-PI, PI] we need to add PI
+        // in order to have phi in range [0, 2*PI].
+        let phi = f32::atan2(-p.z, p.x) + PI;
+
+        // Maps angles to range [0, 1].
+        (phi / (2. * PI), theta / PI)
+    }
 }
 
 impl<M: Material> Hitable for Sphere<M> {
@@ -68,10 +96,12 @@ impl<M: Material> Hitable for Sphere<M> {
         }
 
         let hit_point = ray.point(root);
+        let outward_normal = (hit_point - self.center) / self.radius;
         let mut record = HitRecord::new(
             root,
             hit_point,
-            (hit_point - self.center) / self.radius,
+            outward_normal,
+            Self::get_texture_coordinates(&outward_normal),
             &self.material,
         );
         record.set_face_normal(ray);
@@ -90,19 +120,20 @@ impl<M: Material> Hitable for Sphere<M> {
 mod tests {
     use super::*;
     use crate::materials::Lambertian;
+    use crate::vec::Point3;
 
     #[test]
     fn sphere_hit_hitting_ray() {
-        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::new(Vec3::new(0., 0., 0.)));
-        let hitting_ray = Ray::new(Vec3::new(1., 0., 0.), Vec3::new(-1., 0., 0.), 0.);
+        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::default());
+        let hitting_ray = Ray::new(Point3::new(1., 0., 0.), Vec3::new(-1., 0., 0.), 0.);
 
         assert!(testee.hit(&hitting_ray, 0.0001, f32::INFINITY).is_some());
     }
 
     #[test]
     fn sphere_hit_not_hitting_ray() {
-        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::new(Vec3::new(0., 0., 0.)));
-        let not_hitting_ray = Ray::new(Vec3::new(1., 0., 0.), Vec3::new(-0.5, 0.5, 0.), 0.);
+        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::default());
+        let not_hitting_ray = Ray::new(Point3::new(1., 0., 0.), Vec3::new(-0.5, 0.5, 0.), 0.);
 
         assert!(testee
             .hit(&not_hitting_ray, 0.0001, f32::INFINITY)
@@ -111,11 +142,7 @@ mod tests {
 
     #[test]
     fn sphere_bounding_box() {
-        let testee = Sphere::new(
-            Vec3::new(1., 2., 3.),
-            1.,
-            Lambertian::new(Vec3::new(0., 0., 0.)),
-        );
+        let testee = Sphere::new(Vec3::new(1., 2., 3.), 1., Lambertian::default());
         let bounding_box = testee.bounding_box((0., 0.));
         assert!(bounding_box.is_some());
 

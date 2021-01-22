@@ -63,9 +63,11 @@ mod tests {
 
     #[test]
     fn object_bounding_box() {
+        let time_interval = (0., 0.);
         let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+        let sphere_bbox = sphere.bounding_box(time_interval);
 
-        let testee = Object::new(sphere.clone());
-        assert_eq!(testee.bounding_box((0., 0.)), sphere.bounding_box((0., 0.)));
+        let testee = Object::new(sphere);
+        assert_eq!(testee.bounding_box(time_interval), sphere_bbox);
     }
 }

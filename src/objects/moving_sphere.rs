@@ -68,6 +68,7 @@ impl<M: Material> Hitable for MovingSphere<M> {
             root,
             hit_point,
             (hit_point - center) / self.radius,
+            (0., 0.),
             &self.material,
         );
         record.set_face_normal(ray);

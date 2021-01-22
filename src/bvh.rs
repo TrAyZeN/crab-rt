@@ -122,26 +122,32 @@ mod tests {
 
     #[test]
     fn new_with_one_object() {
+        let time_interval = (0., 0.);
         let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
-        let testee = BvhNode::new(vec![Object::new(sphere.clone())], (0., 0.));
+        let sphere_bbox = sphere.bounding_box(time_interval);
 
-        assert_eq!(testee.bounding_box((0., 0.)), sphere.bounding_box((0., 0.)));
+        let testee = BvhNode::new(vec![Object::new(sphere)], time_interval);
+        assert_eq!(testee.bounding_box(time_interval), sphere_bbox);
     }
 
     #[test]
     fn new_with_two_object() {
+        let time_interval = (0., 0.);
         let sphere1 = Sphere::new(Vec3::zero(), 1., Lambertian::default());
         let sphere2 = Sphere::new(Vec3::new(1., 2., 3.), 1., Lambertian::default());
-        let testee = BvhNode::new(
-            vec![Object::new(sphere1.clone()), Object::new(sphere2.clone())],
-            (0., 0.),
-        );
 
+        let sphere1_bbox = sphere1.bounding_box(time_interval);
+        let sphere2_bbox = sphere2.bounding_box(time_interval);
+
+        let testee = BvhNode::new(
+            vec![Object::new(sphere1), Object::new(sphere2)],
+            time_interval,
+        );
         assert_eq!(
-            testee.bounding_box((0., 0.)),
+            testee.bounding_box(time_interval),
             Some(Aabb::surrounding_box(
-                &sphere1.bounding_box((0., 0.)).unwrap(),
-                &sphere2.bounding_box((0., 0.)).unwrap()
+                &sphere1_bbox.unwrap(),
+                &sphere2_bbox.unwrap(),
             ))
         );
     }

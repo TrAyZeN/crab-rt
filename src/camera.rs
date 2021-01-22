@@ -2,12 +2,12 @@ use rand::distributions::{Distribution, Uniform};
 
 use crate::ray::Ray;
 use crate::utils::random_in_unit_disk;
-use crate::vec::Vec3;
+use crate::vec::{Point3, Vec3};
 
 #[derive(Debug, Clone)]
 pub struct Camera {
-    origin: Vec3,
-    lower_left_corner: Vec3,
+    origin: Point3,
+    lower_left_corner: Point3,
     horizontal: Vec3,
     vertical: Vec3,
     u: Vec3,
@@ -28,11 +28,11 @@ impl Camera {
     /// # Examples
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 1.);
+    /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 1.);
     /// ```
-    pub fn new(lookfrom: Vec3, lookat: Vec3, vfov: f32, aspect_ratio: f32) -> Self {
+    pub fn new(lookfrom: Point3, lookat: Point3, vfov: f32, aspect_ratio: f32) -> Self {
         assert_ne!(lookfrom, lookat);
         assert!(aspect_ratio > 0.);
 
@@ -73,10 +73,10 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
     /// let camera =
-    ///     Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
+    ///     Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
     /// ```
     pub fn vup(self, vup: Vec3) -> Self {
         assert_ne!(vup, Vec3::zero());
@@ -108,9 +108,9 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).aperture(1.);
+    /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).aperture(1.);
     /// ```
     pub fn aperture(self, aperture: f32) -> Self {
         assert!(aperture >= 0.);
@@ -129,9 +129,9 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).focus_dist(1.);
+    /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).focus_dist(1.);
     /// ```
     pub fn focus_dist(self, focus_dist: f32) -> Self {
         assert_ne!(focus_dist, 0.);
@@ -153,9 +153,9 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::{Vec3, Point3};
     ///
-    /// let camera = Camera::new(Vec3::zero(), Vec3::new(1., 0., 0.), 20., 2.).time_interval((0., 1.));
+    /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).time_interval((0., 1.));
     /// ```
     pub fn time_interval(self, time_interval: (f32, f32)) -> Self {
         Self {
@@ -180,7 +180,7 @@ impl Camera {
 impl Default for Camera {
     #[inline]
     fn default() -> Self {
-        Self::new(Vec3::zero(), Vec3::new(0., 0., 1.), f32::default(), 1.)
+        Self::new(Point3::zero(), Point3::new(0., 0., 1.), f32::default(), 1.)
     }
 }
 

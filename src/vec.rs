@@ -17,6 +17,8 @@ pub struct Vec3 {
     pub z: f32,
 }
 
+pub type Point3 = Vec3;
+
 impl Vec3 {
     /// Constructs a 3D mathematical vector with the given coordinates.
     ///

@@ -1,30 +1,45 @@
 use super::material::Material;
 use crate::hitable::HitRecord;
 use crate::ray::Ray;
+use crate::textures::{Monochrome, Texture};
 use crate::utils::random_unit_vector;
 use crate::vec::Vec3;
 
 /// A diffuse material that follows the Lambertian reflectance model.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug)]
 pub struct Lambertian {
     /// Albedo of the material.
-    albedo: Vec3,
+    albedo: Box<dyn Texture>,
 }
 
 impl Lambertian {
-    /// Constructs a new `Lambertian` material with the given albedo.
+    /// Constructs a new `Lambertian` material with the given texture.
     ///
     /// # Examples
     /// ```
     /// use crab_rt::materials::Lambertian;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::textures::Monochrome;
     ///
     /// // Creates a red diffuse material
-    /// let material = Lambertian::new(Vec3::new(1., 0., 0.));
+    /// let material = Lambertian::new(Box::new(Monochrome::from_rgb(1., 0., 0.)));
     /// ```
     #[inline]
-    pub const fn new(albedo: Vec3) -> Self {
-        Lambertian { albedo }
+    pub fn new(texture: Box<dyn Texture>) -> Self {
+        Lambertian { albedo: texture }
+    }
+
+    /// Constructs a new monochrome `Lambertian` with the given color.
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::materials::Lambertian;
+    ///
+    /// // Creates a red diffuse material
+    /// let material = Lambertian::from_rgb(1., 0., 0.);
+    /// ```
+    #[inline]
+    pub fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
+        Self::new(Box::new(Monochrome::from_rgb(red, green, blue)))
     }
 }
 
@@ -43,7 +58,16 @@ impl Material for Lambertian {
                 scatter_direction,
                 ray.get_time(),
             ),
-            self.albedo,
+            self.albedo
+                .value(record.get_texture_coordinates(), record.get_hit_point()),
         ))
+    }
+}
+
+impl Default for Lambertian {
+    /// The default lambertian material is a black monochrome lambertian material.
+    #[inline]
+    fn default() -> Self {
+        Lambertian::from_rgb(0., 0., 0.)
     }
 }

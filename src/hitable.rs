@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use crate::aabb::Aabb;
 use crate::materials::Material;
 use crate::ray::Ray;
-use crate::vec::Vec3;
+use crate::vec::{Point3, Vec3};
 
 pub trait Hitable: Debug + Send + Sync {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
@@ -44,19 +44,27 @@ impl<H: Hitable> Hitable for Vec<H> {
 #[derive(Debug)]
 pub struct HitRecord<'a> {
     t: f32,
-    hit_point: Vec3,
+    hit_point: Point3,
     normal: Vec3,
+    texture_coordinates: (f32, f32),
     front_face: bool,
     material: &'a dyn Material,
 }
 
 impl<'a> HitRecord<'a> {
     #[inline]
-    pub fn new(t: f32, hit_point: Vec3, normal: Vec3, material: &'a dyn Material) -> Self {
+    pub fn new(
+        t: f32,
+        hit_point: Point3,
+        normal: Vec3,
+        texture_coordinates: (f32, f32),
+        material: &'a dyn Material,
+    ) -> Self {
         Self {
             t,
             hit_point,
             normal,
+            texture_coordinates,
             front_face: true,
             material,
         }
@@ -77,13 +85,18 @@ impl<'a> HitRecord<'a> {
     }
 
     #[inline]
-    pub fn get_hit_point(&self) -> &Vec3 {
+    pub fn get_hit_point(&self) -> &Point3 {
         &self.hit_point
     }
 
     #[inline]
     pub fn get_normal(&self) -> &Vec3 {
         &self.normal
+    }
+
+    #[inline]
+    pub fn get_texture_coordinates(&self) -> (f32, f32) {
+        self.texture_coordinates
     }
 
     #[inline]
