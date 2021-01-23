@@ -17,7 +17,15 @@ pub struct Vec3 {
     pub z: f32,
 }
 
+/// A point in space.
+///
+/// **This type is an alias to `Vec3` so most methods are listed in [`Vec3`](crate::vec::Vec3)**
 pub type Point3 = Vec3;
+
+/// A RGB color represented by floats.
+///
+/// **This type is an alias to `Vec3` so most methods are listed in [`Vec3`](crate::vec::Vec3)**
+pub type Color3 = Vec3;
 
 impl Vec3 {
     /// Constructs a 3D mathematical vector with the given coordinates.

@@ -4,21 +4,22 @@ use rand::{
 };
 
 use crab_rt::camera::Camera;
-use crab_rt::materials::{Dielectric, Lambertian, Metal};
-use crab_rt::objects::{MovingSphere, Object, Sphere};
+use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
+use crab_rt::objects::{MovingSphere, Object, Sphere, XyRect};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
-use crab_rt::textures::{Checker, Monochrome};
+use crab_rt::textures::{Checker, Monochrome, Image};
 use crab_rt::vec::{Point3, Vec3};
 
 fn main() {
     let aspect_ratio = 3. / 2.;
     let image_width = 1200;
     let image_height = (image_width as f32 / aspect_ratio) as usize;
-    let samples_per_pixel = 500;
+    // let samples_per_pixel = 500;
+    let samples_per_pixel = 50;
     let max_reflections = 50;
 
-    let scene_number = 2;
+    let scene_number = 4;
 
     let (camera, scene) = match scene_number {
         1 => (
@@ -33,16 +34,34 @@ fn main() {
             .time_interval((0., 1.)),
             random_scene(),
         ),
-        _ => (
+        2 => (
             Camera::new(
                 Point3::new(13., 2., 13.),
                 Point3::new(0., 0., 0.),
                 20.,
                 aspect_ratio,
             )
-            .focus_dist(10.)
             .time_interval((0., 1.)),
             two_spheres(),
+        ),
+        4 => (
+            Camera::new(
+                Point3::new(13., 2., 13.),
+                Point3::new(0., 0., 0.),
+                20.,
+                aspect_ratio,
+            ),
+            earth(),
+        ),
+        _ => (
+            Camera::new(
+                Point3::new(26., 3., 26.),
+                Point3::new(0., 2., 0.),
+                20.,
+                aspect_ratio,
+            )
+            .focus_dist(10.),
+            simple_light(),
         ),
     };
 
@@ -57,7 +76,7 @@ fn main() {
     .raytrace()
     .lock()
     .unwrap()
-    .save("moving_rt_weekend.png")
+    .save("rt_nextweek.png")
     .unwrap();
 }
 
@@ -157,4 +176,41 @@ fn two_spheres() -> Scene {
         ))),
     ))
     .build()
+}
+
+fn earth() -> Scene {
+    SceneBuilder::new(Background::Color(
+        Vec3::new(0.5, 0.7, 1.),
+    ))
+    .add_sphere(Sphere::new(
+        Point3::new(0., 0., 0.),
+        2.,
+        Lambertian::new(Box::new(
+            Image::load("resources/earthmap.jpg")
+        ))
+    ))
+    .build()
+}
+
+fn simple_light() -> Scene {
+    SceneBuilder::new(Background::Color(Vec3::new(0., 0., 0.)))
+        .add_sphere(Sphere::new(
+            Point3::new(0., -1000., 0.),
+            1000.,
+            Lambertian::from_rgb(0.2, 0.2, 0.2),
+        ))
+        .add_sphere(Sphere::new(
+            Point3::new(0., 2., 0.),
+            2.,
+            Lambertian::from_rgb(0.4, 0.4, 0.4),
+        ))
+        .add_object(Object::new(XyRect::new(
+            3.,
+            5.,
+            1.,
+            3.,
+            -1.,
+            Light::new(Box::new(Monochrome::from_rgb(4., 4., 4.))),
+        )))
+        .build()
 }

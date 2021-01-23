@@ -152,17 +152,25 @@ impl RayTracer {
             return Vec3::zero();
         }
 
-        if let Some(record) = self.scene.get_bvh().hit(ray, 0.001, f32::INFINITY) {
-            if let Some((scattered, attenuation)) = record.get_material().scatter(ray, &record) {
-                return attenuation * self.cast(&scattered, depth + 1);
-            }
-        } else {
+        let record = self.scene.get_bvh().hit(ray, 0.001, f32::INFINITY);
+        if record.is_none() {
             let unit_direction = ray.get_direction().unit();
             let t = 0.5 * (unit_direction.y + 1.);
             return self.scene.get_background().color(t);
         }
 
-        Vec3::zero()
+        let record = record.unwrap();
+        let emitted = record
+            .get_material()
+            .emitted(record.get_texture_coordinates(), record.get_hit_point());
+
+        let record = record.get_material().scatter(ray, &record);
+        if record.is_none() {
+            return emitted;
+        }
+
+        let (scattered, attenuation) = record.unwrap();
+        emitted + attenuation * self.cast(&scattered, depth + 1)
     }
 
     /// Returns the width of the rendering window.

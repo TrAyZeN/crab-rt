@@ -3,6 +3,7 @@ use crate::materials::Material;
 use crate::objects::{Object, Sphere};
 use crate::vec::Vec3;
 
+/// A structure containing what to render.
 #[derive(Debug, Default)]
 pub struct Scene {
     bvh: BvhNode,
@@ -63,6 +64,7 @@ impl Scene {
     }
 }
 
+/// A builder for `Scene`.
 #[derive(Debug, Default)]
 pub struct SceneBuilder {
     objects: Vec<Object>,

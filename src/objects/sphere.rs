@@ -10,7 +10,7 @@ use crate::vec::{Point3, Vec3};
 #[derive(Debug, PartialEq)]
 pub struct Sphere<M: Material> {
     /// Center of the sphere.
-    center: Vec3,
+    center: Point3,
     /// Radius of the sphere.
     radius: f32,
     /// Material of the sphere.
@@ -21,7 +21,7 @@ impl<M: Material> Sphere<M> {
     /// Constructs a sphere from the given center, radius and material.
     ///
     /// # Panic
-    /// Panics if `radius == 0.`.
+    /// Panics if `radius <= 0.`.
     ///
     /// # Examples
     /// ```
@@ -32,8 +32,8 @@ impl<M: Material> Sphere<M> {
     /// let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
     /// ```
     #[inline]
-    pub fn new(center: Vec3, radius: f32, material: M) -> Self {
-        assert_ne!(radius, 0.);
+    pub fn new(center: Point3, radius: f32, material: M) -> Self {
+        assert!(radius > 0.);
 
         Sphere {
             center,

@@ -34,10 +34,9 @@ fn main() {
         Vec3::new(0., -100.5, -1.),
         100.,
         Lambertian::new(Box::new(Checker::new(
-            Box::new(Monochrome::from_rgb(0.7, 0.7, 0.)),
-            Box::new(Monochrome::from_rgb(0.2, 0.1, 0.2)),
+            Box::new(Monochrome::from_rgb(1., 1., 1.)),
+            Box::new(Monochrome::from_rgb(0.5, 0.1, 0.8)),
         ))),
-        // Lambertian::from_rgb(0.8, 0.8, 0.),
     ))
     .add_sphere(Sphere::new(
         Vec3::new(1., 0., -1.),
@@ -56,7 +55,7 @@ fn main() {
     // ))
     .build();
 
-    let raytracer = RayTracer::new(WIDTH, HEIGHT, 100, 50, camera, scene);
+    let raytracer = RayTracer::new(WIDTH, HEIGHT, 200, 50, camera, scene);
 
     raytracer
         .raytrace()
