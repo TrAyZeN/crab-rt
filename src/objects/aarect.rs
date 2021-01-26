@@ -36,8 +36,8 @@ impl<M: Material> Hitable for XyRect<M> {
             return None;
         }
 
-        let x = ray.get_origin().x + t * ray.get_direction().x;
-        let y = ray.get_origin().y + t * ray.get_direction().y;
+        let x = t.mul_add(ray.get_direction().x, ray.get_origin().x);
+        let y = t.mul_add(ray.get_direction().y, ray.get_origin().y);
         // Checks if the ray hits the rectangle
         if x < self.x0 || x > self.x1 || y < self.y0 || y > self.y1 {
             return None;
@@ -53,7 +53,7 @@ impl<M: Material> Hitable for XyRect<M> {
             ),
             &self.material,
         );
-        record.set_face_normal(&ray);
+        record.set_face_normal(ray);
 
         Some(record)
     }

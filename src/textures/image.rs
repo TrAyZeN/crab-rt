@@ -12,6 +12,7 @@ pub struct Image {
 
 impl Image {
     #[inline]
+    #[must_use]
     pub fn new(width: usize, height: usize, data: Vec<u8>) -> Self {
         assert!(data.len() == width * height * 3);
 
@@ -22,6 +23,7 @@ impl Image {
         }
     }
 
+    #[must_use]
     pub fn load(filename: &str) -> Self {
         // TODO: Handle error
         let image_buffer = image::open(filename).unwrap().into_rgb8();

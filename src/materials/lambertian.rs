@@ -24,8 +24,9 @@ impl Lambertian {
     /// let material = Lambertian::new(Monochrome::from_rgb(1., 0., 0.));
     /// ```
     #[inline]
+    #[must_use]
     pub fn new<T: 'static + Texture>(texture: T) -> Self {
-        Lambertian {
+        Self {
             albedo: Box::new(texture),
         }
     }
@@ -40,6 +41,7 @@ impl Lambertian {
     /// let material = Lambertian::from_rgb(1., 0., 0.);
     /// ```
     #[inline]
+    #[must_use]
     pub fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
         Self::new(Monochrome::from_rgb(red, green, blue))
     }
@@ -55,11 +57,7 @@ impl Material for Lambertian {
         }
 
         Some((
-            Ray::new(
-                record.get_hit_point().clone(),
-                scatter_direction,
-                ray.get_time(),
-            ),
+            Ray::new(*record.get_hit_point(), scatter_direction, ray.get_time()),
             self.albedo
                 .value(record.get_texture_coordinates(), record.get_hit_point()),
         ))
@@ -70,6 +68,6 @@ impl Default for Lambertian {
     /// The default lambertian material is a black monochrome lambertian material.
     #[inline]
     fn default() -> Self {
-        Lambertian::from_rgb(0., 0., 0.)
+        Self::from_rgb(0., 0., 0.)
     }
 }

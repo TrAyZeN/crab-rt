@@ -15,8 +15,8 @@ const NB_THREADS: usize = 10;
 /// A renderer using raytracing to produce images.
 #[derive(Debug)]
 pub struct RayTracer {
-    width: usize,
-    height: usize,
+    width: u32,
+    height: u32,
 
     samples: usize,
     max_reflections: usize,
@@ -27,15 +27,16 @@ pub struct RayTracer {
 
 impl RayTracer {
     #[inline]
+    #[must_use]
     pub const fn new(
-        width: usize,
-        height: usize,
+        width: u32,
+        height: u32,
         samples: usize,
         max_reflections: usize,
         camera: Camera,
         scene: Scene,
-    ) -> RayTracer {
-        RayTracer {
+    ) -> Self {
+        Self {
             width,
             height,
             samples,
@@ -47,6 +48,7 @@ impl RayTracer {
 
     // Seems faster when returning Arc<Mutex
     // pub fn raytrace(self) -> RgbImage {
+    #[must_use]
     pub fn raytrace(self) -> Arc<Mutex<RgbImage>> {
         let raytracer = Arc::new(self);
         // let image_pixels: Arc<Mutex<Vec<Rgb<u8>>>> = Arc::new(Mutex::new(vec![
@@ -56,8 +58,8 @@ impl RayTracer {
         //             .get_height()
         // ]));
         let image_pixels = Arc::new(Mutex::new(ImageBuffer::new(
-            raytracer.get_width() as u32,
-            raytracer.get_height() as u32,
+            raytracer.get_width(),
+            raytracer.get_height(),
         )));
 
         let mut workers = Vec::with_capacity(NB_THREADS);
@@ -67,13 +69,13 @@ impl RayTracer {
             let image_pixels = Arc::clone(&image_pixels);
 
             workers.push(thread::spawn(move || {
-                let mut line_pixels = vec![Vec3::default(); raytracer.get_width()];
+                let mut line_pixels = vec![Vec3::default(); raytracer.get_width() as usize];
 
-                for y in (i * raytracer.get_height() / NB_THREADS)
-                    ..((i + 1) * raytracer.get_height() / NB_THREADS)
+                for y in (i * raytracer.get_height() as usize / NB_THREADS)
+                    ..((i + 1) * raytracer.get_height() as usize / NB_THREADS)
                 {
-                    for x in 0..raytracer.get_width() {
-                        line_pixels[x] = raytracer.pixel(x, y);
+                    for (x , pixel) in line_pixels.iter_mut().enumerate() {
+                        *pixel = raytracer.pixel(x, y);
                     }
 
                     let mut image_pixels = image_pixels.lock().unwrap();
@@ -86,7 +88,7 @@ impl RayTracer {
         }
 
         for worker in workers {
-            let _ = worker.join();
+            worker.join().expect("Failed to join thread.");
         }
 
         // Maybe perf lost :thinking:
@@ -99,10 +101,11 @@ impl RayTracer {
         image_pixels
     }
 
-    #[inline]
+    #[inline(always)]
+    #[must_use]
     fn pixel(&self, x: usize, y: usize) -> Color3 {
         let mut rng = thread_rng();
-        let y = self.height - y - 1;
+        let y = self.height as usize - y - 1;
 
         let color = (0..self.samples)
             .into_iter()
@@ -125,6 +128,7 @@ impl RayTracer {
         )
     }
 
+    #[must_use]
     pub fn cast(&self, ray: &Ray, depth: usize) -> Color3 {
         if depth >= self.max_reflections {
             return Color3::zero();
@@ -163,7 +167,8 @@ impl RayTracer {
     /// assert_eq!(raytracer.get_width(), 200);
     /// ```
     #[inline]
-    pub const fn get_width(&self) -> usize {
+    #[must_use]
+    pub const fn get_width(&self) -> u32 {
         self.width
     }
 
@@ -179,7 +184,8 @@ impl RayTracer {
     /// assert_eq!(raytracer.get_height(), 100);
     /// ```
     #[inline]
-    pub const fn get_height(&self) -> usize {
+    #[must_use]
+    pub const fn get_height(&self) -> u32 {
         self.height
     }
 
@@ -195,6 +201,7 @@ impl RayTracer {
     /// assert_eq!(raytracer.get_samples(), 50);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_samples(&self) -> usize {
         self.samples
     }
@@ -211,6 +218,7 @@ impl RayTracer {
     /// assert_eq!(raytracer.get_max_reflections(), 20);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_max_reflections(&self) -> usize {
         self.max_reflections
     }
@@ -227,6 +235,7 @@ impl RayTracer {
     /// assert_eq!(raytracer.get_camera(), &Camera::default());
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_camera(&self) -> &Camera {
         &self.camera
     }
@@ -243,6 +252,7 @@ impl RayTracer {
     /// assert_eq!(raytracer.get_scene(), &Scene::default());
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_scene(&self) -> &Scene {
         &self.scene
     }

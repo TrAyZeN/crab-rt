@@ -15,6 +15,7 @@ pub struct BvhNode {
 }
 
 impl BvhNode {
+    #[must_use]
     pub fn new(mut objects: Vec<Object>, time_interval: (f32, f32)) -> Self {
         let uniform = Uniform::from(0..3);
         let mut rng = rand::thread_rng();
@@ -55,17 +56,11 @@ impl BvhNode {
                 }
             };
 
-        let left_bbox = left
-            .as_ref()
-            .map(|a| a.bounding_box(time_interval))
-            .flatten();
+        let left_bbox = left.as_ref().and_then(|a| a.bounding_box(time_interval));
         let bbox = if right.is_none() {
             left_bbox
         } else {
-            let right_bbox = right
-                .as_ref()
-                .map(|a| a.bounding_box(time_interval))
-                .flatten();
+            let right_bbox = right.as_ref().and_then(|a| a.bounding_box(time_interval));
 
             left_bbox
                 .zip(right_bbox)
@@ -86,23 +81,15 @@ impl Hitable for BvhNode {
             return None;
         }
 
-        let left_record = self
-            .left
-            .as_ref()
-            .map(|r| r.hit(ray, t_min, t_max))
-            .flatten();
+        let left_record = self.left.as_ref().and_then(|r| r.hit(ray, t_min, t_max));
 
-        let right_record = self
-            .right
-            .as_ref()
-            .map(|r| {
-                r.hit(
-                    ray,
-                    t_min,
-                    left_record.as_ref().map_or(t_max, |r| r.get_t()),
-                )
-            })
-            .flatten();
+        let right_record = self.right.as_ref().and_then(|r| {
+            r.hit(
+                ray,
+                t_min,
+                left_record.as_ref().map_or(t_max, |r| r.get_t()),
+            )
+        });
 
         right_record.or(left_record)
     }

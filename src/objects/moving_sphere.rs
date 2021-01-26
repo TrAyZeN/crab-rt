@@ -20,7 +20,7 @@ impl<M: Material> MovingSphere<M> {
         radius: f32,
         material: M,
     ) -> Self {
-        MovingSphere {
+        Self {
             center_interval,
             time_interval,
             radius,

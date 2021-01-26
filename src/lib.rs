@@ -1,9 +1,8 @@
 #![warn(
     missing_debug_implementations,
-    missing_docs,
+    // missing_docs,
     rust_2018_idioms,
     clippy::all,
-    clippy::restriction,
     clippy::pedantic,
     clippy::nursery,
     clippy::cargo

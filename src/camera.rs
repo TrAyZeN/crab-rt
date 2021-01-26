@@ -32,6 +32,7 @@ impl Camera {
     ///
     /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 1.);
     /// ```
+    #[must_use]
     pub fn new(lookfrom: Point3, lookat: Point3, vfov: f32, aspect_ratio: f32) -> Self {
         assert_ne!(lookfrom, lookat, "lookfrom and lookat should not be equal");
         assert!(aspect_ratio > 0., "aspect_ratio should be greater than 0");
@@ -78,6 +79,7 @@ impl Camera {
     /// let camera =
     ///     Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
     /// ```
+    #[must_use]
     pub fn vup(self, vup: Vec3) -> Self {
         assert!(!vup.is_zero(), "vup should not be zero");
 
@@ -112,6 +114,7 @@ impl Camera {
     ///
     /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).aperture(1.);
     /// ```
+    #[must_use]
     pub fn aperture(self, aperture: f32) -> Self {
         assert!(aperture >= 0., "aperture should be greater or equal to 0");
 
@@ -133,6 +136,7 @@ impl Camera {
     ///
     /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).focus_dist(1.);
     /// ```
+    #[must_use]
     pub fn focus_dist(self, focus_dist: f32) -> Self {
         assert!(focus_dist > 0., "focus_dist should be greater than 0");
 
@@ -158,6 +162,7 @@ impl Camera {
     /// let camera =
     ///     Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).time_interval((0., 1.));
     /// ```
+    #[must_use]
     pub fn time_interval(self, time_interval: (f32, f32)) -> Self {
         Self {
             time_distribution: Some(Uniform::from(time_interval.0..time_interval.1)),
@@ -165,6 +170,7 @@ impl Camera {
         }
     }
 
+    #[must_use]
     pub fn get_ray(&self, s: f32, t: f32) -> Ray {
         let mut rng = rand::thread_rng();
         let rd = self.lens_radius * random_in_unit_disk();

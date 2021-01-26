@@ -6,7 +6,10 @@ use crate::ray::Ray;
 use crate::vec::{Point3, Vec3};
 
 pub trait Hitable: Debug + Send + Sync {
+    #[must_use]
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>>;
+
+    #[must_use]
     fn bounding_box(&self, time_interval: (f32, f32)) -> Option<Aabb>;
 }
 
@@ -77,6 +80,7 @@ impl<'a> HitRecord<'a> {
     /// );
     /// ```
     #[inline]
+    #[must_use]
     pub fn new(
         t: f32,
         hit_point: Point3,
@@ -122,7 +126,8 @@ impl<'a> HitRecord<'a> {
     /// assert_eq!(record.get_t(), 1.);
     /// ```
     #[inline]
-    pub fn get_t(&self) -> f32 {
+    #[must_use]
+    pub const fn get_t(&self) -> f32 {
         self.t
     }
 
@@ -145,7 +150,8 @@ impl<'a> HitRecord<'a> {
     /// assert_eq!(record.get_hit_point(), &Point3::new(1., 1., 1.));
     /// ```
     #[inline]
-    pub fn get_hit_point(&self) -> &Point3 {
+    #[must_use]
+    pub const fn get_hit_point(&self) -> &Point3 {
         &self.hit_point
     }
 
@@ -168,7 +174,8 @@ impl<'a> HitRecord<'a> {
     /// assert_eq!(record.get_normal(), &Vec3::new(0., 1., 0.));
     /// ```
     #[inline]
-    pub fn get_normal(&self) -> &Vec3 {
+    #[must_use]
+    pub const fn get_normal(&self) -> &Vec3 {
         &self.normal
     }
 
@@ -191,7 +198,8 @@ impl<'a> HitRecord<'a> {
     /// assert_eq!(record.get_texture_coordinates(), (0., 0.5));
     /// ```
     #[inline]
-    pub fn get_texture_coordinates(&self) -> (f32, f32) {
+    #[must_use]
+    pub const fn get_texture_coordinates(&self) -> (f32, f32) {
         self.texture_coordinates
     }
 
@@ -214,7 +222,8 @@ impl<'a> HitRecord<'a> {
     /// assert_eq!(record.get_front_face(), true);
     /// ```
     #[inline]
-    pub fn get_front_face(&self) -> bool {
+    #[must_use]
+    pub const fn get_front_face(&self) -> bool {
         self.front_face
     }
 
@@ -237,6 +246,7 @@ impl<'a> HitRecord<'a> {
     /// assert_eq!(record.get_material(), &material);
     /// ```
     #[inline]
+    #[must_use]
     pub fn get_material(&self) -> &dyn Material {
         self.material
     }

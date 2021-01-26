@@ -41,6 +41,7 @@ impl Vec3 {
     /// assert_eq!(u.z, 3.);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
@@ -56,6 +57,7 @@ impl Vec3 {
     /// assert_eq!(u, Vec3::new(0., 0., 0.));
     /// ```
     #[inline]
+    #[must_use]
     pub const fn zero() -> Self {
         Self {
             x: 0.,
@@ -89,7 +91,7 @@ impl Vec3 {
     /// ```
     #[inline]
     pub fn is_near_zero(&self) -> bool {
-        const THRESH: f32 = 1e-8f32;
+        const THRESH: f32 = 1e-8_f32;
         self.x.abs() < THRESH && self.y.abs() < THRESH && self.z.abs() < THRESH
     }
 
@@ -120,8 +122,10 @@ impl Vec3 {
     /// assert_eq!(u.squared_length(), 1. * 1. + 2. * 2. + 3. * 3.);
     /// ```
     #[inline]
+    #[must_use]
     pub fn squared_length(&self) -> f32 {
-        self.x * self.x + self.y * self.y + self.z * self.z
+        self.x
+            .mul_add(self.x, self.y.mul_add(self.y, self.z * self.z))
     }
 
     /// Consumes the vector and returns the unit vector with the same direction.
@@ -137,6 +141,7 @@ impl Vec3 {
     /// assert_eq!(u.y, 2. / length);
     /// assert_eq!(u.z, 3. / length);
     /// ```
+    #[must_use]
     pub fn unit(self) -> Self {
         if self.is_zero() {
             self
@@ -181,8 +186,9 @@ impl Vec3 {
     /// assert_eq!(u.dot(&v), 1. * 4. + 2. * 5. + 3. * 6.);
     /// ```
     #[inline]
+    #[must_use]
     pub fn dot(&self, v: &Self) -> f32 {
-        self.x * v.x + self.y * v.y + self.z * v.z
+        self.x.mul_add(v.x, self.y.mul_add(v.y, self.z * v.z))
     }
 
     /// Computes the dot product of the vector with itself.
@@ -196,8 +202,10 @@ impl Vec3 {
     /// assert_eq!(u.square(), u.dot(&u));
     /// ```
     #[inline]
+    #[must_use]
     pub fn square(&self) -> f32 {
-        self.x * self.x + self.y * self.y + self.z * self.z
+        self.x
+            .mul_add(self.x, self.y.mul_add(self.y, self.z * self.z))
     }
 
     /// Computes the [cross product](https://en.wikipedia.org/wiki/Cross_product) with the given vector.
@@ -215,6 +223,7 @@ impl Vec3 {
     /// assert_eq!(w.z, 1. * 2. - 2. * 4.);
     /// ```
     #[inline]
+    #[must_use]
     pub fn cross(&self, v: &Self) -> Self {
         Self {
             x: self.y * v.z - self.z * v.y,
@@ -261,8 +270,8 @@ impl ops::Add<Vec3> for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn add(self, rhs: Vec3) -> Self::Output {
-        Vec3 {
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
             z: self.z + rhs.z,
@@ -274,7 +283,7 @@ forward_ref_binop! { impl Add, add for Vec3, Vec3 }
 
 impl ops::AddAssign<Vec3> for Vec3 {
     #[inline]
-    fn add_assign(&mut self, rhs: Vec3) {
+    fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
@@ -286,7 +295,7 @@ impl ops::Neg for Vec3 {
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Vec3 {
+        Self {
             x: -self.x,
             y: -self.y,
             z: -self.z,
@@ -311,7 +320,7 @@ impl ops::Sub<Vec3> for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn sub(self, rhs: Vec3) -> Self::Output {
+    fn sub(self, rhs: Self) -> Self::Output {
         // Produces the same asm as without using operator overloading.
         self + (-rhs)
     }
@@ -321,7 +330,7 @@ forward_ref_binop! { impl Sub, sub for Vec3, Vec3 }
 
 impl ops::SubAssign<Vec3> for Vec3 {
     #[inline]
-    fn sub_assign(&mut self, rhs: Vec3) {
+    fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
@@ -332,8 +341,8 @@ impl ops::Mul<Vec3> for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3 {
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self {
             x: self.x * rhs.x,
             y: self.y * rhs.y,
             z: self.z * rhs.z,
@@ -346,7 +355,7 @@ impl ops::Mul<f32> for Vec3 {
 
     #[inline]
     fn mul(self, rhs: f32) -> Self::Output {
-        Vec3 {
+        Self {
             x: self.x * rhs,
             y: self.y * rhs,
             z: self.z * rhs,
@@ -427,7 +436,7 @@ impl ops::Div<Vec3> for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn div(self, rhs: Vec3) -> Self::Output {
+    fn div(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x / rhs.x,
             y: self.y / rhs.y,
@@ -476,8 +485,9 @@ impl convert::Into<Rgb<u8>> for &Vec3 {
 
 // Needed if using rayon
 impl iter::Sum<Vec3> for Vec3 {
+    #[inline]
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-        iter.fold(Vec3::zero(), Add::add)
+        iter.fold(Self::zero(), Add::add)
     }
 }
 

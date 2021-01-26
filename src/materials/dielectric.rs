@@ -30,10 +30,11 @@ impl Dielectric {
     /// let material = Dielectric::new(1.1);
     /// ```
     #[inline]
+    #[must_use]
     pub fn new(refractive_index: f32) -> Self {
         assert!(refractive_index >= 1.);
 
-        Dielectric { refractive_index }
+        Self { refractive_index }
     }
 
     /// Constructs a new `Dielecric` material with the water's refractive index.
@@ -45,6 +46,7 @@ impl Dielectric {
     /// let water_material = Dielectric::water();
     /// ```
     #[inline]
+    #[must_use]
     pub fn water() -> Self {
         Self::new(WATER_REFRACTIVE_INDEX)
     }
@@ -58,6 +60,7 @@ impl Dielectric {
     /// let diamond_material = Dielectric::diamond();
     /// ```
     #[inline]
+    #[must_use]
     pub fn diamond() -> Self {
         Self::new(DIAMOND_REFRACTIVE_INDEX)
     }
@@ -86,7 +89,7 @@ impl Material for Dielectric {
         };
 
         let attenuation = Vec3::new(1., 1., 1.);
-        let scattered = Ray::new(record.get_hit_point().clone(), direction, ray.get_time());
+        let scattered = Ray::new(*record.get_hit_point(), direction, ray.get_time());
         Some((scattered, attenuation))
     }
 }

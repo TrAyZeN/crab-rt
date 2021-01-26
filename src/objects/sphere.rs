@@ -32,10 +32,11 @@ impl<M: Material> Sphere<M> {
     /// let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
     /// ```
     #[inline]
+    #[must_use]
     pub fn new(center: Point3, radius: f32, material: M) -> Self {
         assert!(radius > 0.);
 
-        Sphere {
+        Self {
             center,
             radius,
             material,

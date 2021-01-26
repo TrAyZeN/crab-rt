@@ -12,13 +12,14 @@ pub struct Perlin {
 }
 
 impl Perlin {
+    #[must_use]
     pub fn new() -> Self {
         const POINT_COUNT: usize = 256;
         let mut rng = rand::thread_rng();
 
         let mut random_floats = vec![0.; POINT_COUNT];
-        for i in 0..random_floats.len() {
-            random_floats[i] = rng.gen();
+        for f in &mut random_floats {
+            *f = rng.gen();
         }
 
         Self {
@@ -29,6 +30,7 @@ impl Perlin {
         }
     }
 
+    #[must_use]
     pub fn noise(&self, p: &Point3) -> f32 {
         let mut u = p.x - p.x.floor();
         let mut v = p.y - p.y.floor();
@@ -56,13 +58,14 @@ impl Perlin {
         Self::trilinear_interpolation(c, (u, v, w))
     }
 
+    #[must_use]
     pub fn turbulence(&self, p: &Point3) -> f32 {
         const DEPTH: usize = 7;
         let mut acc = 0.;
         let mut temp_p = *p;
         let mut weight = 1.;
 
-        for i in 0..DEPTH {
+        for _ in 0..DEPTH {
             acc += weight * self.noise(&temp_p);
             weight *= 0.5;
             temp_p *= 2.;
@@ -88,9 +91,9 @@ impl Perlin {
         for i in 0..2 {
             for j in 0..2 {
                 for k in 0..2 {
-                    acc += (i as f32 * uvw.0 + (1. - i as f32) * (1. - uvw.0))
-                        * (j as f32 * uvw.1 + (1. - j as f32) * (1. - uvw.1))
-                        * (k as f32 * uvw.2 + (1. - k as f32) * (1. - uvw.2))
+                    acc += (i as f32).mul_add(uvw.0, (1. - i as f32) * (1. - uvw.0))
+                        * (j as f32).mul_add(uvw.1, (1. - j as f32) * (1. - uvw.1))
+                        * (k as f32).mul_add(uvw.2, (1. - k as f32) * (1. - uvw.2))
                         * c[i][j][k];
                 }
             }

@@ -14,7 +14,7 @@ use crab_rt::vec::{Color3, Point3, Vec3};
 fn main() {
     let aspect_ratio = 16. / 9.;
     let image_width = 400;
-    let image_height = (image_width as f32 / aspect_ratio) as usize;
+    let image_height = (image_width as f32 / aspect_ratio) as u32;
     let samples_per_pixel = 400;
     let max_reflections = 50;
 

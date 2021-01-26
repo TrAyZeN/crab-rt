@@ -9,6 +9,7 @@ pub struct Checker {
 
 impl Checker {
     #[inline]
+    #[must_use]
     pub fn new<T1, T2>(even: T1, odd: T2) -> Self
     where
         T1: 'static + Texture,
@@ -21,6 +22,7 @@ impl Checker {
     }
 
     #[inline]
+    #[must_use]
     pub fn from_colors(even: Color3, odd: Color3) -> Self {
         Self::new(Monochrome::new(even), Monochrome::new(odd))
     }

@@ -18,6 +18,7 @@ impl Scene {
     ///
     /// ```
     #[inline]
+    #[must_use]
     pub fn new(objects: Vec<Object>, background: Background) -> Self {
         let bvh = if objects.is_empty() {
             BvhNode::default()
@@ -35,6 +36,7 @@ impl Scene {
     ///
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_bvh(&self) -> &BvhNode {
         &self.bvh
     }
@@ -59,6 +61,7 @@ impl Scene {
     /// );
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_background(&self) -> &Background {
         &self.background
     }
@@ -83,6 +86,7 @@ impl SceneBuilder {
     /// assert_eq!(scene_builder.build().get_background(), &Background::Color(Vec3::zero()));
     /// ```
     #[inline]
+    #[must_use]
     pub const fn new(background: Background) -> Self {
         Self {
             objects: Vec::new(),
@@ -104,6 +108,7 @@ impl SceneBuilder {
     /// );
     /// ```
     #[inline]
+    #[must_use]
     pub fn add_object(mut self, object: Object) -> Self {
         self.objects.push(object);
 
@@ -124,6 +129,7 @@ impl SceneBuilder {
     /// );
     /// ```
     #[inline]
+    #[must_use]
     pub fn add_sphere<M: 'static + Material>(self, sphere: Sphere<M>) -> Self {
         self.add_object(Object::new(sphere))
     }
@@ -138,6 +144,7 @@ impl SceneBuilder {
     /// let scene = SceneBuilder::new(Background::Color(Vec3::zero())).build();
     /// ```
     #[inline]
+    #[must_use]
     pub fn build(self) -> Scene {
         Scene::new(self.objects, self.background)
     }
@@ -150,9 +157,10 @@ pub enum Background {
 }
 
 impl Background {
+    #[must_use]
     pub fn color(&self, t: f32) -> Color3 {
         match self {
-            Self::Color(c) => c.clone(),
+            Self::Color(c) => *c,
             Self::Gradient(c1, c2) => t * c1 + (1. - t) * c2,
         }
     }

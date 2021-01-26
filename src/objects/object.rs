@@ -22,9 +22,9 @@ impl Object {
     /// let object = Object::new(Sphere::new(Vec3::zero(), 1., Lambertian::default()));
     /// ```
     #[inline]
-    pub fn new<H: 'static + Hitable>(volume: H) -> Object {
+    pub fn new<H: 'static + Hitable>(volume: H) -> Self {
         let bbox = volume.bounding_box((0., 0.1)); // TODO: Fix time interval
-        Object {
+        Self {
             volume: Box::new(volume),
             bbox,
         }
@@ -44,7 +44,7 @@ impl Hitable for Object {
 
     #[inline]
     fn bounding_box(&self, _time_interval: (f32, f32)) -> Option<Aabb> {
-        self.bbox.clone() // TODO: This clone is bad I think
+        self.bbox // TODO: We could maybe use a Cow
     }
 }
 

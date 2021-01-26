@@ -26,6 +26,7 @@ impl Aabb {
     /// let bbox = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
     /// ```
     #[inline]
+    #[must_use]
     pub fn new(min: Vec3, max: Vec3) -> Self {
         debug_assert!(min.x <= max.x && min.y <= max.y && min.z <= max.z); // Should be < but for now let's say <=
 
@@ -47,6 +48,7 @@ impl Aabb {
     /// assert_eq!(surrounding_bbox.get_max(), &Vec3::new(10., 11., 12.));
     /// ```
     #[inline]
+    #[must_use]
     pub fn surrounding_box(bbox0: &Self, bbox1: &Self) -> Self {
         Self::new(
             Vec3::new(
@@ -63,6 +65,7 @@ impl Aabb {
     }
 
     /// Tests if the given ray hits the AABB.
+    #[must_use]
     pub fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
         for axis in 0..3 {
             let inv_axis_direction = ray.get_direction()[axis].recip();
@@ -93,6 +96,7 @@ impl Aabb {
     /// assert_eq!(bbox.get_min(), &Vec3::new(1., 2., 3.));
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_min(&self) -> &Vec3 {
         &self.min
     }
@@ -108,6 +112,7 @@ impl Aabb {
     /// assert_eq!(bbox.get_max(), &Vec3::new(4., 5., 6.));
     /// ```
     #[inline]
+    #[must_use]
     pub const fn get_max(&self) -> &Vec3 {
         &self.max
     }

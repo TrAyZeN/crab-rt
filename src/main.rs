@@ -1,13 +1,13 @@
 use crab_rt::camera::Camera;
-use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
+use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::Sphere;
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, SceneBuilder};
-use crab_rt::textures::{Checker, Monochrome};
+use crab_rt::textures::Checker;
 use crab_rt::vec::{Color3, Point3, Vec3};
 
-const WIDTH: usize = 600;
-const HEIGHT: usize = 300;
+const WIDTH: u32 = 600;
+const HEIGHT: u32 = 300;
 
 fn main() {
     // TODO: Remove that

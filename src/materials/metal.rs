@@ -24,8 +24,9 @@ impl Metal {
     /// let material = Metal::new(Vec3::new(1., 1., 1.), 0.);
     /// ```
     #[inline]
+    #[must_use]
     pub fn new(albedo: Vec3, fuzziness: f32) -> Self {
-        Metal {
+        Self {
             albedo,
             fuzziness: if fuzziness > 1. { 1. } else { fuzziness },
         }
@@ -36,7 +37,7 @@ impl Material for Metal {
     fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
         let reflected = reflect(&ray.get_direction().unit(), record.get_normal());
         let scattered = Ray::new(
-            record.get_hit_point().clone(),
+            *record.get_hit_point(),
             reflected + self.fuzziness * random_in_unit_sphere(),
             ray.get_time(),
         );
