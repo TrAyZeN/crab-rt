@@ -37,7 +37,7 @@ impl<M: Material> MovingSphere<M> {
 }
 
 impl<M: Material> Hitable for MovingSphere<M> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
         let center = self.center(ray.get_time());
         let oc = ray.get_origin() - center;
         let a = ray.get_direction().square();

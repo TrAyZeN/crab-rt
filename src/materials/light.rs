@@ -17,7 +17,7 @@ impl Light {
 }
 
 impl Material for Light {
-    fn scatter(&self, _ray: &Ray, _record: &HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, _ray: &Ray, _record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
         None
     }
 

@@ -29,7 +29,7 @@ impl<M: Material> XyRect<M> {
 }
 
 impl<M: Material> Hitable for XyRect<M> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
         let t = (self.k - ray.get_origin().z) / ray.get_direction().z;
         // Checks if the ray hits the plane
         if t < t_min || t > t_max {

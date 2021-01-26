@@ -8,7 +8,7 @@ use crate::hitable::Hitable;
 use crate::ray::Ray;
 use crate::scene::Scene;
 use crate::utils::gamma_encode;
-use crate::vec::Vec3;
+use crate::vec::{Color3, Vec3};
 
 const NB_THREADS: usize = 10;
 
@@ -60,40 +60,20 @@ impl RayTracer {
             raytracer.get_height() as u32,
         )));
 
-        // TODO: Replace that lol
-        let nb_threads = NB_THREADS;
-        let mut workers = Vec::with_capacity(nb_threads);
+        let mut workers = Vec::with_capacity(NB_THREADS);
 
-        for i in 0..nb_threads {
+        for i in 0..NB_THREADS {
             let raytracer = Arc::clone(&raytracer);
             let image_pixels = Arc::clone(&image_pixels);
 
             workers.push(thread::spawn(move || {
-                let mut rng = thread_rng();
                 let mut line_pixels = vec![Vec3::default(); raytracer.get_width()];
 
-                for y in (i * raytracer.get_height() / nb_threads)
-                    ..((i + 1) * raytracer.get_height() / nb_threads)
+                for y in (i * raytracer.get_height() / NB_THREADS)
+                    ..((i + 1) * raytracer.get_height() / NB_THREADS)
                 {
                     for x in 0..raytracer.get_width() {
-                        let mut color = Vec3::default();
-                        for _ in 0..raytracer.get_samples() {
-                            let u = (x as f32 + rng.gen::<f32>()) / raytracer.get_width() as f32;
-                            let v = ((raytracer.get_height() - y - 1) as f32 + rng.gen::<f32>())
-                                / raytracer.get_height() as f32;
-
-                            let ray = raytracer.get_camera().get_ray(u, v);
-
-                            color += raytracer.cast(&ray, 0);
-                        }
-                        color /= raytracer.get_samples() as f32;
-
-                        // We gamma correct the color
-                        line_pixels[x] = Vec3::new(
-                            gamma_encode(color.x),
-                            gamma_encode(color.y),
-                            gamma_encode(color.z),
-                        );
+                        line_pixels[x] = raytracer.pixel(x, y);
                     }
 
                     let mut image_pixels = image_pixels.lock().unwrap();
@@ -119,37 +99,35 @@ impl RayTracer {
         image_pixels
     }
 
-    // pub fn raytrace_old(&self) -> RgbImage {
-    //     let mut image: RgbImage = ImageBuffer::new(self.width as u32, self.height as u32);
-    //     let mut rng = thread_rng();
+    #[inline]
+    fn pixel(&self, x: usize, y: usize) -> Color3 {
+        let mut rng = thread_rng();
+        let y = self.height - y - 1;
 
-    //     for y in (0..self.height).rev() {
-    //         for x in 0..self.width {
-    //             let mut col = Vec3::default();
-    //             for _ in 0..self.samples {
-    //                 let u = (x as f32 + rng.gen::<f32>()) / self.width as f32;
-    //                 let v = ((self.height - y - 1) as f32 + rng.gen::<f32>())
-    //                     / self.height as f32;
+        let color = (0..self.samples)
+            .into_iter()
+            .map(|_| {
+                let u = (x as f32 + rng.gen::<f32>()) / self.width as f32;
+                let v = (y as f32 + rng.gen::<f32>()) / self.height as f32;
 
-    //                 let r = self.camera.get_ray(u, v);
-    //                 col += self.cast(&r, 0);
-    //             }
-    //             col /= self.samples as f32;
+                let ray = self.camera.get_ray(u, v);
 
-    //             image.put_pixel(
-    //                 x as u32,
-    //                 y as u32,
-    //                 Vec3::new(f32::sqrt(col.x), f32::sqrt(col.y), f32::sqrt(col.z)).into(),
-    //             );
-    //         }
-    //     }
+                self.cast(&ray, 0)
+            })
+            .sum::<Vec3>()
+            / self.samples as f32;
 
-    //     image
-    // }
+        // We gamma correct the color
+        Color3::new(
+            gamma_encode(color.x),
+            gamma_encode(color.y),
+            gamma_encode(color.z),
+        )
+    }
 
-    pub fn cast(&self, ray: &Ray, depth: usize) -> Vec3 {
+    pub fn cast(&self, ray: &Ray, depth: usize) -> Color3 {
         if depth >= self.max_reflections {
-            return Vec3::zero();
+            return Color3::zero();
         }
 
         let record = self.scene.get_bvh().hit(ray, 0.001, f32::INFINITY);

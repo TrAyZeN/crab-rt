@@ -1,7 +1,7 @@
 use crate::bvh::BvhNode;
 use crate::materials::Material;
 use crate::objects::{Object, Sphere};
-use crate::vec::Vec3;
+use crate::vec::Color3;
 
 /// A structure containing what to render.
 #[derive(Debug, Default)]
@@ -145,12 +145,12 @@ impl SceneBuilder {
 
 #[derive(Debug, PartialEq)]
 pub enum Background {
-    Color(Vec3),
-    Gradient(Vec3, Vec3),
+    Color(Color3),
+    Gradient(Color3, Color3),
 }
 
 impl Background {
-    pub fn color(&self, t: f32) -> Vec3 {
+    pub fn color(&self, t: f32) -> Color3 {
         match self {
             Self::Color(c) => c.clone(),
             Self::Gradient(c1, c2) => t * c1 + (1. - t) * c2,
@@ -161,6 +161,6 @@ impl Background {
 impl Default for Background {
     #[inline]
     fn default() -> Self {
-        Self::Color(Vec3::zero())
+        Self::Color(Color3::zero())
     }
 }

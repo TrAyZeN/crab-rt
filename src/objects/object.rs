@@ -38,7 +38,7 @@ impl Object {
 
 impl Hitable for Object {
     #[inline]
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
         self.volume.hit(ray, t_min, t_max)
     }
 

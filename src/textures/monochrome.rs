@@ -1,20 +1,20 @@
 use super::Texture;
-use crate::vec::{Point3, Vec3};
+use crate::vec::{Color3, Point3, Vec3};
 
 #[derive(Debug)]
 pub struct Monochrome {
-    color: Vec3,
+    color: Color3,
 }
 
 impl Monochrome {
     #[inline]
-    pub const fn new(color: Vec3) -> Self {
+    pub const fn new(color: Color3) -> Self {
         Self { color }
     }
 
     #[inline]
     pub const fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
-        Self::new(Vec3::new(red, green, blue))
+        Self::new(Color3::new(red, green, blue))
     }
 }
 

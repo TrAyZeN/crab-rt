@@ -20,13 +20,13 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// ```
     #[inline]
     pub fn new(origin: Point3, direction: Vec3, time: f32) -> Self {
-        debug_assert!(!direction.is_zero());
+        debug_assert!(!direction.is_zero(), "direction should not be zero");
 
         // Should we force direction vector to be unit ?
         Ray {
@@ -41,7 +41,7 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.get_origin(), &Vec3::new(0., 0., 0.));
@@ -56,7 +56,7 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.get_direction(), &Vec3::new(1., 2., 3.));
@@ -71,7 +71,7 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.get_time(), 0.);
@@ -86,7 +86,7 @@ impl Ray {
     /// # Examples
     /// ```
     /// use crab_rt::ray::Ray;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
     /// assert_eq!(ray.point(2.), Point3::new(2., 4., 6.));

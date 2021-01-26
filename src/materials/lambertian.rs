@@ -21,11 +21,13 @@ impl Lambertian {
     /// use crab_rt::textures::Monochrome;
     ///
     /// // Creates a red diffuse material
-    /// let material = Lambertian::new(Box::new(Monochrome::from_rgb(1., 0., 0.)));
+    /// let material = Lambertian::new(Monochrome::from_rgb(1., 0., 0.));
     /// ```
     #[inline]
-    pub fn new(texture: Box<dyn Texture>) -> Self {
-        Lambertian { albedo: texture }
+    pub fn new<T: 'static + Texture>(texture: T) -> Self {
+        Lambertian {
+            albedo: Box::new(texture),
+        }
     }
 
     /// Constructs a new monochrome `Lambertian` with the given color.
@@ -39,17 +41,17 @@ impl Lambertian {
     /// ```
     #[inline]
     pub fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
-        Self::new(Box::new(Monochrome::from_rgb(red, green, blue)))
+        Self::new(Monochrome::from_rgb(red, green, blue))
     }
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray: &Ray, record: &HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
         let mut scatter_direction = record.get_normal() + random_unit_vector();
 
         // Catch degenerate scatter direction
         if scatter_direction.is_near_zero() {
-            scatter_direction = record.get_normal().clone();
+            scatter_direction = *record.get_normal();
         }
 
         Some((

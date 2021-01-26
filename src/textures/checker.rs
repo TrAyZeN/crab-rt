@@ -1,5 +1,5 @@
 use super::{Monochrome, Texture};
-use crate::vec::{Point3, Vec3};
+use crate::vec::{Color3, Point3, Vec3};
 
 #[derive(Debug)]
 pub struct Checker {
@@ -9,16 +9,20 @@ pub struct Checker {
 
 impl Checker {
     #[inline]
-    pub fn new(even: Box<dyn Texture>, odd: Box<dyn Texture>) -> Self {
-        Self { even, odd }
+    pub fn new<T1, T2>(even: T1, odd: T2) -> Self
+    where
+        T1: 'static + Texture,
+        T2: 'static + Texture,
+    {
+        Self {
+            even: Box::new(even),
+            odd: Box::new(odd),
+        }
     }
 
     #[inline]
-    pub fn from_colors(even: Vec3, odd: Vec3) -> Self {
-        Self::new(
-            Box::new(Monochrome::new(even)),
-            Box::new(Monochrome::new(odd)),
-        )
+    pub fn from_colors(even: Color3, odd: Color3) -> Self {
+        Self::new(Monochrome::new(even), Monochrome::new(odd))
     }
 }
 

@@ -33,7 +33,7 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, record: &HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
         let reflected = reflect(&ray.get_direction().unit(), record.get_normal());
         let scattered = Ray::new(
             record.get_hit_point().clone(),

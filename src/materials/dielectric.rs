@@ -64,7 +64,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, record: &HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
         let mut rng = rand::thread_rng();
         let refraction_ratio = if record.get_front_face() {
             1. / self.refractive_index

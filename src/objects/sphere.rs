@@ -70,7 +70,7 @@ impl<M: Material> Sphere<M> {
 }
 
 impl<M: Material> Hitable for Sphere<M> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
         let oc = ray.get_origin() - self.center;
         let a = ray.get_direction().square();
         let half_b = oc.dot(ray.get_direction()); // We use b/2 to avoid useless divisions and mutliplications by 2

@@ -28,13 +28,13 @@ impl Camera {
     /// # Examples
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 1.);
     /// ```
     pub fn new(lookfrom: Point3, lookat: Point3, vfov: f32, aspect_ratio: f32) -> Self {
-        assert_ne!(lookfrom, lookat);
-        assert!(aspect_ratio > 0.);
+        assert_ne!(lookfrom, lookat, "lookfrom and lookat should not be equal");
+        assert!(aspect_ratio > 0., "aspect_ratio should be greater than 0");
 
         let theta = f32::to_radians(vfov);
         let half_height = f32::tan(theta / 2.);
@@ -73,13 +73,13 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let camera =
     ///     Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).vup(Vec3::new(0., -1., 0.));
     /// ```
     pub fn vup(self, vup: Vec3) -> Self {
-        assert_ne!(vup, Vec3::zero());
+        assert!(!vup.is_zero(), "vup should not be zero");
 
         let u = vup.cross(&self.w).unit();
         let v = self.w.cross(&u);
@@ -108,12 +108,12 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).aperture(1.);
     /// ```
     pub fn aperture(self, aperture: f32) -> Self {
-        assert!(aperture >= 0.);
+        assert!(aperture >= 0., "aperture should be greater or equal to 0");
 
         Self {
             lens_radius: aperture / 2.,
@@ -129,12 +129,12 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).focus_dist(1.);
     /// ```
     pub fn focus_dist(self, focus_dist: f32) -> Self {
-        assert_ne!(focus_dist, 0.);
+        assert!(focus_dist > 0., "focus_dist should be greater than 0");
 
         let horizontal = self.horizontal / self.focus_dist * focus_dist;
         let vertical = self.vertical / self.focus_dist * focus_dist;
@@ -153,9 +153,10 @@ impl Camera {
     /// # Example
     /// ```
     /// use crab_rt::camera::Camera;
-    /// use crab_rt::vec::{Vec3, Point3};
+    /// use crab_rt::vec::{Point3, Vec3};
     ///
-    /// let camera = Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).time_interval((0., 1.));
+    /// let camera =
+    ///     Camera::new(Point3::zero(), Point3::new(1., 0., 0.), 20., 2.).time_interval((0., 1.));
     /// ```
     pub fn time_interval(self, time_interval: (f32, f32)) -> Self {
         Self {

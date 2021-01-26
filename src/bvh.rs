@@ -77,7 +77,7 @@ impl BvhNode {
 }
 
 impl Hitable for BvhNode {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
         if !self
             .bbox
             .as_ref()

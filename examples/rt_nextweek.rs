@@ -8,18 +8,17 @@ use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
 use crab_rt::objects::{MovingSphere, Object, Sphere, XyRect};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
-use crab_rt::textures::{Checker, Monochrome, Image};
-use crab_rt::vec::{Point3, Vec3};
+use crab_rt::textures::{Checker, Image, Monochrome, Noise};
+use crab_rt::vec::{Color3, Point3, Vec3};
 
 fn main() {
-    let aspect_ratio = 3. / 2.;
-    let image_width = 1200;
+    let aspect_ratio = 16. / 9.;
+    let image_width = 400;
     let image_height = (image_width as f32 / aspect_ratio) as usize;
-    // let samples_per_pixel = 500;
-    let samples_per_pixel = 50;
+    let samples_per_pixel = 400;
     let max_reflections = 50;
 
-    let scene_number = 4;
+    let scene_number = 5;
 
     let (camera, scene) = match scene_number {
         1 => (
@@ -40,9 +39,17 @@ fn main() {
                 Point3::new(0., 0., 0.),
                 20.,
                 aspect_ratio,
-            )
-            .time_interval((0., 1.)),
+            ),
             two_spheres(),
+        ),
+        3 => (
+            Camera::new(
+                Point3::new(13., 2., 13.),
+                Point3::new(0., 0., 0.),
+                20.,
+                aspect_ratio,
+            ),
+            two_perlin_spheres(),
         ),
         4 => (
             Camera::new(
@@ -162,34 +169,45 @@ fn two_spheres() -> Scene {
     .add_sphere(Sphere::new(
         Point3::new(0., -10., 0.),
         10.,
-        Lambertian::new(Box::new(Checker::new(
-            Box::new(Monochrome::from_rgb(0.2, 0.3, 0.1)),
-            Box::new(Monochrome::from_rgb(0.9, 0.9, 0.9)),
-        ))),
+        Lambertian::new(Checker::from_colors(
+            Color3::new(0.2, 0.3, 0.1),
+            Color3::new(0.9, 0.9, 0.9),
+        )),
     ))
     .add_sphere(Sphere::new(
         Point3::new(0., 10., 0.),
         10.,
-        Lambertian::new(Box::new(Checker::new(
-            Box::new(Monochrome::from_rgb(0.2, 0.3, 0.1)),
-            Box::new(Monochrome::from_rgb(0.9, 0.9, 0.9)),
-        ))),
+        Lambertian::new(Checker::from_colors(
+            Color3::new(0.2, 0.3, 0.1),
+            Color3::new(0.9, 0.9, 0.9),
+        )),
     ))
     .build()
 }
 
-fn earth() -> Scene {
-    SceneBuilder::new(Background::Color(
-        Vec3::new(0.5, 0.7, 1.),
-    ))
-    .add_sphere(Sphere::new(
-        Point3::new(0., 0., 0.),
-        2.,
-        Lambertian::new(Box::new(
-            Image::load("resources/earthmap.jpg")
+fn two_perlin_spheres() -> Scene {
+    SceneBuilder::new(Background::Color(Color3::new(0.5, 0.7, 1.)))
+        .add_sphere(Sphere::new(
+            Point3::new(0., -1000., 0.),
+            1000.,
+            Lambertian::new(Noise::new(4.)),
         ))
-    ))
-    .build()
+        .add_sphere(Sphere::new(
+            Point3::new(0., 2., 0.),
+            2.,
+            Lambertian::new(Noise::new(4.)),
+        ))
+        .build()
+}
+
+fn earth() -> Scene {
+    SceneBuilder::new(Background::Color(Vec3::new(0.5, 0.7, 1.)))
+        .add_sphere(Sphere::new(
+            Point3::new(0., 0., 0.),
+            2.,
+            Lambertian::new(Image::load("resources/earthmap.jpg")),
+        ))
+        .build()
 }
 
 fn simple_light() -> Scene {
@@ -197,12 +215,12 @@ fn simple_light() -> Scene {
         .add_sphere(Sphere::new(
             Point3::new(0., -1000., 0.),
             1000.,
-            Lambertian::from_rgb(0.2, 0.2, 0.2),
+            Lambertian::new(Noise::new(4.)),
         ))
         .add_sphere(Sphere::new(
             Point3::new(0., 2., 0.),
             2.,
-            Lambertian::from_rgb(0.4, 0.4, 0.4),
+            Lambertian::new(Noise::new(4.)),
         ))
         .add_object(Object::new(XyRect::new(
             3.,
