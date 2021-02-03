@@ -108,7 +108,10 @@ impl Vec3 {
     /// ```
     #[inline]
     pub fn length(&self) -> f32 {
-        f32::sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        f32::sqrt(
+            self.x
+                .mul_add(self.x, self.y.mul_add(self.y, self.z * self.z)),
+        )
     }
 
     /// Returns the squared [length](https://en.wikipedia.org/wiki/Euclidean_vector#Length) of the vector.
@@ -279,6 +282,7 @@ impl ops::Add<Vec3> for Vec3 {
     }
 }
 
+#[allow(clippy::use_self)]
 forward_ref_binop! { impl Add, add for Vec3, Vec3 }
 
 impl ops::AddAssign<Vec3> for Vec3 {
@@ -326,6 +330,7 @@ impl ops::Sub<Vec3> for Vec3 {
     }
 }
 
+#[allow(clippy::use_self)]
 forward_ref_binop! { impl Sub, sub for Vec3, Vec3 }
 
 impl ops::SubAssign<Vec3> for Vec3 {

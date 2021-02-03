@@ -2,7 +2,7 @@ use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::Sphere;
 use crab_rt::raytracer::RayTracer;
-use crab_rt::scene::{Background, SceneBuilder};
+use crab_rt::scene::{Background, Scene, SceneBuilder};
 use crab_rt::textures::Checker;
 use crab_rt::vec::{Color3, Point3, Vec3};
 

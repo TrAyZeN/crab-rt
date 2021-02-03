@@ -1,6 +1,6 @@
 #![warn(
     missing_debug_implementations,
-    // missing_docs,
+    missing_docs,
     rust_2018_idioms,
     clippy::all,
     clippy::pedantic,

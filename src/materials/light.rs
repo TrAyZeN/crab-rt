@@ -12,8 +12,10 @@ pub struct Light {
 impl Light {
     #[inline]
     #[must_use]
-    pub fn new(emit: Box<dyn Texture>) -> Self {
-        Self { emit }
+    pub fn new<T: 'static + Texture>(emit: T) -> Self {
+        Self {
+            emit: Box::new(emit),
+        }
     }
 }
 

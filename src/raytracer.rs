@@ -74,7 +74,7 @@ impl RayTracer {
                 for y in (i * raytracer.get_height() as usize / NB_THREADS)
                     ..((i + 1) * raytracer.get_height() as usize / NB_THREADS)
                 {
-                    for (x , pixel) in line_pixels.iter_mut().enumerate() {
+                    for (x, pixel) in line_pixels.iter_mut().enumerate() {
                         *pixel = raytracer.pixel(x, y);
                     }
 

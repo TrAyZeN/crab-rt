@@ -5,20 +5,19 @@ use rand::{
 
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
-use crab_rt::objects::{MovingSphere, Object, Sphere, XyRect};
+use crab_rt::objects::{MovingSphere, Object, Sphere, XyRect, XzRect, YzRect};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
 use crab_rt::textures::{Checker, Image, Monochrome, Noise};
 use crab_rt::vec::{Color3, Point3, Vec3};
 
 fn main() {
-    let aspect_ratio = 16. / 9.;
-    let image_width = 400;
-    let image_height = (image_width as f32 / aspect_ratio) as u32;
-    let samples_per_pixel = 400;
+    let mut aspect_ratio = 16. / 9.;
+    let mut image_width = 400;
+    let mut samples_per_pixel = 400;
     let max_reflections = 50;
 
-    let scene_number = 5;
+    let scene_number = 6;
 
     let (camera, scene) = match scene_number {
         1 => (
@@ -60,7 +59,7 @@ fn main() {
             ),
             earth(),
         ),
-        _ => (
+        5 => (
             Camera::new(
                 Point3::new(26., 3., 26.),
                 Point3::new(0., 2., 0.),
@@ -70,8 +69,23 @@ fn main() {
             .focus_dist(10.),
             simple_light(),
         ),
+        _ => {
+            aspect_ratio = 1.;
+            image_width = 600;
+            samples_per_pixel = 200;
+            (
+                Camera::new(
+                    Point3::new(278., 278., -800.),
+                    Point3::new(278., 278., 0.),
+                    40.,
+                    1.,
+                ),
+                cornell_box(),
+            )
+        }
     };
 
+    let image_height = (image_width as f32 / aspect_ratio) as u32;
     RayTracer::new(
         image_width,
         image_height,
@@ -223,12 +237,51 @@ fn simple_light() -> Scene {
             Lambertian::new(Noise::new(4.)),
         ))
         .add_object(Object::new(XyRect::new(
-            3.,
-            5.,
-            1.,
-            3.,
+            (3., 5.),
+            (1., 3.),
             -1.,
-            Light::new(Box::new(Monochrome::from_rgb(4., 4., 4.))),
+            Light::new(Monochrome::from_rgb(4., 4., 4.)),
         )))
+        .build()
+}
+
+fn cornell_box() -> Scene {
+    SceneBuilder::new(Background::Color(Color3::new(0., 0., 0.)))
+        .add_object(Object::new(YzRect::new(
+            (0., 555.),
+            (0., 555.),
+            555.,
+            Lambertian::from_rgb(0.12, 0.45, 0.15),
+        )))
+        .add_object(Object::new(YzRect::new(
+            (0., 555.),
+            (0., 555.),
+            0.,
+            Lambertian::from_rgb(0.65, 0.05, 0.05),
+        )))
+        .add_object(Object::new(XzRect::new(
+            (213., 343.),
+            (227., 332.),
+            554.,
+            Light::new(Monochrome::from_rgb(15., 15., 15.)),
+        )))
+        .add_object(Object::new(XzRect::new(
+            (0., 555.),
+            (0., 555.),
+            0.,
+            Lambertian::from_rgb(0.73, 0.73, 0.73),
+        )))
+        .add_object(Object::new(XzRect::new(
+            (0., 555.),
+            (0., 555.),
+            555.,
+            Lambertian::from_rgb(0.73, 0.73, 0.73),
+        )))
+        // .add_object(Object::new(XyRect::new(
+        //     (0., 555.),
+        //     (0., 555.),
+        //     555.,
+        //     Lambertian::from_rgb(0.73, 0.73, 0.73),
+        // )))
         .build()
 }
