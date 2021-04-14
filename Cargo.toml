@@ -20,8 +20,8 @@ codegen-units = 1
 debug-assertions = false
 
 [dependencies]
-image = "0.23.12"
-rand = "0.8.2"
+image = { version = "0.23.12", default-features = false, features = ["png"] }
+rand = { version = "0.8.2", features = ["nightly", "simd_support"] }
 
 # [dev-dependencies]
 # criterion = "0.3"
