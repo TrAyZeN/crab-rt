@@ -5,31 +5,6 @@ use rand::{
 
 use crate::vec::Vec3;
 
-/// Returns the value bounded by a minimum and a maximum.
-///
-/// # Panic
-/// Panics in `debug` mode if `min > max`.
-///
-/// # Example
-/// ```
-/// use crab_rt::utils::clamp;
-///
-/// assert_eq!(clamp(0.5, 0., 1.), 0.5);
-/// assert_eq!(clamp(-1., 0., 1.), 0.);
-/// assert_eq!(clamp(1., 0., 1.), 1.);
-/// ```
-pub fn clamp(x: f32, min: f32, max: f32) -> f32 {
-    debug_assert!(min <= max);
-
-    if x < min {
-        min
-    } else if x > max {
-        max
-    } else {
-        x
-    }
-}
-
 #[inline]
 pub fn random_unit_vector() -> Vec3 {
     random_in_unit_sphere().unit()
