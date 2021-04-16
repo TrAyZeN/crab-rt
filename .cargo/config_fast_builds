@@ -1,0 +1,6 @@
+# Add the content of this file to `config.toml` for faster builds.
+
+[target.x86_64-unkown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = ["-Clink-arg=-fuse-ld=mold", "-Zshare-generics=y"]
+
