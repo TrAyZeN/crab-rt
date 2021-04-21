@@ -27,11 +27,13 @@ impl Hitable for Translate {
             ray.get_time(),
         );
 
-        self.hitable.hit(&translated_ray, t_min, t_max).map(|mut r| {
-            r.set_hit_point(r.get_hit_point() + self.offset);
-            r.set_face_normal(&translated_ray);
-            r
-        })
+        self.hitable
+            .hit(&translated_ray, t_min, t_max)
+            .map(|mut r| {
+                r.set_hit_point(r.get_hit_point() + self.offset);
+                r.set_face_normal(&translated_ray);
+                r
+            })
     }
 
     #[must_use]

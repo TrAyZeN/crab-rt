@@ -186,6 +186,11 @@ impl<'a> HitRecord<'a> {
         &self.normal
     }
 
+    #[inline]
+    pub fn set_normal(&mut self, normal: Vec3) {
+        self.normal = normal;
+    }
+
     /// Returns the texture coordinates of the point.
     ///
     /// # Examples

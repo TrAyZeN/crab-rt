@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
-use crab_rt::objects::{AaBox, MovingSphere, Object, Sphere, XyRect, XzRect, YzRect, Translate};
+use crab_rt::objects::{AaBox, MovingSphere, Object, Sphere, Translate, XyRect, XzRect, YzRect, RotateY};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
 use crab_rt::textures::{Checker, Image, Monochrome, Noise};
@@ -249,25 +249,13 @@ fn simple_light() -> Scene {
 fn cornell_box() -> Scene {
     let white = Arc::new(Lambertian::from_rgb(0.73, 0.73, 0.73));
 
-    let box1 = AaBox::new(
-        Point3::zero(),
-        Point3::new(165., 330., 165.),
-        white.clone(),
-    );
-    let box1 = Translate::new(
-        Arc::new(box1),
-        Vec3::new(265., 0., 295.),
-    );
+    let box1 = AaBox::new(Point3::zero(), Point3::new(165., 330., 165.), white.clone());
+    let box1 = RotateY::new(Arc::new(box1), 15.);
+    let box1 = Translate::new(Arc::new(box1), Vec3::new(265., 0., 295.));
 
-    let box2 = AaBox::new(
-        Point3::zero(),
-        Point3::new(165., 165., 165.),
-        white.clone(),
-        );
-    let box2 = Translate::new(
-        Arc::new(box2),
-        Vec3::new(130., 0., 65.),
-    );
+    let box2 = AaBox::new(Point3::zero(), Point3::new(165., 165., 165.), white.clone());
+    let box2 = RotateY::new(Arc::new(box2), -18.);
+    let box2 = Translate::new(Arc::new(box2), Vec3::new(130., 0., 65.));
     SceneBuilder::new(Background::Color(Color3::new(0., 0., 0.)))
         .add_object(Object::new(YzRect::new(
             (0., 555.),
