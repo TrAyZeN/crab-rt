@@ -15,9 +15,10 @@ pub mod hitable;
 pub mod materials;
 pub mod objects;
 pub mod perlin;
-pub mod ray;
 pub mod raytracer;
 pub mod scene;
 pub mod textures;
 pub mod utils;
-pub mod vec;
+mod core;
+
+pub use crate::core::*;
