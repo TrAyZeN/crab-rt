@@ -145,7 +145,7 @@ impl<M: Material> Hitable for YzRect<M> {
         let mut record = HitRecord::new(
             t,
             ray.point(t),
-            Vec3::new(0., 1., 0.),
+            Vec3::new(1., 0., 0.),
             (
                 (y - self.y.0) / (self.y.1 - self.y.0),
                 (z - self.z.0) / (self.z.1 - self.z.0),
