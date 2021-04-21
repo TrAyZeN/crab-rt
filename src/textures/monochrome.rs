@@ -13,7 +13,7 @@ impl Monochrome {
     }
 
     #[inline]
-    pub const fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
+    pub fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
         Self::new(Color3::new(red, green, blue))
     }
 }

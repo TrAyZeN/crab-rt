@@ -40,7 +40,9 @@ impl Vec3 {
     /// ```
     #[inline]
     #[must_use]
-    pub const fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        debug_assert!(!x.is_nan() && !y.is_nan() && !z.is_nan());
+
         Self { x, y, z }
     }
 
@@ -54,7 +56,7 @@ impl Vec3 {
     ///
     /// assert_eq!(u, Vec3::new(0., 0., 0.));
     /// ```
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub const fn zero() -> Self {
         Self {
@@ -73,7 +75,8 @@ impl Vec3 {
     /// assert_eq!(Vec3::new(0., 1., 2.).is_zero(), false);
     /// assert_eq!(Vec3::new(0., 0., 0.).is_zero(), true);
     /// ```
-    #[inline]
+    #[inline(always)]
+    #[must_use]
     pub fn is_zero(&self) -> bool {
         self.x == 0. && self.y == 0. && self.z == 0.
     }
@@ -87,7 +90,8 @@ impl Vec3 {
     /// assert_eq!(Vec3::new(0., 1., 2.).is_near_zero(), false);
     /// assert_eq!(Vec3::new(1e-9, 1e-10, 1e-11).is_near_zero(), true);
     /// ```
-    #[inline]
+    #[inline(always)]
+    #[must_use]
     pub fn is_near_zero(&self) -> bool {
         const THRESH: f32 = 1e-8_f32;
         self.x.abs() < THRESH && self.y.abs() < THRESH && self.z.abs() < THRESH
@@ -104,12 +108,10 @@ impl Vec3 {
     ///
     /// assert_eq!(u.length(), f32::sqrt(1. * 1. + 2. * 2. + 3. * 3.));
     /// ```
-    #[inline]
+    #[inline(always)]
+    #[must_use]
     pub fn length(&self) -> f32 {
-        f32::sqrt(
-            self.x
-                .mul_add(self.x, self.y.mul_add(self.y, self.z * self.z)),
-        )
+        f32::sqrt(self.squared_length())
     }
 
     /// Returns the squared [length](https://en.wikipedia.org/wiki/Euclidean_vector#Length) of the vector.
@@ -122,11 +124,10 @@ impl Vec3 {
     ///
     /// assert_eq!(u.squared_length(), 1. * 1. + 2. * 2. + 3. * 3.);
     /// ```
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub fn squared_length(&self) -> f32 {
-        self.x
-            .mul_add(self.x, self.y.mul_add(self.y, self.z * self.z))
+        self.dot(self)
     }
 
     /// Consumes the vector and returns the unit vector with the same direction.
@@ -175,6 +176,22 @@ impl Vec3 {
         }
     }
 
+    /// Returns a vector with the absolute value operation applied to it coordinates
+    ///
+    /// # Examples
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(-1., 2., -3.);
+    ///
+    /// assert_eq!(u.abs(), Vec3::new(1., 2., 3.));
+    /// ```
+    #[inline(always)]
+    #[must_use]
+    pub fn abs(&self) -> Self {
+        Self::new(self.x.abs(), self.y.abs(), self.z.abs())
+    }
+
     /// Computes the [dot product](https://en.wikipedia.org/wiki/Dot_product) with the given vector.
     ///
     /// # Examples
@@ -186,10 +203,27 @@ impl Vec3 {
     ///
     /// assert_eq!(u.dot(&v), 1. * 4. + 2. * 5. + 3. * 6.);
     /// ```
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub fn dot(&self, v: &Self) -> f32 {
         self.x.mul_add(v.x, self.y.mul_add(v.y, self.z * v.z))
+    }
+
+    /// Computes the [dot product](Vec3::dot) and apply absolute value to it.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(-1., 2., -3.);
+    /// let v = Vec3::new(4., 5., -6.);
+    ///
+    /// assert_eq!(u.abs_dot(&v), f32::abs(-1. * 4. + 2. * 5. + (-3.) * (-6.)));
+    /// ```
+    #[inline(always)]
+    #[must_use]
+    pub fn abs_dot(&self, v: &Self) -> f32 {
+        self.dot(v).abs()
     }
 
     /// Computes the dot product of the vector with itself.
@@ -202,11 +236,10 @@ impl Vec3 {
     ///
     /// assert_eq!(u.square(), u.dot(&u));
     /// ```
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub fn square(&self) -> f32 {
-        self.x
-            .mul_add(self.x, self.y.mul_add(self.y, self.z * self.z))
+        self.dot(self)
     }
 
     /// Computes the [cross product](https://en.wikipedia.org/wiki/Cross_product) with the given vector.
@@ -223,14 +256,65 @@ impl Vec3 {
     /// assert_eq!(w.y, 3. * 4. - 1. * 5.);
     /// assert_eq!(w.z, 1. * 2. - 2. * 4.);
     /// ```
+    #[allow(clippy::cast_possible_truncation)]
     #[inline]
     #[must_use]
     pub fn cross(&self, v: &Self) -> Self {
-        Self {
-            x: self.y * v.z - self.z * v.y,
-            y: self.z * v.x - self.x * v.z,
-            z: self.x * v.y - self.y * v.x,
-        }
+        // Here we use 64-bit float to avoid error from cancellation.
+        let self_x = f64::from(self.x);
+        let self_y = f64::from(self.y);
+        let self_z = f64::from(self.z);
+        let v_x = f64::from(v.x);
+        let v_y = f64::from(v.y);
+        let v_z = f64::from(v.z);
+
+        Self::new(
+            ((self_y * v_z) - (self_z * v_y)) as f32,
+            ((self_z * v_x) - (self_x * v_z)) as f32,
+            ((self_x * v_y) - (self_y * v_x)) as f32,
+        )
+    }
+
+    /// Returns the component-wise minimum vector.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.);
+    /// let v = Vec3::new(0., 4., 2.);
+    ///
+    /// assert_eq!(u.min(&v), Vec3::new(0., 2., 2.));
+    /// ```
+    #[inline(always)]
+    #[must_use]
+    pub fn min(&self, v: &Self) -> Self {
+        Self::new(
+            f32::min(self.x, v.x),
+            f32::min(self.y, v.y),
+            f32::min(self.z, v.z),
+        )
+    }
+
+    /// Returns the component-wise maximum vector.
+    ///
+    /// # Example
+    /// ```
+    /// use crab_rt::vec::Vec3;
+    ///
+    /// let u = Vec3::new(1., 2., 3.);
+    /// let v = Vec3::new(0., 4., 2.);
+    ///
+    /// assert_eq!(u.max(&v), Vec3::new(1., 4., 3.));
+    /// ```
+    #[inline(always)]
+    #[must_use]
+    pub fn max(&self, v: &Self) -> Self {
+        Self::new(
+            f32::max(self.x, v.x),
+            f32::max(self.y, v.y),
+            f32::max(self.z, v.z),
+        )
     }
 }
 
@@ -241,7 +325,7 @@ macro_rules! forward_ref_binop {
         impl<'a> $imp<$u> for &'a $t {
             type Output = <$t as $imp<$u>>::Output;
 
-            #[inline]
+            #[inline(always)]
             fn $method(self, other: $u) -> <$t as $imp<$u>>::Output {
                 $imp::$method(*self, other)
             }
@@ -250,7 +334,7 @@ macro_rules! forward_ref_binop {
         impl<'a> $imp<&'a $u> for $t {
             type Output = <$t as $imp<$u>>::Output;
 
-            #[inline]
+            #[inline(always)]
             fn $method(self, other: &'a $u) -> <$t as $imp<$u>>::Output {
                 $imp::$method(self, *other)
             }
@@ -259,7 +343,7 @@ macro_rules! forward_ref_binop {
         impl<'a, 'b> $imp<&'a $u> for &'b $t {
             type Output = <$t as $imp<$u>>::Output;
 
-            #[inline]
+            #[inline(always)]
             fn $method(self, other: &'a $u) -> <$t as $imp<$u>>::Output {
                 $imp::$method(*self, *other)
             }
@@ -270,13 +354,13 @@ macro_rules! forward_ref_binop {
 impl ops::Add<Vec3> for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+        Self::new(
+            self.x + rhs.x,
+            self.y + rhs.y,
+            self.z + rhs.z,
+        )
     }
 }
 
@@ -295,33 +379,33 @@ impl ops::AddAssign<Vec3> for Vec3 {
 impl ops::Neg for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn neg(self) -> Self::Output {
-        Self {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Self::new(
+            -self.x,
+            -self.y,
+            -self.z,
+        )
     }
 }
 
 impl ops::Neg for &Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn neg(self) -> Self::Output {
-        Vec3 {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Vec3::new(
+            -self.x,
+            -self.y,
+            -self.z,
+        )
     }
 }
 
 impl ops::Sub<Vec3> for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn sub(self, rhs: Self) -> Self::Output {
         // Produces the same asm as without using operator overloading.
         self + (-rhs)
@@ -343,39 +427,39 @@ impl ops::SubAssign<Vec3> for Vec3 {
 impl ops::Mul<Vec3> for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
-            z: self.z * rhs.z,
-        }
+        Self::new(
+            self.x * rhs.x,
+            self.y * rhs.y,
+            self.z * rhs.z,
+        )
     }
 }
 
 impl ops::Mul<f32> for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, rhs: f32) -> Self::Output {
-        Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
-        }
+        Self::new(
+            self.x * rhs,
+            self.y * rhs,
+            self.z * rhs,
+        )
     }
 }
 
 impl ops::Mul<f32> for &Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, rhs: f32) -> Self::Output {
-        Vec3 {
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
-        }
+        Vec3::new(
+            self.x * rhs,
+            self.y * rhs,
+            self.z * rhs,
+        )
     }
 }
 
@@ -391,20 +475,20 @@ impl ops::MulAssign<f32> for Vec3 {
 impl ops::Mul<Vec3> for f32 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3 {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
-        }
+        Vec3::new(
+            self * rhs.x,
+            self * rhs.y,
+            self * rhs.z,
+        )
     }
 }
 
 impl ops::Mul<&Vec3> for f32 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, rhs: &Vec3) -> Self::Output {
         Vec3 {
             x: self * rhs.x,
@@ -417,7 +501,7 @@ impl ops::Mul<&Vec3> for f32 {
 impl ops::Div<f32> for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn div(self, rhs: f32) -> Self::Output {
         // Produces the same asm as without using operator overloading.
         self * rhs.recip()
@@ -438,34 +522,34 @@ impl ops::DivAssign<f32> for Vec3 {
 impl ops::Div<Vec3> for Vec3 {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn div(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x / rhs.x,
-            y: self.y / rhs.y,
-            z: self.z / rhs.z,
-        }
+        Self::new(
+            self.x / rhs.x,
+            self.y / rhs.y,
+            self.z / rhs.z,
+        )
     }
 }
 
 impl ops::Index<usize> for Vec3 {
     type Output = f32;
 
-    #[inline]
+    #[inline(always)]
     fn index(&self, index: usize) -> &Self::Output {
         [&self.x, &self.y, &self.z][index]
     }
 }
 
 impl ops::IndexMut<usize> for Vec3 {
-    #[inline]
+    #[inline(always)]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         [&mut self.x, &mut self.y, &mut self.z][index]
     }
 }
 
 impl convert::Into<Rgb<u8>> for Vec3 {
-    #[inline]
+    #[inline(always)]
     fn into(self) -> Rgb<u8> {
         Rgb([
             (255. * self.x.clamp(0., 1.)) as u8,
@@ -476,7 +560,7 @@ impl convert::Into<Rgb<u8>> for Vec3 {
 }
 
 impl convert::Into<Rgb<u8>> for &Vec3 {
-    #[inline]
+    #[inline(always)]
     fn into(self) -> Rgb<u8> {
         Rgb([
             (255. * self.x.clamp(0., 1.)) as u8,
@@ -488,7 +572,7 @@ impl convert::Into<Rgb<u8>> for &Vec3 {
 
 // Needed if using rayon
 impl iter::Sum<Vec3> for Vec3 {
-    #[inline]
+    #[inline(always)]
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::zero(), Add::add)
     }
