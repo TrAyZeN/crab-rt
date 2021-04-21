@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
-use crate::vec::{Point3, Vec3};
 use crate::ray::Ray;
+use crate::vec::{Point3, Vec3};
 
 #[derive(Debug)]
 pub struct RotateY {
@@ -67,8 +67,10 @@ impl Hitable for RotateY {
         origin.x = self.cos_theta * ray.get_origin().x - self.sin_theta * ray.get_origin().z;
         origin.z = self.sin_theta * ray.get_origin().x + self.cos_theta * ray.get_origin().z;
 
-        direction.x = self.cos_theta * ray.get_direction().x - self.sin_theta * ray.get_direction().z;
-        direction.z = self.sin_theta * ray.get_direction().x + self.cos_theta * ray.get_direction().z;
+        direction.x =
+            self.cos_theta * ray.get_direction().x - self.sin_theta * ray.get_direction().z;
+        direction.z =
+            self.sin_theta * ray.get_direction().x + self.cos_theta * ray.get_direction().z;
 
         let rotated_ray = Ray::new(origin, direction, ray.get_time());
 
@@ -78,7 +80,8 @@ impl Hitable for RotateY {
         let mut normal = *record.get_normal();
 
         p.x = self.cos_theta * record.get_hit_point().x + self.sin_theta * record.get_hit_point().z;
-        p.z = -self.sin_theta * record.get_hit_point().x + self.cos_theta * record.get_hit_point().z;
+        p.z =
+            -self.sin_theta * record.get_hit_point().x + self.cos_theta * record.get_hit_point().z;
 
         normal.x = self.cos_theta * record.get_normal().x + self.sin_theta * record.get_normal().z;
         normal.z = -self.sin_theta * record.get_normal().x + self.cos_theta * record.get_normal().z;

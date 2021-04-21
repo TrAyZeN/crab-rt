@@ -356,11 +356,7 @@ impl ops::Add<Vec3> for Vec3 {
 
     #[inline(always)]
     fn add(self, rhs: Self) -> Self::Output {
-        Self::new(
-            self.x + rhs.x,
-            self.y + rhs.y,
-            self.z + rhs.z,
-        )
+        Self::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 
@@ -381,11 +377,7 @@ impl ops::Neg for Vec3 {
 
     #[inline(always)]
     fn neg(self) -> Self::Output {
-        Self::new(
-            -self.x,
-            -self.y,
-            -self.z,
-        )
+        Self::new(-self.x, -self.y, -self.z)
     }
 }
 
@@ -394,11 +386,7 @@ impl ops::Neg for &Vec3 {
 
     #[inline(always)]
     fn neg(self) -> Self::Output {
-        Vec3::new(
-            -self.x,
-            -self.y,
-            -self.z,
-        )
+        Vec3::new(-self.x, -self.y, -self.z)
     }
 }
 
@@ -429,11 +417,7 @@ impl ops::Mul<Vec3> for Vec3 {
 
     #[inline(always)]
     fn mul(self, rhs: Self) -> Self::Output {
-        Self::new(
-            self.x * rhs.x,
-            self.y * rhs.y,
-            self.z * rhs.z,
-        )
+        Self::new(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z)
     }
 }
 
@@ -442,11 +426,7 @@ impl ops::Mul<f32> for Vec3 {
 
     #[inline(always)]
     fn mul(self, rhs: f32) -> Self::Output {
-        Self::new(
-            self.x * rhs,
-            self.y * rhs,
-            self.z * rhs,
-        )
+        Self::new(self.x * rhs, self.y * rhs, self.z * rhs)
     }
 }
 
@@ -455,11 +435,7 @@ impl ops::Mul<f32> for &Vec3 {
 
     #[inline(always)]
     fn mul(self, rhs: f32) -> Self::Output {
-        Vec3::new(
-            self.x * rhs,
-            self.y * rhs,
-            self.z * rhs,
-        )
+        Vec3::new(self.x * rhs, self.y * rhs, self.z * rhs)
     }
 }
 
@@ -477,11 +453,7 @@ impl ops::Mul<Vec3> for f32 {
 
     #[inline(always)]
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3::new(
-            self * rhs.x,
-            self * rhs.y,
-            self * rhs.z,
-        )
+        Vec3::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
 
@@ -524,11 +496,7 @@ impl ops::Div<Vec3> for Vec3 {
 
     #[inline(always)]
     fn div(self, rhs: Self) -> Self::Output {
-        Self::new(
-            self.x / rhs.x,
-            self.y / rhs.y,
-            self.z / rhs.z,
-        )
+        Self::new(self.x / rhs.x, self.y / rhs.y, self.z / rhs.z)
     }
 }
 

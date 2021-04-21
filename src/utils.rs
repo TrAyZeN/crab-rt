@@ -1,9 +1,71 @@
-use rand::{
-    distributions::{Distribution, Uniform},
-    Rng,
-};
+use std::rc::Rc;
+use std::cell::UnsafeCell;
+use rand::distributions::{Distribution, Uniform};
+use rand::{Rng, SeedableRng, RngCore, Error};
+use rand::rngs::SmallRng;
 
 use crate::vec::Vec3;
+
+pub struct SmallThreadRng {
+    rng: Rc<UnsafeCell<SmallRng>>,
+}
+
+thread_local! {
+    pub static SMALL_THREAD_RNG_KEY: Rc<UnsafeCell<SmallRng>> =
+        //Rc::new(UnsafeCell::new(SmallRng::from_entropy()));
+        Rc::new(UnsafeCell::new(SmallRng::from_seed([0; 32])));
+}
+
+pub fn small_thread_rng() -> SmallThreadRng {
+    let rng = SMALL_THREAD_RNG_KEY.with(|t| t.clone());
+    SmallThreadRng { rng }
+}
+
+impl RngCore for SmallThreadRng {
+    #[inline(always)]
+    fn next_u32(&mut self) -> u32 {
+        // SAFETY: SmallThreadRng is !Send and !Sync so it can be in only used
+        // by one thread and we only create reference to rng for the scope of
+        // a function so we are sure that no one else holds a
+        // reference to it
+        let rng = unsafe { &mut *self.rng.get() };
+        rng.next_u32()
+    }
+
+    #[inline(always)]
+    fn next_u64(&mut self) -> u64 {
+        // SAFETY: SmallThreadRng is !Send and !Sync so it can be in only used
+        // by one thread and we only create reference to rng for the scope of
+        // a function so we are sure that no one else holds a
+        // reference to it
+        let rng = unsafe { &mut *self.rng.get() };
+        rng.next_u64()
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        // SAFETY: SmallThreadRng is !Send and !Sync so it can be in only used
+        // by one thread and we only create reference to rng for the scope of
+        // a function so we are sure that no one else holds a
+        // reference to it
+        let rng = unsafe { &mut *self.rng.get() };
+        rng.fill_bytes(dest)
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), Error> {
+        // SAFETY: SmallThreadRng is !Send and !Sync so it can be in only used
+        // by one thread and we only create reference to rng for the scope of
+        // a function so we are sure that no one else holds a
+        // reference to it
+        let rng = unsafe { &mut *self.rng.get() };
+        rng.try_fill_bytes(dest)
+    }
+}
+
+#[inline(always)]
+pub fn rng() -> impl Rng {
+    //small_thread_rng()
+    rand::thread_rng()
+}
 
 #[inline]
 pub fn random_unit_vector() -> Vec3 {
@@ -22,7 +84,7 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
 
 pub fn random_in_unit_sphere() -> Vec3 {
     let uniform = Uniform::from(-1.0..1.0);
-    let mut rng = rand::thread_rng();
+    let mut rng = rng();
 
     let mut p = Vec3::new(
         uniform.sample(&mut rng),
@@ -38,7 +100,7 @@ pub fn random_in_unit_sphere() -> Vec3 {
 
 pub fn random_in_unit_disk() -> Vec3 {
     let uniform = Uniform::from(-1.0..1.0);
-    let mut rng = rand::thread_rng();
+    let mut rng = rng();
 
     let mut p = Vec3::new(uniform.sample(&mut rng), uniform.sample(&mut rng), 0.);
     while p.squared_length() >= 1. {

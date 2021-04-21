@@ -1,5 +1,4 @@
 use std::fmt::Debug;
-use std::sync::Arc;
 
 use crate::aabb::Aabb;
 use crate::materials::Material;

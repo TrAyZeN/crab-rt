@@ -1,5 +1,6 @@
 use image::{ImageBuffer, RgbImage};
-use rand::{prelude::*, thread_rng};
+use rand::Rng;
+
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -7,7 +8,7 @@ use crate::camera::Camera;
 use crate::hitable::Hitable;
 use crate::ray::Ray;
 use crate::scene::Scene;
-use crate::utils::gamma_encode;
+use crate::utils::{gamma_encode, rng};
 use crate::vec::{Color3, Vec3};
 
 const NB_THREADS: usize = 10;
@@ -104,7 +105,7 @@ impl RayTracer {
     #[inline(always)]
     #[must_use]
     fn pixel(&self, x: usize, y: usize) -> Color3 {
-        let mut rng = thread_rng();
+        let mut rng = rng();
         let y = self.height as usize - y - 1;
 
         let color = (0..self.samples)

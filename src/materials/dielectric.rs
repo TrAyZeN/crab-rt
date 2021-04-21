@@ -1,9 +1,10 @@
+use rand::Rng;
+
 use super::material::Material;
 use crate::hitable::HitRecord;
 use crate::ray::Ray;
-use crate::utils::{reflect, refract, schlick};
+use crate::utils::{reflect, refract, rng, schlick};
 use crate::vec::Vec3;
-use rand::prelude::*;
 
 // use rand::{prelude::*, Rng};
 
@@ -68,7 +69,7 @@ impl Dielectric {
 
 impl Material for Dielectric {
     fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
-        let mut rng = rand::thread_rng();
+        let mut rng = rng();
         let refraction_ratio = if record.get_front_face() {
             1. / self.refractive_index
         } else {

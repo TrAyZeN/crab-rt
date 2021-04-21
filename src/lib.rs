@@ -11,6 +11,7 @@
 pub mod aabb;
 pub mod bvh;
 pub mod camera;
+mod core;
 pub mod hitable;
 pub mod materials;
 pub mod objects;
@@ -19,6 +20,5 @@ pub mod raytracer;
 pub mod scene;
 pub mod textures;
 pub mod utils;
-mod core;
 
 pub use crate::core::*;

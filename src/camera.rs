@@ -1,7 +1,7 @@
 use rand::distributions::{Distribution, Uniform};
 
 use crate::ray::Ray;
-use crate::utils::random_in_unit_disk;
+use crate::utils::{random_in_unit_disk, rng};
 use crate::vec::{Point3, Vec3};
 
 #[derive(Debug, Clone)]
@@ -172,7 +172,7 @@ impl Camera {
 
     #[must_use]
     pub fn get_ray(&self, s: f32, t: f32) -> Ray {
-        let mut rng = rand::thread_rng();
+        let mut rng = rng();
         let rd = self.lens_radius * random_in_unit_disk();
         let offset = self.u * rd.x + self.v * rd.y;
 

@@ -1,5 +1,6 @@
 use rand::Rng;
 
+use crate::utils::rng;
 use crate::vec::Point3;
 
 #[derive(Debug)]
@@ -15,7 +16,7 @@ impl Perlin {
     #[must_use]
     pub fn new() -> Self {
         const POINT_COUNT: usize = 256;
-        let mut rng = rand::thread_rng();
+        let mut rng = rng();
 
         let mut random_floats = vec![0.; POINT_COUNT];
         for f in &mut random_floats {
@@ -75,7 +76,7 @@ impl Perlin {
     }
 
     fn permutation(n: usize) -> Vec<usize> {
-        let mut rng = rand::thread_rng();
+        let mut rng = rng();
 
         let mut perm: Vec<usize> = (0..n).collect();
         for i in (1..n).rev() {

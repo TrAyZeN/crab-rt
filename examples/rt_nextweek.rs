@@ -6,13 +6,17 @@ use std::sync::Arc;
 
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
-use crab_rt::objects::{AaBox, MovingSphere, Object, Sphere, Translate, XyRect, XzRect, YzRect, RotateY};
+use crab_rt::objects::{
+    AaBox, MovingSphere, Object, RotateY, Sphere, Translate, XyRect, XzRect, YzRect,
+};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
 use crab_rt::textures::{Checker, Image, Monochrome, Noise};
 use crab_rt::vec::{Color3, Point3, Vec3};
 
 fn main() {
+    let start = std::time::Instant::now();
+
     let mut aspect_ratio = 16. / 9.;
     let mut image_width = 400;
     let mut samples_per_pixel = 400;
@@ -100,6 +104,8 @@ fn main() {
     .unwrap()
     .save("rt_nextweek.png")
     .unwrap();
+
+    println!("Done in {:?}", start.elapsed());
 }
 
 fn random_scene() -> Scene {

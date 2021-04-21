@@ -5,6 +5,7 @@ use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::objects::Object;
 use crate::ray::Ray;
+use crate::utils::rng;
 
 #[derive(Debug, Default)]
 pub struct BvhNode {
@@ -18,7 +19,7 @@ impl BvhNode {
     #[must_use]
     pub fn new(mut objects: Vec<Object>, time_interval: (f32, f32)) -> Self {
         let uniform = Uniform::from(0..3);
-        let mut rng = rand::thread_rng();
+        let mut rng = rng();
         let axis = uniform.sample(&mut rng);
         let comparator = |object1: &Object, object2: &Object| {
             let bbox_1 = object1.bounding_box((0., 0.));

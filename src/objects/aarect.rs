@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
-use crate::materials::material;
 use crate::materials::Material;
 use crate::ray::Ray;
 use crate::vec::{Point3, Vec3};
