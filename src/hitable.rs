@@ -156,6 +156,12 @@ impl<'a> HitRecord<'a> {
         &self.hit_point
     }
 
+    // TODO: Remove this method ?
+    #[inline]
+    pub fn set_hit_point(&mut self, hit_point: Point3) {
+        self.hit_point = hit_point;
+    }
+
     /// Returns the surface normal.
     ///
     /// # Example

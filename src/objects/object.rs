@@ -21,7 +21,11 @@ impl Object {
     /// use crab_rt::objects::{Object, Sphere};
     /// use crab_rt::vec::Vec3;
     ///
-    /// let object = Object::new(Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default())));
+    /// let object = Object::new(Sphere::new(
+    ///     Vec3::zero(),
+    ///     1.,
+    ///     Arc::new(Lambertian::default()),
+    /// ));
     /// ```
     #[inline]
     pub fn new<H: 'static + Hitable>(volume: H) -> Self {
