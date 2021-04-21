@@ -61,7 +61,7 @@ fn main() {
         ),
         5 => (
             Camera::new(
-                Point3::new(26., 3., 26.),
+                Point3::new(26., 3., 6.),
                 Point3::new(0., 2., 0.),
                 20.,
                 aspect_ratio,
@@ -239,7 +239,7 @@ fn simple_light() -> Scene {
         .add_object(Object::new(XyRect::new(
             (3., 5.),
             (1., 3.),
-            -1.,
+            -2.,
             Light::new(Monochrome::from_rgb(4., 4., 4.)),
         )))
         .build()
@@ -277,11 +277,11 @@ fn cornell_box() -> Scene {
             555.,
             Lambertian::from_rgb(0.73, 0.73, 0.73),
         )))
-        // .add_object(Object::new(XyRect::new(
-        //     (0., 555.),
-        //     (0., 555.),
-        //     555.,
-        //     Lambertian::from_rgb(0.73, 0.73, 0.73),
-        // )))
+        .add_object(Object::new(XyRect::new(
+            (0., 555.),
+            (0., 555.),
+            555.,
+            Lambertian::from_rgb(0.73, 0.73, 0.73),
+        )))
         .build()
 }
