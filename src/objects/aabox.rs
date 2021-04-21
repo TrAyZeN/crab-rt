@@ -50,13 +50,13 @@ where
                 Object::new(XzRect::new(
                     (min.x, max.x),
                     (min.z, max.z),
-                    min.y,
+                    max.y,
                     material.clone(),
                 )),
                 Object::new(YzRect::new(
                     (min.y, max.y),
                     (min.z, max.z),
-                    max.x,
+                    min.x,
                     material.clone(),
                 )),
                 Object::new(YzRect::new((min.y, max.y), (min.z, max.z), max.x, material)),
