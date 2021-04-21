@@ -98,13 +98,15 @@ impl SceneBuilder {
     ///
     /// # Examples
     /// ```
+    /// use std::sync::Arc;
+    ///
     /// use crab_rt::materials::Lambertian;
     /// use crab_rt::objects::{Object, Sphere};
     /// use crab_rt::scene::{Background, SceneBuilder};
     /// use crab_rt::vec::Vec3;
     ///
     /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero())).add_object(
-    ///     Object::new(Sphere::new(Vec3::zero(), 1., Lambertian::default())),
+    ///     Object::new(Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default()))),
     /// );
     /// ```
     #[inline]
@@ -119,13 +121,15 @@ impl SceneBuilder {
     ///
     /// # Examples
     /// ```
+    /// use std::sync::Arc;
+    ///
     /// use crab_rt::materials::Lambertian;
     /// use crab_rt::objects::{Object, Sphere};
     /// use crab_rt::scene::{Background, SceneBuilder};
     /// use crab_rt::vec::Vec3;
     ///
     /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero())).add_sphere(
-    ///     Sphere::new(Vec3::zero(), 1., Lambertian::default()),
+    ///     Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default())),
     /// );
     /// ```
     #[inline]

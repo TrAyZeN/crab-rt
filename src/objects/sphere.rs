@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use std::sync::Arc;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
@@ -14,7 +15,7 @@ pub struct Sphere<M: Material> {
     /// Radius of the sphere.
     radius: f32,
     /// Material of the sphere.
-    material: M,
+    material: Arc<M>,
 }
 
 impl<M: Material> Sphere<M> {
@@ -25,15 +26,17 @@ impl<M: Material> Sphere<M> {
     ///
     /// # Examples
     /// ```
+    /// use std::sync::Arc;
+    ///
     /// use crab_rt::materials::Lambertian;
     /// use crab_rt::objects::Sphere;
     /// use crab_rt::vec::Vec3;
     ///
-    /// let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+    /// let sphere = Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default()));
     /// ```
     #[inline]
     #[must_use]
-    pub fn new(center: Point3, radius: f32, material: M) -> Self {
+    pub fn new(center: Point3, radius: f32, material: Arc<M>) -> Self {
         assert!(radius > 0.);
 
         Self {
@@ -103,7 +106,7 @@ impl<M: Material> Hitable for Sphere<M> {
             hit_point,
             outward_normal,
             Self::get_texture_coordinates(&outward_normal),
-            &self.material,
+            self.material.as_ref(),
         );
         record.set_face_normal(ray);
         Some(record)
@@ -125,7 +128,7 @@ mod tests {
 
     #[test]
     fn sphere_hit_hitting_ray() {
-        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::default());
+        let testee = Sphere::new(Vec3::zero(), 0.5, Arc::new(Lambertian::default()));
         let hitting_ray = Ray::new(Point3::new(1., 0., 0.), Vec3::new(-1., 0., 0.), 0.);
 
         assert!(testee.hit(&hitting_ray, 0.0001, f32::INFINITY).is_some());
@@ -133,7 +136,7 @@ mod tests {
 
     #[test]
     fn sphere_hit_not_hitting_ray() {
-        let testee = Sphere::new(Vec3::zero(), 0.5, Lambertian::default());
+        let testee = Sphere::new(Vec3::zero(), 0.5, Arc::new(Lambertian::default()));
         let not_hitting_ray = Ray::new(Point3::new(1., 0., 0.), Vec3::new(-0.5, 0.5, 0.), 0.);
 
         assert!(testee
@@ -143,7 +146,7 @@ mod tests {
 
     #[test]
     fn sphere_bounding_box() {
-        let testee = Sphere::new(Vec3::new(1., 2., 3.), 1., Lambertian::default());
+        let testee = Sphere::new(Vec3::new(1., 2., 3.), 1., Arc::new(Lambertian::default()));
         let bounding_box = testee.bounding_box((0., 0.));
         assert!(bounding_box.is_some());
 

@@ -2,10 +2,11 @@ use rand::{
     distributions::{Distribution, Uniform},
     Rng,
 };
+use std::sync::Arc;
 
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
-use crab_rt::objects::{MovingSphere, Object, Sphere, XyRect, XzRect, YzRect};
+use crab_rt::objects::{AaBox, MovingSphere, Object, Sphere, XyRect, XzRect, YzRect};
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
 use crab_rt::textures::{Checker, Image, Monochrome, Noise};
@@ -107,10 +108,12 @@ fn random_scene() -> Scene {
     let uniform2 = Uniform::from(0.5..1.0);
     let mut rng = rand::thread_rng();
 
+    let dielectric_material = Arc::new(Dielectric::new(1.5));
+
     objects.push(Object::new(Sphere::new(
         Vec3::new(0., -1000., 0.),
         1000.,
-        Lambertian::from_rgb(0.5, 0.5, 0.5),
+        Arc::new(Lambertian::from_rgb(0.5, 0.5, 0.5)),
     )));
 
     for a in -11..11 {
@@ -129,23 +132,31 @@ fn random_scene() -> Scene {
                         (center, center2),
                         (0., 1.),
                         0.2,
-                        Lambertian::from_rgb(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()),
+                        Arc::new(Lambertian::from_rgb(
+                            rng.gen::<f32>(),
+                            rng.gen::<f32>(),
+                            rng.gen::<f32>(),
+                        )),
                     )))
                 } else if choose_mat < 0.95 {
                     objects.push(Object::new(Sphere::new(
                         center,
                         0.2,
-                        Metal::new(
+                        Arc::new(Metal::new(
                             Vec3::new(
                                 uniform2.sample(&mut rng),
                                 uniform2.sample(&mut rng),
                                 uniform2.sample(&mut rng),
                             ),
                             rng.gen::<f32>() * 0.5,
-                        ),
+                        )),
                     )))
                 } else {
-                    objects.push(Object::new(Sphere::new(center, 0.2, Dielectric::new(1.5))))
+                    objects.push(Object::new(Sphere::new(
+                        center,
+                        0.2,
+                        dielectric_material.clone(),
+                    )))
                 }
             }
         }
@@ -154,19 +165,19 @@ fn random_scene() -> Scene {
     objects.push(Object::new(Sphere::new(
         Vec3::new(0., 1., 0.),
         1.,
-        Dielectric::new(1.5),
+        dielectric_material,
     )));
 
     objects.push(Object::new(Sphere::new(
         Vec3::new(-4., 1., 0.),
         1.,
-        Lambertian::from_rgb(0.4, 0.2, 0.1),
+        Arc::new(Lambertian::from_rgb(0.4, 0.2, 0.1)),
     )));
 
     objects.push(Object::new(Sphere::new(
         Vec3::new(4., 1., 0.),
         1.,
-        Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.),
+        Arc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.)),
     )));
 
     Scene::new(
@@ -176,6 +187,10 @@ fn random_scene() -> Scene {
 }
 
 fn two_spheres() -> Scene {
+    let checker_material = Arc::new(Lambertian::new(Checker::from_colors(
+        Color3::new(0.2, 0.3, 0.1),
+        Color3::new(0.9, 0.9, 0.9),
+    )));
     SceneBuilder::new(Background::Gradient(
         Vec3::new(0.5, 0.7, 1.),
         Vec3::new(1., 1., 1.),
@@ -183,34 +198,22 @@ fn two_spheres() -> Scene {
     .add_sphere(Sphere::new(
         Point3::new(0., -10., 0.),
         10.,
-        Lambertian::new(Checker::from_colors(
-            Color3::new(0.2, 0.3, 0.1),
-            Color3::new(0.9, 0.9, 0.9),
-        )),
+        checker_material.clone(),
     ))
-    .add_sphere(Sphere::new(
-        Point3::new(0., 10., 0.),
-        10.,
-        Lambertian::new(Checker::from_colors(
-            Color3::new(0.2, 0.3, 0.1),
-            Color3::new(0.9, 0.9, 0.9),
-        )),
-    ))
+    .add_sphere(Sphere::new(Point3::new(0., 10., 0.), 10., checker_material))
     .build()
 }
 
 fn two_perlin_spheres() -> Scene {
+    let perlin_material = Arc::new(Lambertian::new(Noise::new(4.)));
+
     SceneBuilder::new(Background::Color(Color3::new(0.5, 0.7, 1.)))
         .add_sphere(Sphere::new(
             Point3::new(0., -1000., 0.),
             1000.,
-            Lambertian::new(Noise::new(4.)),
+            perlin_material.clone(),
         ))
-        .add_sphere(Sphere::new(
-            Point3::new(0., 2., 0.),
-            2.,
-            Lambertian::new(Noise::new(4.)),
-        ))
+        .add_sphere(Sphere::new(Point3::new(0., 2., 0.), 2., perlin_material))
         .build()
 }
 
@@ -219,69 +222,78 @@ fn earth() -> Scene {
         .add_sphere(Sphere::new(
             Point3::new(0., 0., 0.),
             2.,
-            Lambertian::new(Image::load("resources/earthmap.jpg")),
+            Arc::new(Lambertian::new(Image::load("resources/earthmap.jpg"))),
         ))
         .build()
 }
 
 fn simple_light() -> Scene {
+    let perlin_material = Arc::new(Lambertian::new(Noise::new(4.)));
+
     SceneBuilder::new(Background::Color(Vec3::new(0., 0., 0.)))
         .add_sphere(Sphere::new(
             Point3::new(0., -1000., 0.),
             1000.,
-            Lambertian::new(Noise::new(4.)),
+            perlin_material.clone(),
         ))
-        .add_sphere(Sphere::new(
-            Point3::new(0., 2., 0.),
-            2.,
-            Lambertian::new(Noise::new(4.)),
-        ))
+        .add_sphere(Sphere::new(Point3::new(0., 2., 0.), 2., perlin_material))
         .add_object(Object::new(XyRect::new(
             (3., 5.),
             (1., 3.),
             -2.,
-            Light::new(Monochrome::from_rgb(4., 4., 4.)),
+            Arc::new(Light::new(Monochrome::from_rgb(4., 4., 4.))),
         )))
         .build()
 }
 
 fn cornell_box() -> Scene {
+    let white = Arc::new(Lambertian::from_rgb(0.73, 0.73, 0.73));
     SceneBuilder::new(Background::Color(Color3::new(0., 0., 0.)))
         .add_object(Object::new(YzRect::new(
             (0., 555.),
             (0., 555.),
             555.,
-            Lambertian::from_rgb(0.12, 0.45, 0.15),
+            Arc::new(Lambertian::from_rgb(0.12, 0.45, 0.15)),
         )))
         .add_object(Object::new(YzRect::new(
             (0., 555.),
             (0., 555.),
             0.,
-            Lambertian::from_rgb(0.65, 0.05, 0.05),
+            Arc::new(Lambertian::from_rgb(0.65, 0.05, 0.05)),
         )))
         .add_object(Object::new(XzRect::new(
             (213., 343.),
             (227., 332.),
             554.,
-            Light::new(Monochrome::from_rgb(15., 15., 15.)),
+            Arc::new(Light::new(Monochrome::from_rgb(15., 15., 15.))),
         )))
         .add_object(Object::new(XzRect::new(
             (0., 555.),
             (0., 555.),
             0.,
-            Lambertian::from_rgb(0.73, 0.73, 0.73),
+            white.clone(),
         )))
         .add_object(Object::new(XzRect::new(
             (0., 555.),
             (0., 555.),
             555.,
-            Lambertian::from_rgb(0.73, 0.73, 0.73),
+            white.clone(),
         )))
         .add_object(Object::new(XyRect::new(
             (0., 555.),
             (0., 555.),
             555.,
-            Lambertian::from_rgb(0.73, 0.73, 0.73),
+            white.clone(),
+        )))
+        .add_object(Object::new(AaBox::new(
+            Point3::new(130., 0., 65.),
+            Point3::new(295., 165., 230.),
+            white.clone(),
+        )))
+        .add_object(Object::new(AaBox::new(
+            Point3::new(265., 0., 295.),
+            Point3::new(430., 330., 460.),
+            white.clone(),
         )))
         .build()
 }

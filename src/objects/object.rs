@@ -15,11 +15,13 @@ impl Object {
     ///
     /// # Examples
     /// ```
+    /// use std::sync::Arc;
+    ///
     /// use crab_rt::materials::Lambertian;
     /// use crab_rt::objects::{Object, Sphere};
     /// use crab_rt::vec::Vec3;
     ///
-    /// let object = Object::new(Sphere::new(Vec3::zero(), 1., Lambertian::default()));
+    /// let object = Object::new(Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default())));
     /// ```
     #[inline]
     pub fn new<H: 'static + Hitable>(volume: H) -> Self {
@@ -60,11 +62,12 @@ mod tests {
     use crate::materials::Lambertian;
     use crate::objects::Sphere;
     use crate::vec::Vec3;
+    use std::sync::Arc;
 
     #[test]
     fn object_bounding_box() {
         let time_interval = (0., 0.);
-        let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+        let sphere = Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default()));
         let sphere_bbox = sphere.bounding_box(time_interval);
 
         let testee = Object::new(sphere);

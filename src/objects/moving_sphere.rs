@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::materials::Material;
@@ -9,7 +11,7 @@ pub struct MovingSphere<M: Material> {
     center_interval: (Vec3, Vec3),
     time_interval: (f32, f32),
     radius: f32,
-    material: M,
+    material: Arc<M>,
 }
 
 impl<M: Material> MovingSphere<M> {
@@ -18,7 +20,7 @@ impl<M: Material> MovingSphere<M> {
         center_interval: (Vec3, Vec3),
         time_interval: (f32, f32),
         radius: f32,
-        material: M,
+        material: Arc<M>,
     ) -> Self {
         Self {
             center_interval,
@@ -69,7 +71,7 @@ impl<M: Material> Hitable for MovingSphere<M> {
             hit_point,
             (hit_point - center) / self.radius,
             (0., 0.),
-            &self.material,
+            self.material.as_ref(),
         );
         record.set_face_normal(ray);
         Some(record)

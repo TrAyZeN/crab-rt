@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::sync::Arc;
 
 use crate::aabb::Aabb;
 use crate::materials::Material;
@@ -232,7 +233,7 @@ impl<'a> HitRecord<'a> {
     /// # Examples
     /// ```
     /// use crab_rt::hitable::HitRecord;
-    /// use crab_rt::materials::Lambertian;
+    /// use crab_rt::materials::{Lambertian, Material};
     /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let material = Lambertian::default();

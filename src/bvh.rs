@@ -106,11 +106,12 @@ mod tests {
     use crate::materials::Lambertian;
     use crate::objects::Sphere;
     use crate::vec::Vec3;
+    use std::sync::Arc;
 
     #[test]
     fn new_with_one_object() {
         let time_interval = (0., 0.);
-        let sphere = Sphere::new(Vec3::zero(), 1., Lambertian::default());
+        let sphere = Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default()));
         let sphere_bbox = sphere.bounding_box(time_interval);
 
         let testee = BvhNode::new(vec![Object::new(sphere)], time_interval);
@@ -120,8 +121,9 @@ mod tests {
     #[test]
     fn new_with_two_object() {
         let time_interval = (0., 0.);
-        let sphere1 = Sphere::new(Vec3::zero(), 1., Lambertian::default());
-        let sphere2 = Sphere::new(Vec3::new(1., 2., 3.), 1., Lambertian::default());
+        let mat = Arc::new(Lambertian::default());
+        let sphere1 = Sphere::new(Vec3::zero(), 1., mat.clone());
+        let sphere2 = Sphere::new(Vec3::new(1., 2., 3.), 1., mat);
 
         let sphere1_bbox = sphere1.bounding_box(time_interval);
         let sphere2_bbox = sphere2.bounding_box(time_interval);

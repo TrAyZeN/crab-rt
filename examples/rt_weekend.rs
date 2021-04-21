@@ -2,6 +2,7 @@ use rand::{
     distributions::{Distribution, Uniform},
     Rng,
 };
+use std::sync::Arc;
 
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
@@ -48,10 +49,11 @@ fn random_scene() -> Scene {
     let uniform2 = Uniform::from(0.5..1.0);
     let mut rng = rand::thread_rng();
 
+    let dielectric_material = Arc::new(Dielectric::new(1.5));
     objects.push(Object::new(Sphere::new(
         Vec3::new(0., -1000., 0.),
         1000.,
-        Lambertian::from_rgb(0.5, 0.5, 0.5),
+        Arc::new(Lambertian::from_rgb(0.5, 0.5, 0.5)),
     )));
 
     for a in -11..11 {
@@ -68,23 +70,31 @@ fn random_scene() -> Scene {
                     objects.push(Object::new(Sphere::new(
                         center,
                         0.2,
-                        Lambertian::from_rgb(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()),
+                        Arc::new(Lambertian::from_rgb(
+                            rng.gen::<f32>(),
+                            rng.gen::<f32>(),
+                            rng.gen::<f32>(),
+                        )),
                     )));
                 } else if choose_mat < 0.95 {
                     objects.push(Object::new(Sphere::new(
                         center,
                         0.2,
-                        Metal::new(
+                        Arc::new(Metal::new(
                             Vec3::new(
                                 uniform2.sample(&mut rng),
                                 uniform2.sample(&mut rng),
                                 uniform2.sample(&mut rng),
                             ),
                             rng.gen::<f32>() * 0.5,
-                        ),
+                        )),
                     )));
                 } else {
-                    objects.push(Object::new(Sphere::new(center, 0.2, Dielectric::new(1.5))));
+                    objects.push(Object::new(Sphere::new(
+                        center,
+                        0.2,
+                        dielectric_material.clone(),
+                    )));
                 }
             }
         }
@@ -93,19 +103,19 @@ fn random_scene() -> Scene {
     objects.push(Object::new(Sphere::new(
         Vec3::new(0., 1., 0.),
         1.,
-        Dielectric::new(1.5),
+        dielectric_material,
     )));
 
     objects.push(Object::new(Sphere::new(
         Vec3::new(-4., 1., 0.),
         1.,
-        Lambertian::from_rgb(0.4, 0.2, 0.1),
+        Arc::new(Lambertian::from_rgb(0.4, 0.2, 0.1)),
     )));
 
     objects.push(Object::new(Sphere::new(
         Vec3::new(4., 1., 0.),
         1.,
-        Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.),
+        Arc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.)),
     )));
 
     Scene::new(

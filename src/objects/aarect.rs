@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::materials::material;
@@ -10,13 +12,13 @@ pub struct XyRect<M: Material> {
     x: (f32, f32),
     y: (f32, f32),
     k: f32,
-    material: M,
+    material: Arc<M>,
 }
 
 impl<M: Material> XyRect<M> {
     #[inline]
     #[must_use]
-    pub fn new(x: (f32, f32), y: (f32, f32), k: f32, material: M) -> Self {
+    pub fn new(x: (f32, f32), y: (f32, f32), k: f32, material: Arc<M>) -> Self {
         Self { x, y, k, material }
     }
 }
@@ -44,7 +46,7 @@ impl<M: Material> Hitable for XyRect<M> {
                 (x - self.x.0) / (self.x.1 - self.x.0),
                 (y - self.y.0) / (self.y.1 - self.y.0),
             ),
-            &self.material,
+            self.material.as_ref(),
         );
         record.set_face_normal(ray);
 
@@ -66,13 +68,13 @@ pub struct XzRect<M: Material> {
     x: (f32, f32),
     z: (f32, f32),
     k: f32,
-    material: M,
+    material: Arc<M>,
 }
 
 impl<M: Material> XzRect<M> {
     #[inline]
     #[must_use]
-    pub fn new(x: (f32, f32), z: (f32, f32), k: f32, material: M) -> Self {
+    pub fn new(x: (f32, f32), z: (f32, f32), k: f32, material: Arc<M>) -> Self {
         Self { x, z, k, material }
     }
 }
@@ -98,7 +100,7 @@ impl<M: Material> Hitable for XzRect<M> {
                 (x - self.x.0) / (self.x.1 - self.x.0),
                 (z - self.z.0) / (self.z.1 - self.z.0),
             ),
-            &self.material,
+            self.material.as_ref(),
         );
         record.set_face_normal(ray);
 
@@ -118,13 +120,13 @@ pub struct YzRect<M: Material> {
     y: (f32, f32),
     z: (f32, f32),
     k: f32,
-    material: M,
+    material: Arc<M>,
 }
 
 impl<M: Material> YzRect<M> {
     #[inline]
     #[must_use]
-    pub fn new(y: (f32, f32), z: (f32, f32), k: f32, material: M) -> Self {
+    pub fn new(y: (f32, f32), z: (f32, f32), k: f32, material: Arc<M>) -> Self {
         Self { y, z, k, material }
     }
 }
@@ -150,7 +152,7 @@ impl<M: Material> Hitable for YzRect<M> {
                 (y - self.y.0) / (self.y.1 - self.y.0),
                 (z - self.z.0) / (self.z.1 - self.z.0),
             ),
-            &self.material,
+            self.material.as_ref(),
         );
         record.set_face_normal(ray);
 

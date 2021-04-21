@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crab_rt::camera::Camera;
 use crab_rt::materials::{Dielectric, Lambertian, Metal};
 use crab_rt::objects::Sphere;
@@ -41,25 +43,25 @@ fn raytracer1() -> RayTracer {
     .add_sphere(Sphere::new(
         Vec3::new(0., 0., -1.),
         0.5,
-        Lambertian::from_rgb(0.1, 0.2, 0.5),
+        Arc::new(Lambertian::from_rgb(0.1, 0.2, 0.5)),
     ))
     .add_sphere(Sphere::new(
         Vec3::new(0., -100.5, -1.),
         100.,
-        Lambertian::new(Checker::from_colors(
+        Arc::new(Lambertian::new(Checker::from_colors(
             Color3::new(1., 1., 1.),
             Color3::new(0.5, 0.1, 0.8),
-        )),
+        ))),
     ))
     .add_sphere(Sphere::new(
         Vec3::new(1., 0., -1.),
         0.5,
-        Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.),
+        Arc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.)),
     ))
     .add_sphere(Sphere::new(
         Vec3::new(-1., 0., -1.),
         0.5,
-        Dielectric::new(1.5),
+        Arc::new(Dielectric::new(1.5)),
     ))
     // .add_sphere(Sphere::new(
     //     Vec3::new(-1., 0., -1.),
