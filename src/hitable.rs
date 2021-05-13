@@ -46,7 +46,7 @@ impl<H: Hitable> Hitable for Vec<H> {
 
 /// A record for a surface hit.
 #[derive(Debug)]
-pub struct HitRecord<'a> {
+pub struct HitRecord<'material> {
     /// The distance of the hit point to the origin.
     t: f32,
     /// The hit point.
@@ -58,10 +58,10 @@ pub struct HitRecord<'a> {
     /// Whether the ray hitted the front face.
     front_face: bool,
     /// The material of the surface.
-    material: &'a dyn Material,
+    material: &'material dyn Material,
 }
 
-impl<'a> HitRecord<'a> {
+impl<'material> HitRecord<'material> {
     /// Constructs a new `HitRecord`.
     ///
     /// # Examples
@@ -86,7 +86,7 @@ impl<'a> HitRecord<'a> {
         hit_point: Point3,
         normal: Vec3,
         texture_coordinates: (f32, f32),
-        material: &'a dyn Material,
+        material: &'material dyn Material,
     ) -> Self {
         Self {
             t,
