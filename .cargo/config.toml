@@ -1,0 +1,7 @@
+#[build]
+#rustc-wrapper="/home/trayzen/.cargo/bin/sccache"
+
+[target.x86_64-unkown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = ["-Clink-arg=-fuse-ld=mold", "-Zshare-generics=y"]
+
