@@ -58,8 +58,7 @@ impl Material for Lambertian {
 
         Some((
             Ray::new(*record.get_hit_point(), scatter_direction, ray.get_time()),
-            self.albedo
-                .value(record.get_texture_coordinates(), record.get_hit_point()),
+            self.albedo.value_from_hit(record),
         ))
     }
 }

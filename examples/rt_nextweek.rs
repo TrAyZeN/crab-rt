@@ -5,9 +5,9 @@ use rand::{
 use std::sync::Arc;
 
 use crab_rt::camera::Camera;
-use crab_rt::materials::{Dielectric, Lambertian, Light, Metal};
+use crab_rt::materials::{Dielectric, Isotropic, Lambertian, Light, Metal};
 use crab_rt::objects::{
-    AaBox, MovingSphere, Object, RotateY, Sphere, Translate, XyRect, XzRect, YzRect,
+    AaBox, ConstantMedium, MovingSphere, Object, RotateY, Sphere, Translate, XyRect, XzRect, YzRect,
 };
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, Scene, SceneBuilder};
@@ -22,7 +22,7 @@ fn main() {
     let mut samples_per_pixel = 400;
     let max_reflections = 50;
 
-    let scene_number = 6;
+    let scene_number = 7;
 
     let (camera, scene) = match scene_number {
         1 => (
@@ -74,6 +74,20 @@ fn main() {
             .focus_dist(10.),
             simple_light(),
         ),
+        6 => {
+            aspect_ratio = 1.;
+            image_width = 600;
+            samples_per_pixel = 200;
+            (
+                Camera::new(
+                    Point3::new(278., 278., -800.),
+                    Point3::new(278., 278., 0.),
+                    40.,
+                    aspect_ratio,
+                ),
+                cornell_box(),
+            )
+        }
         _ => {
             aspect_ratio = 1.;
             image_width = 600;
@@ -83,9 +97,9 @@ fn main() {
                     Point3::new(278., 278., -800.),
                     Point3::new(278., 278., 0.),
                     40.,
-                    1.,
+                    aspect_ratio,
                 ),
-                cornell_box(),
+                cornell_smoke(),
             )
         }
     };
@@ -301,5 +315,65 @@ fn cornell_box() -> Scene {
         )))
         .add_object(Object::new(box1))
         .add_object(Object::new(box2))
+        .build()
+}
+
+fn cornell_smoke() -> Scene {
+    let white = Arc::new(Lambertian::from_rgb(0.73, 0.73, 0.73));
+
+    let box1 = AaBox::new(Point3::zero(), Point3::new(165., 330., 165.), white.clone());
+    let box1 = RotateY::new(Arc::new(box1), 15.);
+    let box1 = Translate::new(Arc::new(box1), Vec3::new(265., 0., 295.));
+
+    let box2 = AaBox::new(Point3::zero(), Point3::new(165., 165., 165.), white.clone());
+    let box2 = RotateY::new(Arc::new(box2), -18.);
+    let box2 = Translate::new(Arc::new(box2), Vec3::new(130., 0., 65.));
+    SceneBuilder::new(Background::Color(Color3::new(0., 0., 0.)))
+        .add_object(Object::new(YzRect::new(
+            (0., 555.),
+            (0., 555.),
+            555.,
+            Arc::new(Lambertian::from_rgb(0.12, 0.45, 0.15)),
+        )))
+        .add_object(Object::new(YzRect::new(
+            (0., 555.),
+            (0., 555.),
+            0.,
+            Arc::new(Lambertian::from_rgb(0.65, 0.05, 0.05)),
+        )))
+        .add_object(Object::new(XzRect::new(
+            (213., 343.),
+            (227., 332.),
+            554.,
+            Arc::new(Light::new(Monochrome::from_rgb(15., 15., 15.))),
+        )))
+        .add_object(Object::new(XzRect::new(
+            (0., 555.),
+            (0., 555.),
+            0.,
+            white.clone(),
+        )))
+        .add_object(Object::new(XzRect::new(
+            (0., 555.),
+            (0., 555.),
+            555.,
+            white.clone(),
+        )))
+        .add_object(Object::new(XyRect::new(
+            (0., 555.),
+            (0., 555.),
+            555.,
+            white,
+        )))
+        .add_object(Object::new(ConstantMedium::new(
+            Arc::new(box1),
+            0.01,
+            Arc::new(Isotropic::new(Monochrome::from_rgb(0., 0., 0.))),
+        )))
+        .add_object(Object::new(ConstantMedium::new(
+            Arc::new(box2),
+            0.01,
+            Arc::new(Isotropic::new(Monochrome::from_rgb(1., 1., 1.))),
+        )))
         .build()
 }

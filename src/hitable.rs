@@ -131,6 +131,11 @@ impl<'a> HitRecord<'a> {
         self.t
     }
 
+    #[inline]
+    pub fn set_t(&mut self, t: f32) {
+        self.t = t;
+    }
+
     /// Returns the hit point.
     ///
     /// # Example
@@ -254,7 +259,7 @@ impl<'a> HitRecord<'a> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_material(), &material);
+    /// assert_eq!(record.get_material(), &material as &dyn Material);
     /// ```
     #[inline]
     #[must_use]

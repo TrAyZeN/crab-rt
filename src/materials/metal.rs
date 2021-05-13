@@ -2,13 +2,13 @@ use super::Material;
 use crate::hitable::HitRecord;
 use crate::ray::Ray;
 use crate::utils::{random_in_unit_sphere, reflect};
-use crate::vec::Vec3;
+use crate::vec::{Color3, Vec3};
 
 /// A material with specular reflections.
 #[derive(Debug, Default, Clone)]
 pub struct Metal {
     /// Albedo of the material.
-    albedo: Vec3,
+    albedo: Color3,
     /// Fuzziness of the material.
     fuzziness: f32,
 }
@@ -19,13 +19,13 @@ impl Metal {
     /// # Examples
     /// ```
     /// use crab_rt::materials::Metal;
-    /// use crab_rt::vec::Vec3;
+    /// use crab_rt::vec::Color3;
     ///
-    /// let material = Metal::new(Vec3::new(1., 1., 1.), 0.);
+    /// let material = Metal::new(Color3::new(1., 1., 1.), 0.);
     /// ```
     #[inline]
     #[must_use]
-    pub fn new(albedo: Vec3, fuzziness: f32) -> Self {
+    pub fn new(albedo: Color3, fuzziness: f32) -> Self {
         Self {
             albedo,
             fuzziness: if fuzziness > 1. { 1. } else { fuzziness },
