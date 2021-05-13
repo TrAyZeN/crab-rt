@@ -3,6 +3,7 @@ name = "crab-rt"
 version = "0.1.0"
 authors = ["TrAyZeN <lbenitoproduction@gmail.com>"]
 edition = "2018"
+resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -20,8 +21,8 @@ codegen-units = 1
 debug-assertions = false
 
 [dependencies]
-image = { version = "0.23.12", default-features = false, features = ["png"] }
-rand = { version = "0.8.2", features = ["nightly", "simd_support", "small_rng"] }
+image = { version = "0.23.14", default-features = false, features = ["png"] }
+rand = { version = "0.8.3", features = ["nightly", "simd_support", "small_rng"] }
 
 # [dev-dependencies]
 # criterion = "0.3"
