@@ -22,7 +22,7 @@ debug-assertions = false
 
 [dependencies]
 image = { version = "0.23.14", default-features = false, features = ["png"] }
-rand = { version = "0.8.3", features = ["nightly", "simd_support", "small_rng"] }
+rand = { version = "0.8.4", features = ["nightly", "simd_support", "small_rng"] }
 
 [dev-dependencies]
 criterion = "0.3"
