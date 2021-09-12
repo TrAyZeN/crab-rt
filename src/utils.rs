@@ -1,8 +1,8 @@
-use std::rc::Rc;
-use std::cell::UnsafeCell;
 use rand::distributions::{Distribution, Uniform};
-use rand::{Rng, SeedableRng, RngCore, Error};
 use rand::rngs::SmallRng;
+use rand::{Error, Rng, RngCore, SeedableRng};
+use std::cell::UnsafeCell;
+use std::rc::Rc;
 
 use crate::vec::Vec3;
 
@@ -116,10 +116,13 @@ pub fn random_in_unit_disk() -> Vec3 {
 ///
 /// # Examples
 /// ```
-/// use crab_rt::vec::Vec3;
 /// use crab_rt::utils::reflect;
+/// use crab_rt::vec::Vec3;
 ///
-/// assert_eq!(reflect(&Vec3::new(0.5, -0.5, 0.), &Vec3::new(0., 1., 0.)), Vec3::new(0.5, 0.5, 0.));
+/// assert_eq!(
+///     reflect(&Vec3::new(0.5, -0.5, 0.), &Vec3::new(0., 1., 0.)),
+///     Vec3::new(0.5, 0.5, 0.)
+/// );
 /// ```
 #[inline]
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
