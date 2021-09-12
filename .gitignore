@@ -1,3 +1,9 @@
+# Build artifacts
 /target
-/*.png
+
+# Tags
 tags
+
+# Results
+/*.png
+/*.jpg
