@@ -316,6 +316,14 @@ impl Vec3 {
             f32::max(self.z, v.z),
         )
     }
+
+    pub fn mul_add(&self, a: &Self, b: &Self) -> Self {
+        Self::new(
+            self.x.mul_add(a.x, b.x),
+            self.y.mul_add(a.y, b.y),
+            self.z.mul_add(a.z, b.z),
+        )
+    }
 }
 
 // implements binary operators "&T op U", "T op &U", "&T op &U"

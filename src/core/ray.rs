@@ -98,7 +98,8 @@ impl Ray {
     #[inline]
     #[must_use]
     pub fn point(&self, t: f32) -> Point3 {
-        self.origin + t * self.direction
+        // self.origin + t * self.direction
+        self.direction.mul_add(&Vec3::new(t, t, t), &self.origin)
     }
 }
 
