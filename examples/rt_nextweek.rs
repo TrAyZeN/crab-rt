@@ -116,7 +116,7 @@ fn main() {
     .raytrace()
     .lock()
     .unwrap()
-    .save("rt_nextweek.png")
+    .save("rt_nextweek.jpg")
     .unwrap();
 
     println!("Done in {:?}", start.elapsed());

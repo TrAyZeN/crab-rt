@@ -21,7 +21,7 @@ fn main() {
         .raytrace()
         .lock()
         .unwrap()
-        .save("out.png")
+        .save("out.jpg")
         .unwrap();
 
     println!("Done in {:?}", start.elapsed());

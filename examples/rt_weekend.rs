@@ -39,7 +39,7 @@ fn main() {
     .raytrace()
     .lock()
     .unwrap()
-    .save("rt_weekend.png")
+    .save("rt_weekend.jpg")
     .unwrap();
 }
 
