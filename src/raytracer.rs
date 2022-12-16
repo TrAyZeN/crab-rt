@@ -1,3 +1,4 @@
+use core_affinity;
 use image::{ImageBuffer, RgbImage};
 use rand::Rng;
 
@@ -11,7 +12,7 @@ use crate::scene::Scene;
 use crate::utils::{gamma_encode, rng};
 use crate::vec::{Color3, Vec3};
 
-const NB_THREADS: usize = 10;
+const NB_THREADS: usize = 8;
 
 /// A renderer using raytracing to produce images.
 #[derive(Debug)]
@@ -51,6 +52,11 @@ impl RayTracer {
     // pub fn raytrace(self) -> RgbImage {
     #[must_use]
     pub fn raytrace(self) -> Arc<Mutex<RgbImage>> {
+        let core_ids = core_affinity::get_core_ids();
+        if core_ids.is_none() {
+            println!("Failed to get core ids");
+        }
+
         let raytracer = Arc::new(self);
         // let image_pixels: Arc<Mutex<Vec<Rgb<u8>>>> = Arc::new(Mutex::new(vec![
         //     Rgb([0, 0, 0]);
@@ -68,8 +74,13 @@ impl RayTracer {
         for i in 0..NB_THREADS {
             let raytracer = Arc::clone(&raytracer);
             let image_pixels = Arc::clone(&image_pixels);
+            let core_id = core_ids.as_ref().map(|ids| ids[i]);
 
             workers.push(thread::spawn(move || {
+                if let Some(id) = core_id {
+                    core_affinity::set_for_current(id);
+                }
+
                 let mut line_pixels = vec![Vec3::default(); raytracer.get_width() as usize];
 
                 for y in (i * raytracer.get_height() as usize / NB_THREADS)
@@ -79,7 +90,7 @@ impl RayTracer {
                         *pixel = raytracer.pixel(x, y);
                     }
 
-                    let mut image_pixels = image_pixels.lock().unwrap();
+                    let mut image_pixels = image_pixels.lock();
                     for (x, pixel) in line_pixels.iter().enumerate() {
                         // image_pixels[x + y * raytracer.get_width()] = line_pixels[x].into();
                         image_pixels.put_pixel(x as u32, y as u32, pixel.into());
