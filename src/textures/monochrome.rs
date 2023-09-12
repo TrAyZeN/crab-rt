@@ -8,11 +8,13 @@ pub struct Monochrome {
 
 impl Monochrome {
     #[inline]
+    #[must_use]
     pub const fn new(color: Color3) -> Self {
         Self { color }
     }
 
     #[inline]
+    #[must_use]
     pub fn from_rgb(red: f32, green: f32, blue: f32) -> Self {
         Self::new(Color3::new(red, green, blue))
     }

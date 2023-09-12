@@ -57,16 +57,17 @@ impl<M: Material> Hitable for ConstantMedium<M> {
         }
 
         let ray_length = ray.get_direction().length();
-        let distance_inside_boundary = (rec2.get_t() - rec2.get_t()) * ray_length;
+        let distance_inside_boundary = (rec2.get_t() - rec1.get_t()) * ray_length;
         let hit_distance = self.neg_inv_density * rng().gen::<f32>().ln();
 
         if hit_distance > distance_inside_boundary {
             return None;
         }
 
+        let t = rec1.get_t() + hit_distance / ray_length;
         Some(HitRecord::new(
-            rec1.get_t() + hit_distance / ray_length,
-            ray.point(rec2.get_t()),
+            t,
+            ray.point(t),
             Vec3::new(1., 0., 0.),
             (0., 0.),
             self.phase_function.as_ref(),

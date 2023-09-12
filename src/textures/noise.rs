@@ -10,6 +10,7 @@ pub struct Noise {
 
 impl Noise {
     #[inline]
+    #[must_use]
     pub fn new(scale: f32) -> Self {
         Self {
             noise: Perlin::new(),
@@ -23,6 +24,6 @@ impl Texture for Noise {
     fn value(&self, _texture_coordinates: (f32, f32), p: &Point3) -> Vec3 {
         Vec3::new(1., 1., 1.)
             * 0.5
-            * (1. + f32::sin(self.scale * p.z + 10. * self.noise.turbulence(p)))
+            * (1. + f32::sin(self.scale.mul_add(p.z, 10. * self.noise.turbulence(p))))
     }
 }

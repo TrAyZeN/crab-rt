@@ -17,3 +17,13 @@
     <img src="assets/cornell_box.png">
 </div>
 
+## Usage
+```sh
+cargo run --release
+```
+
+### Run examples
+```sh
+cargo run --release --example rt_weekend
+cargo run --release --example rt_nextweek
+```

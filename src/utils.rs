@@ -16,8 +16,9 @@ thread_local! {
         Rc::new(UnsafeCell::new(SmallRng::from_seed([0; 32])));
 }
 
+#[must_use]
 pub fn small_thread_rng() -> SmallThreadRng {
-    let rng = SMALL_THREAD_RNG_KEY.with(|t| t.clone());
+    let rng = SMALL_THREAD_RNG_KEY.with(Clone::clone);
     SmallThreadRng { rng }
 }
 
@@ -48,7 +49,7 @@ impl RngCore for SmallThreadRng {
         // a function so we are sure that no one else holds a
         // reference to it
         let rng = unsafe { &mut *self.rng.get() };
-        rng.fill_bytes(dest)
+        rng.fill_bytes(dest);
     }
 
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), Error> {
@@ -62,16 +63,19 @@ impl RngCore for SmallThreadRng {
 }
 
 #[inline(always)]
+#[must_use]
 pub fn rng() -> impl Rng {
     //small_thread_rng()
     rand::thread_rng()
 }
 
 #[inline]
+#[must_use]
 pub fn random_unit_vector() -> Vec3 {
     random_in_unit_sphere().unit()
 }
 
+#[must_use]
 pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
     let in_unit_sphere = random_in_unit_sphere();
     if in_unit_sphere.dot(normal) > 0. {
@@ -82,6 +86,7 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
     }
 }
 
+#[must_use]
 pub fn random_in_unit_sphere() -> Vec3 {
     let uniform = Uniform::from(-1.0..1.0);
     let mut rng = rng();
@@ -98,6 +103,7 @@ pub fn random_in_unit_sphere() -> Vec3 {
     p
 }
 
+#[must_use]
 pub fn random_in_unit_disk() -> Vec3 {
     let uniform = Uniform::from(-1.0..1.0);
     let mut rng = rng();
@@ -125,10 +131,12 @@ pub fn random_in_unit_disk() -> Vec3 {
 /// );
 /// ```
 #[inline]
+#[must_use]
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     v - 2. * v.dot(n) * n
 }
 
+#[must_use]
 pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f32) -> Vec3 {
     let cos_theta = f32::min((-uv).dot(n), 1.);
     let r_out_perp = etai_over_etat * (uv + cos_theta * n);
@@ -143,20 +151,26 @@ pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f32) -> Vec3 {
 /// R_0 = \frac{n_1 - n_2}{n_1 + n_2}^2
 /// Schlick-approximation is used to efficiently calculate vacuum-medium type of interactions.
 #[inline]
+#[must_use]
 pub fn schlick(cosine: f32, refraction_index: f32) -> f32 {
     let mut r0 = (1. - refraction_index) / (1. + refraction_index);
     r0 *= r0;
-    r0 + (1. - r0) * f32::powf(1. - cosine, 5.)
+    (1. - r0).mul_add(f32::powf(1. - cosine, 5.), r0)
 }
 
 const GAMMA: f32 = 2.2;
 
+// The human visual system is approximately logarithmically sensitive to power over a large range
+// so common image formats use gamma encoding to optimize the usage of bits when encoding an image
+// so we have to revert that equation to get a correct encoding
 #[inline]
+#[must_use]
 pub fn gamma_encode(x: f32) -> f32 {
     x.powf(1. / GAMMA)
 }
 
 #[inline]
+#[must_use]
 pub fn gamma_decode(x: f32) -> f32 {
     x.powf(GAMMA)
 }
