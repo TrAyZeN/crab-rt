@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
-use crate::vec::{Point3, Vec3};
 use crate::hitable::HitRecord;
+use crate::vec::{Point3, Vec3};
 
 pub trait Texture: Debug + Send + Sync {
     #[must_use]

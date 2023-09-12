@@ -15,7 +15,6 @@ impl Scene {
     ///
     /// # Examples
     /// ```
-    ///
     /// ```
     #[inline]
     #[must_use]
@@ -33,7 +32,6 @@ impl Scene {
     ///
     /// # Examples
     /// ```
-    ///
     /// ```
     #[inline]
     #[must_use]
@@ -49,12 +47,15 @@ impl Scene {
     /// use crab_rt::vec::Vec3;
     ///
     /// let scene = Scene::new(Vec::new(), Background::Color(Vec3::new(0.1, 0.2, 0.3)));
-    /// assert_eq!(scene.get_background(), &Background::Color(Vec3::new(0.1, 0.2, 0.3)));
+    /// assert_eq!(
+    ///     scene.get_background(),
+    ///     &Background::Color(Vec3::new(0.1, 0.2, 0.3))
+    /// );
     ///
-    /// let scene = Scene::new(Vec::new(), Background::Gradient(
-    ///     Vec3::new(0.1, 0.2, 0.3),
-    ///     Vec3::new(1., 1., 1.),
-    /// ));
+    /// let scene = Scene::new(
+    ///     Vec::new(),
+    ///     Background::Gradient(Vec3::new(0.1, 0.2, 0.3), Vec3::new(1., 1., 1.)),
+    /// );
     /// assert_eq!(
     ///     scene.get_background(),
     ///     &Background::Gradient(Vec3::new(0.1, 0.2, 0.3), Vec3::new(1., 1., 1.))
@@ -79,11 +80,14 @@ impl SceneBuilder {
     ///
     /// # Examples
     /// ```
-    /// use crab_rt::scene::{SceneBuilder, Background};
+    /// use crab_rt::scene::{Background, SceneBuilder};
     /// use crab_rt::vec::Vec3;
     ///
     /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero()));
-    /// assert_eq!(scene_builder.build().get_background(), &Background::Color(Vec3::zero()));
+    /// assert_eq!(
+    ///     scene_builder.build().get_background(),
+    ///     &Background::Color(Vec3::zero())
+    /// );
     /// ```
     #[inline]
     #[must_use]
@@ -105,9 +109,9 @@ impl SceneBuilder {
     /// use crab_rt::scene::{Background, SceneBuilder};
     /// use crab_rt::vec::Vec3;
     ///
-    /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero())).add_object(
-    ///     Object::new(Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default()))),
-    /// );
+    /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero())).add_object(Object::new(
+    ///     Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default())),
+    /// ));
     /// ```
     #[inline]
     #[must_use]
@@ -128,9 +132,11 @@ impl SceneBuilder {
     /// use crab_rt::scene::{Background, SceneBuilder};
     /// use crab_rt::vec::Vec3;
     ///
-    /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero())).add_sphere(
-    ///     Sphere::new(Vec3::zero(), 1., Arc::new(Lambertian::default())),
-    /// );
+    /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero())).add_sphere(Sphere::new(
+    ///     Vec3::zero(),
+    ///     1.,
+    ///     Arc::new(Lambertian::default()),
+    /// ));
     /// ```
     #[inline]
     #[must_use]
