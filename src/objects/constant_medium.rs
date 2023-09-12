@@ -6,7 +6,7 @@ use crate::hitable::{HitRecord, Hitable};
 use crate::materials::Material;
 use crate::ray::Ray;
 use crate::utils::rng;
-use crate::vec::{Point3, Vec3};
+use crate::vec::Vec3;
 
 #[derive(Debug)]
 pub struct ConstantMedium<M: Material> {

@@ -90,7 +90,7 @@ impl RayTracer {
                         *pixel = raytracer.pixel(x, y);
                     }
 
-                    let mut image_pixels = image_pixels.lock();
+                    let mut image_pixels = image_pixels.lock().unwrap();
                     for (x, pixel) in line_pixels.iter().enumerate() {
                         // image_pixels[x + y * raytracer.get_width()] = line_pixels[x].into();
                         image_pixels.put_pixel(x as u32, y as u32, pixel.into());
