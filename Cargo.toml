@@ -21,9 +21,9 @@ debug-assertions = false
 debug = 1 # For profiling
 
 [dependencies]
-image = { version = "0.24.5", default-features = false, features = ["jpeg", "jpeg_rayon"] }
+image = { version = "0.24.7", default-features = false, features = ["jpeg", "jpeg_rayon"] }
 rand = { version = "0.8.5", features = ["small_rng"] }
-core_affinity = "0.7.6"
+core_affinity = "0.8.1"
 
 [dev-dependencies]
 criterion = "0.4"
