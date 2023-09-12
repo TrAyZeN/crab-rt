@@ -8,6 +8,10 @@
     clippy::cargo
 )]
 
+#[cfg(test)]
+#[macro_use]
+extern crate quickcheck_macros;
+
 pub mod aabb;
 pub mod bvh;
 pub mod camera;

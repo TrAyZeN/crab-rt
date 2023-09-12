@@ -41,6 +41,9 @@ impl Vec3 {
     #[inline]
     #[must_use]
     pub fn new(x: f32, y: f32, z: f32) -> Self {
+        // Coordinates must be not be NaN as NaNs do not work well with equality, comparison
+        // operations and as they infect calculations.
+        // See https://doc.rust-lang.org/std/primitive.f32.html
         debug_assert!(!x.is_nan() && !y.is_nan() && !z.is_nan());
 
         Self { x, y, z }
@@ -558,6 +561,29 @@ impl iter::Sum<Vec3> for Vec3 {
 mod tests {
     use super::*;
 
+    use quickcheck::{Arbitrary, Gen, TestResult};
+
+    impl Arbitrary for Vec3 {
+        fn arbitrary(g: &mut Gen) -> Vec3 {
+            let nan_to_default = |f: f32| if f.is_nan() { f32::default() } else { f };
+
+            Vec3::new(
+                nan_to_default(f32::arbitrary(g)),
+                nan_to_default(f32::arbitrary(g)),
+                nan_to_default(f32::arbitrary(g)),
+            )
+        }
+    }
+
+    fn is_zero_subnormal_normal(v: &Vec3) -> bool {
+        !v.x.is_nan()
+            && !v.x.is_infinite()
+            && !v.y.is_nan()
+            && !v.y.is_infinite()
+            && !v.z.is_nan()
+            && !v.z.is_infinite()
+    }
+
     #[test]
     fn vec3_is_zero() {
         assert_eq!(Vec3::new(0., 0., 0.).is_zero(), true);
@@ -576,6 +602,11 @@ mod tests {
         let testee = Vec3::new(3.0, 4.0, 12.0);
 
         assert_eq!(testee.squared_length(), 169.0);
+    }
+
+    #[quickcheck]
+    fn vec3_squared_length_property(vec: Vec3) -> TestResult {
+        TestResult::from_bool(vec.squared_length() == vec.length() * vec.length())
     }
 
     #[test]
@@ -598,6 +629,19 @@ mod tests {
         assert_eq!(testee.z, 10.0);
     }
 
+    #[quickcheck]
+    fn vec3_add_property(lhs: Vec3, rhs: Vec3) -> TestResult {
+        if !is_zero_subnormal_normal(&lhs) || !is_zero_subnormal_normal(&rhs) {
+            return TestResult::discard();
+        }
+
+        TestResult::from_bool(
+            (lhs + rhs).x == lhs.x + rhs.x
+                && (lhs + rhs).y == lhs.y + rhs.y
+                && (lhs + rhs).z == lhs.z + rhs.z,
+        )
+    }
+
     #[test]
     fn vec3_add_assign() {
         let mut testee = Vec3::new(1.0, 2.0, 3.0);
@@ -606,6 +650,18 @@ mod tests {
         assert_eq!(testee.x, 9.0);
         assert_eq!(testee.y, 45.0);
         assert_eq!(testee.z, 10.0);
+    }
+
+    #[quickcheck]
+    fn vec3_add_assign_property(lhs: Vec3, rhs: Vec3) -> TestResult {
+        if !is_zero_subnormal_normal(&lhs) || !is_zero_subnormal_normal(&rhs) {
+            return TestResult::discard();
+        }
+
+        let mut testee = lhs;
+        testee += rhs;
+
+        TestResult::from_bool(testee == lhs + rhs)
     }
 
     #[test]
@@ -617,6 +673,15 @@ mod tests {
         assert_eq!(testee.z, -3.0);
     }
 
+    #[quickcheck]
+    fn vec3_neg_property(rhs: Vec3) -> TestResult {
+        if !is_zero_subnormal_normal(&rhs) {
+            return TestResult::discard();
+        }
+
+        TestResult::from_bool((-rhs).x == -rhs.x && (-rhs).y == -rhs.y && (-rhs).z == -rhs.z)
+    }
+
     #[test]
     fn vec3_sub() {
         let testee = Vec3::new(1.0, 2.0, 3.0) - Vec3::new(8.0, 43.0, 7.0);
@@ -624,6 +689,19 @@ mod tests {
         assert_eq!(testee.x, -7.0);
         assert_eq!(testee.y, -41.0);
         assert_eq!(testee.z, -4.0);
+    }
+
+    #[quickcheck]
+    fn vec3_sub_property(lhs: Vec3, rhs: Vec3) -> TestResult {
+        if !is_zero_subnormal_normal(&lhs) || !is_zero_subnormal_normal(&rhs) {
+            return TestResult::discard();
+        }
+
+        TestResult::from_bool(
+            (lhs - rhs).x == lhs.x - rhs.x
+                && (lhs - rhs).y == lhs.y - rhs.y
+                && (lhs - rhs).z == lhs.z - rhs.z,
+        )
     }
 
     #[test]
@@ -636,6 +714,18 @@ mod tests {
         assert_eq!(testee.z, -4.0);
     }
 
+    #[quickcheck]
+    fn vec3_sub_assign_property(lhs: Vec3, rhs: Vec3) -> TestResult {
+        if !is_zero_subnormal_normal(&lhs) || !is_zero_subnormal_normal(&rhs) {
+            return TestResult::discard();
+        }
+
+        let mut testee = lhs;
+        testee -= rhs;
+
+        TestResult::from_bool(testee == lhs - rhs)
+    }
+
     #[test]
     fn vec3_mul() {
         let testee = Vec3::new(1.0, 2.0, 3.0) * 4.0;
@@ -643,6 +733,19 @@ mod tests {
         assert_eq!(testee.x, 4.0);
         assert_eq!(testee.y, 8.0);
         assert_eq!(testee.z, 12.0);
+    }
+
+    #[quickcheck]
+    fn vec3_mul_property(lhs: Vec3, rhs: f32) -> TestResult {
+        if !is_zero_subnormal_normal(&lhs) || (rhs.is_nan() || rhs.is_infinite()) {
+            return TestResult::discard();
+        }
+
+        TestResult::from_bool(
+            (lhs * rhs).x == lhs.x * rhs
+                && (lhs * rhs).y == lhs.y * rhs
+                && (lhs * rhs).z == lhs.z * rhs,
+        )
     }
 
     #[test]
@@ -655,6 +758,18 @@ mod tests {
         assert_eq!(testee.z, 12.0);
     }
 
+    #[quickcheck]
+    fn vec3_mul_assign_property(lhs: Vec3, rhs: f32) -> TestResult {
+        if !is_zero_subnormal_normal(&lhs) || (rhs.is_nan() || rhs.is_infinite()) {
+            return TestResult::discard();
+        }
+
+        let mut testee = lhs;
+        testee *= rhs;
+
+        TestResult::from_bool(testee == lhs * rhs)
+    }
+
     #[test]
     fn vec3_mul_lhs() {
         let testee = 4.0 * Vec3::new(1.0, 2.0, 3.0);
@@ -664,6 +779,19 @@ mod tests {
         assert_eq!(testee.z, 12.0);
     }
 
+    #[quickcheck]
+    fn vec3_mul_lhs_property(lhs: f32, rhs: Vec3) -> TestResult {
+        if (lhs.is_nan() || lhs.is_infinite()) || !is_zero_subnormal_normal(&rhs) {
+            return TestResult::discard();
+        }
+
+        TestResult::from_bool(
+            (lhs * rhs).x == lhs * rhs.x
+                && (lhs * rhs).y == lhs * rhs.y
+                && (lhs * rhs).z == lhs * rhs.z,
+        )
+    }
+
     #[test]
     fn vec3_index() {
         let testee = Vec3::new(1.0, 2.0, 3.0);
@@ -671,6 +799,11 @@ mod tests {
         assert_eq!(testee[0], 1.0);
         assert_eq!(testee[1], 2.0);
         assert_eq!(testee[2], 3.0);
+    }
+
+    #[quickcheck]
+    fn vec3_index_property(vec: Vec3) -> TestResult {
+        TestResult::from_bool(vec[0] == vec.x && vec[1] == vec.y && vec[2] == vec.z)
     }
 
     #[test]

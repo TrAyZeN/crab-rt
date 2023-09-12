@@ -27,6 +27,8 @@ core_affinity = "0.8.1"
 
 [dev-dependencies]
 criterion = "0.4"
+quickcheck = "1"
+quickcheck_macros = "1"
 
 [[bench]]
 name = "benchmark"
