@@ -6,6 +6,9 @@ use crate::ray::Ray;
 use crate::utils::{reflect, refract, rng, schlick};
 use crate::vec::Vec3;
 
+#[cfg(not(feature = "std"))]
+use core_maths::*;
+
 const WATER_REFRACTIVE_INDEX: f32 = 1.333;
 const DIAMOND_REFRACTIVE_INDEX: f32 = 2.417;
 

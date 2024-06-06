@@ -1,3 +1,4 @@
+#![no_std]
 #![warn(
     missing_debug_implementations,
     missing_docs,
@@ -7,6 +8,10 @@
     clippy::nursery,
     clippy::cargo
 )]
+
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std;
 
 #[cfg(test)]
 #[macro_use]

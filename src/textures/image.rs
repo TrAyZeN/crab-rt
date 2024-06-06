@@ -1,5 +1,6 @@
 use super::Texture;
 use crate::vec::{Point3, Vec3};
+use alloc::vec::Vec;
 
 // For now the image only support RGB
 #[derive(Debug)]
@@ -23,6 +24,7 @@ impl Image {
         }
     }
 
+    #[cfg(feature = "std")]
     #[must_use]
     pub fn load(filename: &str) -> Self {
         // TODO: Handle error

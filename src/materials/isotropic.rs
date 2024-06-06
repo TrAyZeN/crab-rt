@@ -1,3 +1,5 @@
+use alloc::boxed::Box;
+
 use crate::hitable::HitRecord;
 use crate::materials::Material;
 use crate::ray::Ray;

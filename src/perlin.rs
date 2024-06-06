@@ -1,7 +1,11 @@
+use alloc::{vec, vec::Vec};
 use rand::Rng;
 
 use crate::utils::rng;
 use crate::vec::Point3;
+
+#[cfg(not(feature = "std"))]
+use core_maths::*;
 
 #[derive(Debug)]
 pub struct Perlin {

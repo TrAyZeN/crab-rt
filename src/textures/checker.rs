@@ -1,5 +1,10 @@
+use alloc::boxed::Box;
+
 use super::{Monochrome, Texture};
 use crate::vec::{Color3, Point3, Vec3};
+
+#[cfg(not(feature = "std"))]
+use core_maths::*;
 
 #[derive(Debug)]
 pub struct Checker {

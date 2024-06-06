@@ -1,8 +1,16 @@
-use image::Rgb;
-use std::{
+use core::{
     convert, iter,
     ops::{self, Add, Sub},
 };
+
+#[cfg(feature = "std")]
+use image::Rgb;
+
+#[cfg(not(feature = "std"))]
+use core_maths::*;
+
+#[cfg(feature = "uefi")]
+use uefi::proto::console::gop::BltPixel;
 
 /// A 3D mathematical vector.
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
@@ -371,7 +379,6 @@ impl ops::Add<Vec3> for Vec3 {
     }
 }
 
-#[allow(clippy::use_self)]
 forward_ref_binop! { impl Add, add for Vec3, Vec3 }
 
 impl ops::AddAssign<Vec3> for Vec3 {
@@ -411,7 +418,6 @@ impl ops::Sub<Vec3> for Vec3 {
     }
 }
 
-#[allow(clippy::use_self)]
 forward_ref_binop! { impl Sub, sub for Vec3, Vec3 }
 
 impl ops::SubAssign<Vec3> for Vec3 {
@@ -527,6 +533,7 @@ impl ops::IndexMut<usize> for Vec3 {
     }
 }
 
+#[cfg(feature = "std")]
 impl convert::Into<Rgb<u8>> for Vec3 {
     #[inline(always)]
     fn into(self) -> Rgb<u8> {
@@ -538,6 +545,7 @@ impl convert::Into<Rgb<u8>> for Vec3 {
     }
 }
 
+#[cfg(feature = "std")]
 impl convert::Into<Rgb<u8>> for &Vec3 {
     #[inline(always)]
     fn into(self) -> Rgb<u8> {
@@ -546,6 +554,30 @@ impl convert::Into<Rgb<u8>> for &Vec3 {
             (255. * self.y.clamp(0., 1.)) as u8,
             (255. * self.z.clamp(0., 1.)) as u8,
         ])
+    }
+}
+
+#[cfg(feature = "uefi")]
+impl convert::Into<BltPixel> for Vec3 {
+    #[inline(always)]
+    fn into(self) -> BltPixel {
+        BltPixel::new(
+            (255. * self.x.clamp(0., 1.)) as u8,
+            (255. * self.y.clamp(0., 1.)) as u8,
+            (255. * self.z.clamp(0., 1.)) as u8,
+        )
+    }
+}
+
+#[cfg(feature = "uefi")]
+impl convert::Into<BltPixel> for &Vec3 {
+    #[inline(always)]
+    fn into(self) -> BltPixel {
+        BltPixel::new(
+            (255. * self.x.clamp(0., 1.)) as u8,
+            (255. * self.y.clamp(0., 1.)) as u8,
+            (255. * self.z.clamp(0., 1.)) as u8,
+        )
     }
 }
 

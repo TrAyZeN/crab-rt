@@ -1,10 +1,13 @@
-use std::sync::Arc;
+use alloc::sync::Arc;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::materials::Material;
 use crate::ray::Ray;
 use crate::vec::Vec3;
+
+#[cfg(not(feature = "std"))]
+use core_maths::*;
 
 #[derive(Debug)]
 pub struct MovingSphere<M: Material> {

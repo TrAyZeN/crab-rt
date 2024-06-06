@@ -1,11 +1,14 @@
-use std::f32::consts::PI;
-use std::sync::Arc;
+use alloc::sync::Arc;
+use core::f32::consts::PI;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
 use crate::materials::Material;
 use crate::ray::Ray;
 use crate::vec::{Point3, Vec3};
+
+#[cfg(not(feature = "std"))]
+use core_maths::*;
 
 /// A sphere.
 #[derive(Debug, PartialEq)]

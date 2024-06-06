@@ -4,6 +4,9 @@ use crate::ray::Ray;
 use crate::utils::{random_in_unit_disk, rng};
 use crate::vec::{Point3, Vec3};
 
+#[cfg(not(feature = "std"))]
+use core_maths::*;
+
 #[derive(Debug, Clone)]
 pub struct Camera {
     origin: Point3,

@@ -1,21 +1,29 @@
+use alloc::rc::Rc;
+use core::cell::UnsafeCell;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::{Error, Rng, RngCore, SeedableRng};
-use std::cell::UnsafeCell;
-use std::rc::Rc;
 
 use crate::vec::Vec3;
+
+#[cfg(feature = "std")]
+use std::thread_local;
+
+#[cfg(not(feature = "std"))]
+use core_maths::*;
 
 pub struct SmallThreadRng {
     rng: Rc<UnsafeCell<SmallRng>>,
 }
 
+#[cfg(feature = "std")]
 thread_local! {
     pub static SMALL_THREAD_RNG_KEY: Rc<UnsafeCell<SmallRng>> =
         //Rc::new(UnsafeCell::new(SmallRng::from_entropy()));
         Rc::new(UnsafeCell::new(SmallRng::from_seed([0; 32])));
 }
 
+#[cfg(feature = "std")]
 #[must_use]
 pub fn small_thread_rng() -> SmallThreadRng {
     let rng = SMALL_THREAD_RNG_KEY.with(Clone::clone);
@@ -62,15 +70,23 @@ impl RngCore for SmallThreadRng {
     }
 }
 
+#[cfg(feature = "std")]
 #[inline(always)]
 #[must_use]
 pub fn rng() -> impl Rng {
-    //small_thread_rng()
     rand::thread_rng()
+    // small_thread_rng()
 }
 
+#[cfg(not(feature = "std"))]
 #[inline]
 #[must_use]
+#[inline(always)]
+#[must_use]
+pub fn rng() -> impl Rng {
+    SmallRng::from_seed([0; 32])
+}
+
 pub fn random_unit_vector() -> Vec3 {
     random_in_unit_sphere().unit()
 }

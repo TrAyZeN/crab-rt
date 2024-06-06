@@ -1,9 +1,4 @@
-use core_affinity;
-use image::{ImageBuffer, RgbImage};
 use rand::Rng;
-
-use std::sync::{Arc, Mutex};
-use std::thread;
 
 use crate::camera::Camera;
 use crate::hitable::Hitable;
@@ -11,6 +6,16 @@ use crate::ray::Ray;
 use crate::scene::Scene;
 use crate::utils::{gamma_encode, rng};
 use crate::vec::{Color3, Vec3};
+
+#[cfg(feature = "std")]
+use {
+    alloc::{vec, vec::Vec},
+    core_affinity,
+    image::{ImageBuffer, RgbImage},
+    std::println,
+    std::sync::{Arc, Mutex},
+    std::thread,
+};
 
 const NB_THREADS: usize = 8;
 
@@ -50,6 +55,7 @@ impl RayTracer {
 
     // Seems faster when returning Arc<Mutex
     // pub fn raytrace(self) -> RgbImage {
+    #[cfg(feature = "std")]
     #[must_use]
     pub fn raytrace(self) -> Arc<Mutex<RgbImage>> {
         let core_ids = core_affinity::get_core_ids();
@@ -120,7 +126,6 @@ impl RayTracer {
         let y = self.height as usize - y - 1;
 
         let color = (0..self.samples)
-            .into_iter()
             .map(|_| {
                 let u = (x as f32 + rng.gen::<f32>()) / self.width as f32;
                 let v = (y as f32 + rng.gen::<f32>()) / self.height as f32;
@@ -147,23 +152,21 @@ impl RayTracer {
         }
 
         let record = self.scene.bvh().hit(ray, 0.001, f32::INFINITY);
-        if record.is_none() {
+        let Some(record) = record else {
             let unit_direction = ray.direction().unit();
             let t = 0.5 * (unit_direction.y + 1.);
             return self.scene.background().color(t);
-        }
+        };
 
-        let record = record.unwrap();
         let emitted = record
             .material()
             .emitted(record.texture_coordinates(), record.hit_point());
 
         let record = record.material().scatter(ray, &record);
-        if record.is_none() {
+        let Some((scattered, attenuation)) = record else {
             return emitted;
-        }
+        };
 
-        let (scattered, attenuation) = record.unwrap();
         emitted + attenuation * self.cast(&scattered, depth + 1)
     }
 

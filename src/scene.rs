@@ -1,3 +1,5 @@
+use alloc::vec::Vec;
+
 use crate::bvh::BvhNode;
 use crate::materials::Material;
 use crate::objects::{Object, Sphere};

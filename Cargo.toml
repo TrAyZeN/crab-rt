@@ -3,11 +3,9 @@ name = "crab-rt"
 version = "0.1.0"
 authors = ["TrAyZeN <lbenitoproduction@gmail.com>"]
 edition = "2021"
+default-run = "crab-rt"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[features]
-default = []
 
 [profile.dev]
 opt-level = 2
@@ -20,10 +18,24 @@ codegen-units = 1
 debug-assertions = false
 debug = 1 # For profiling
 
+[[bin]]
+name = "uefi"
+test = false
+bench = false
+required-features = ["uefi"]
+
+[features]
+default = ["std"]
+std = ["dep:image", "rand/default", "dep:core_affinity"]
+uefi = ["dep:uefi", "dep:core_maths", "dep:log"]
+
 [dependencies]
-image = { version = "0.24.7", default-features = false, features = ["jpeg", "jpeg_rayon"] }
-rand = { version = "0.8.5", features = ["small_rng"] }
-core_affinity = "0.8.1"
+image = { version = "0.24.7", default-features = false, features = ["jpeg", "jpeg_rayon"], optional = true }
+rand = { version = "0.8.5", default-features = false, features = ["small_rng"] }
+core_affinity = { version = "0.8.1", optional = true }
+uefi = { version = "0.28.0", features = ["alloc", "global_allocator", "logger", "panic_handler"], optional = true }
+core_maths = { version = "0.1.0", optional = true }
+log = { version = "0.4.21", optional = true }
 
 [dev-dependencies]
 criterion = "0.4"

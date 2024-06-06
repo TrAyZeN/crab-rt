@@ -9,3 +9,7 @@ tags
 # Results
 /*.png
 /*.jpg
+
+# UEFI
+*.fd
+/esp

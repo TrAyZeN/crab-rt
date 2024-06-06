@@ -1,5 +1,6 @@
+use alloc::{boxed::Box, vec::Vec};
+use core::cmp::Ordering;
 use rand::distributions::{Distribution, Uniform};
-use std::cmp::Ordering;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};
@@ -105,6 +106,7 @@ mod tests {
     use crate::objects::Sphere;
     use crate::vec::Vec3;
     use std::sync::Arc;
+    use std::vec;
 
     #[test]
     fn new_with_one_object() {

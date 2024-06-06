@@ -1,5 +1,5 @@
-use std::marker::PhantomData;
-use std::sync::Arc;
+use alloc::sync::Arc;
+use core::marker::PhantomData;
 
 use super::{Object, XyRect, XzRect, YzRect};
 use crate::aabb::Aabb;

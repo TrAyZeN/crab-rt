@@ -1,4 +1,5 @@
-use std::fmt::Debug;
+use alloc::boxed::Box;
+use core::fmt::Debug;
 
 use crate::aabb::Aabb;
 use crate::hitable::{HitRecord, Hitable};

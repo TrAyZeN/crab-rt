@@ -2,6 +2,9 @@ use super::Texture;
 use crate::perlin::Perlin;
 use crate::vec::{Point3, Vec3};
 
+#[cfg(not(feature = "std"))]
+use core_maths::*;
+
 #[derive(Debug)]
 pub struct Noise {
     noise: Perlin,
