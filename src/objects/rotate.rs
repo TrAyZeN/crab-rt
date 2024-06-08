@@ -31,9 +31,9 @@ impl RotateY {
         for i in 0..2 {
             for j in 0..2 {
                 for k in 0..2 {
-                    let x = i as f32 * bbox.get_max().x + (1 - i) as f32 * bbox.get_min().x;
-                    let y = j as f32 * bbox.get_max().y + (1 - j) as f32 * bbox.get_min().y;
-                    let z = k as f32 * bbox.get_max().z + (1 - k) as f32 * bbox.get_min().z;
+                    let x = i as f32 * bbox.max().x + (1 - i) as f32 * bbox.min().x;
+                    let y = j as f32 * bbox.max().y + (1 - j) as f32 * bbox.min().y;
+                    let z = k as f32 * bbox.max().z + (1 - k) as f32 * bbox.min().z;
 
                     let new_x = cos_theta * x + sin_theta * z;
                     let new_z = -sin_theta * x + cos_theta * z;
@@ -61,30 +61,27 @@ impl RotateY {
 impl Hitable for RotateY {
     #[must_use]
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let mut origin = *ray.get_origin();
-        let mut direction = *ray.get_direction();
+        let mut origin = *ray.origin();
+        let mut direction = *ray.direction();
 
-        origin.x = self.cos_theta * ray.get_origin().x - self.sin_theta * ray.get_origin().z;
-        origin.z = self.sin_theta * ray.get_origin().x + self.cos_theta * ray.get_origin().z;
+        origin.x = self.cos_theta * ray.origin().x - self.sin_theta * ray.origin().z;
+        origin.z = self.sin_theta * ray.origin().x + self.cos_theta * ray.origin().z;
 
-        direction.x =
-            self.cos_theta * ray.get_direction().x - self.sin_theta * ray.get_direction().z;
-        direction.z =
-            self.sin_theta * ray.get_direction().x + self.cos_theta * ray.get_direction().z;
+        direction.x = self.cos_theta * ray.direction().x - self.sin_theta * ray.direction().z;
+        direction.z = self.sin_theta * ray.direction().x + self.cos_theta * ray.direction().z;
 
-        let rotated_ray = Ray::new(origin, direction, ray.get_time());
+        let rotated_ray = Ray::new(origin, direction, ray.time());
 
         let mut record = self.hitable.hit(&rotated_ray, t_min, t_max)?;
 
-        let mut p = *record.get_hit_point();
-        let mut normal = *record.get_normal();
+        let mut p = *record.hit_point();
+        let mut normal = *record.normal();
 
-        p.x = self.cos_theta * record.get_hit_point().x + self.sin_theta * record.get_hit_point().z;
-        p.z =
-            -self.sin_theta * record.get_hit_point().x + self.cos_theta * record.get_hit_point().z;
+        p.x = self.cos_theta * record.hit_point().x + self.sin_theta * record.hit_point().z;
+        p.z = -self.sin_theta * record.hit_point().x + self.cos_theta * record.hit_point().z;
 
-        normal.x = self.cos_theta * record.get_normal().x + self.sin_theta * record.get_normal().z;
-        normal.z = -self.sin_theta * record.get_normal().x + self.cos_theta * record.get_normal().z;
+        normal.x = self.cos_theta * record.normal().x + self.sin_theta * record.normal().z;
+        normal.z = -self.sin_theta * record.normal().x + self.cos_theta * record.normal().z;
 
         record.set_hit_point(p);
         record.set_normal(normal);

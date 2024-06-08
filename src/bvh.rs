@@ -29,8 +29,8 @@ impl BvhNode {
                 return Ordering::Less;
             }
 
-            bbox_1.unwrap().get_min()[axis]
-                .partial_cmp(&bbox_2.unwrap().get_min()[axis])
+            bbox_1.unwrap().min()[axis]
+                .partial_cmp(&bbox_2.unwrap().min()[axis])
                 .unwrap()
         };
 
@@ -84,13 +84,10 @@ impl Hitable for BvhNode {
 
         let left_record = self.left.as_ref().and_then(|r| r.hit(ray, t_min, t_max));
 
-        let right_record = self.right.as_ref().and_then(|r| {
-            r.hit(
-                ray,
-                t_min,
-                left_record.as_ref().map_or(t_max, |r| r.get_t()),
-            )
-        });
+        let right_record = self
+            .right
+            .as_ref()
+            .and_then(|r| r.hit(ray, t_min, left_record.as_ref().map_or(t_max, |r| r.t())));
 
         right_record.or(left_record)
     }

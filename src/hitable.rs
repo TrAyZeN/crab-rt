@@ -101,7 +101,7 @@ impl<'material> HitRecord<'material> {
     #[inline]
     pub fn set_face_normal(&mut self, ray: &Ray) {
         // We want to always have the normal pointing against the ray
-        self.front_face = ray.get_direction().dot(&self.normal) < 0.;
+        self.front_face = ray.direction().dot(&self.normal) < 0.;
         if !self.front_face {
             self.normal = -self.normal;
         }
@@ -123,11 +123,11 @@ impl<'material> HitRecord<'material> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_t(), 1.);
+    /// assert_eq!(record.t(), 1.);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_t(&self) -> f32 {
+    pub const fn t(&self) -> f32 {
         self.t
     }
 
@@ -152,11 +152,11 @@ impl<'material> HitRecord<'material> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_hit_point(), &Point3::new(1., 1., 1.));
+    /// assert_eq!(record.hit_point(), &Point3::new(1., 1., 1.));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_hit_point(&self) -> &Point3 {
+    pub const fn hit_point(&self) -> &Point3 {
         &self.hit_point
     }
 
@@ -182,11 +182,11 @@ impl<'material> HitRecord<'material> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_normal(), &Vec3::new(0., 1., 0.));
+    /// assert_eq!(record.normal(), &Vec3::new(0., 1., 0.));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_normal(&self) -> &Vec3 {
+    pub const fn normal(&self) -> &Vec3 {
         &self.normal
     }
 
@@ -211,11 +211,11 @@ impl<'material> HitRecord<'material> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_texture_coordinates(), (0., 0.5));
+    /// assert_eq!(record.texture_coordinates(), (0., 0.5));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_texture_coordinates(&self) -> (f32, f32) {
+    pub const fn texture_coordinates(&self) -> (f32, f32) {
         self.texture_coordinates
     }
 
@@ -235,11 +235,11 @@ impl<'material> HitRecord<'material> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_front_face(), true);
+    /// assert_eq!(record.front_face(), true);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_front_face(&self) -> bool {
+    pub const fn front_face(&self) -> bool {
         self.front_face
     }
 
@@ -259,11 +259,11 @@ impl<'material> HitRecord<'material> {
     ///     (0., 0.5),
     ///     &material,
     /// );
-    /// assert_eq!(record.get_material(), &material as &dyn Material);
+    /// assert_eq!(record.material(), &material as &dyn Material);
     /// ```
     #[inline]
     #[must_use]
-    pub fn get_material(&self) -> &dyn Material {
+    pub fn material(&self) -> &dyn Material {
         self.material
     }
 }

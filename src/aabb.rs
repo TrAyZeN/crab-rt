@@ -44,8 +44,8 @@ impl Aabb {
     /// let bbox1 = Aabb::new(Vec3::new(7., 8., 9.), Vec3::new(10., 11., 12.));
     ///
     /// let surrounding_bbox = Aabb::surrounding_box(&bbox0, &bbox1);
-    /// assert_eq!(surrounding_bbox.get_min(), &Vec3::new(1., 2., 3.));
-    /// assert_eq!(surrounding_bbox.get_max(), &Vec3::new(10., 11., 12.));
+    /// assert_eq!(surrounding_bbox.min(), &Vec3::new(1., 2., 3.));
+    /// assert_eq!(surrounding_bbox.max(), &Vec3::new(10., 11., 12.));
     /// ```
     #[inline]
     #[must_use]
@@ -68,9 +68,9 @@ impl Aabb {
     #[must_use]
     pub fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
         for axis in 0..3 {
-            let inv_axis_direction = ray.get_direction()[axis].recip();
-            let mut t0 = (self.min[axis] - ray.get_origin()[axis]) * inv_axis_direction;
-            let mut t1 = (self.max[axis] - ray.get_origin()[axis]) * inv_axis_direction;
+            let inv_axis_direction = ray.direction()[axis].recip();
+            let mut t0 = (self.min[axis] - ray.origin()[axis]) * inv_axis_direction;
+            let mut t1 = (self.max[axis] - ray.origin()[axis]) * inv_axis_direction;
             if inv_axis_direction < 0. {
                 mem::swap(&mut t0, &mut t1);
             }
@@ -93,11 +93,11 @@ impl Aabb {
     /// use crab_rt::vec::Vec3;
     ///
     /// let bbox = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
-    /// assert_eq!(bbox.get_min(), &Vec3::new(1., 2., 3.));
+    /// assert_eq!(bbox.min(), &Vec3::new(1., 2., 3.));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_min(&self) -> &Vec3 {
+    pub const fn min(&self) -> &Vec3 {
         &self.min
     }
 
@@ -109,11 +109,11 @@ impl Aabb {
     /// use crab_rt::vec::Vec3;
     ///
     /// let bbox = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
-    /// assert_eq!(bbox.get_max(), &Vec3::new(4., 5., 6.));
+    /// assert_eq!(bbox.max(), &Vec3::new(4., 5., 6.));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_max(&self) -> &Vec3 {
+    pub const fn max(&self) -> &Vec3 {
         &self.max
     }
 }
@@ -126,8 +126,8 @@ mod tests {
     fn aabb_new() {
         let testee = Aabb::new(Vec3::new(1., 2., 3.), Vec3::new(4., 5., 6.));
 
-        assert_eq!(testee.get_min(), &Vec3::new(1., 2., 3.));
-        assert_eq!(testee.get_max(), &Vec3::new(4., 5., 6.));
+        assert_eq!(testee.min(), &Vec3::new(1., 2., 3.));
+        assert_eq!(testee.max(), &Vec3::new(4., 5., 6.));
     }
 
     #[test]
@@ -137,8 +137,8 @@ mod tests {
 
         let testee = Aabb::surrounding_box(&bbox0, &bbox1);
 
-        assert_eq!(testee.get_min(), &Vec3::new(-4., -5., -6.));
-        assert_eq!(testee.get_max(), &Vec3::new(4., 5., 6.));
+        assert_eq!(testee.min(), &Vec3::new(-4., -5., -6.));
+        assert_eq!(testee.max(), &Vec3::new(4., 5., 6.));
     }
 
     #[test]
@@ -148,8 +148,8 @@ mod tests {
 
         let testee = Aabb::surrounding_box(&bbox0, &bbox1);
 
-        assert_eq!(testee.get_min(), &Vec3::new(0., 2., 3.));
-        assert_eq!(testee.get_max(), &Vec3::new(4., 6., 6.));
+        assert_eq!(testee.min(), &Vec3::new(0., 2., 3.));
+        assert_eq!(testee.max(), &Vec3::new(4., 6., 6.));
     }
 
     #[test]
@@ -159,7 +159,7 @@ mod tests {
 
         let testee = Aabb::surrounding_box(&bbox0, &bbox1);
 
-        assert_eq!(testee.get_min(), &Vec3::new(1., 2., 3.));
-        assert_eq!(testee.get_max(), &Vec3::new(4., 5., 6.));
+        assert_eq!(testee.min(), &Vec3::new(1., 2., 3.));
+        assert_eq!(testee.max(), &Vec3::new(4., 5., 6.));
     }
 }

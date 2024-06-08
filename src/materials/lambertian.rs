@@ -49,15 +49,15 @@ impl Lambertian {
 
 impl Material for Lambertian {
     fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
-        let mut scatter_direction = record.get_normal() + random_unit_vector();
+        let mut scatter_direction = record.normal() + random_unit_vector();
 
         // Catch degenerate scatter direction
         if scatter_direction.is_near_zero() {
-            scatter_direction = *record.get_normal();
+            scatter_direction = *record.normal();
         }
 
         Some((
-            Ray::new(*record.get_hit_point(), scatter_direction, ray.get_time()),
+            Ray::new(*record.hit_point(), scatter_direction, ray.time()),
             self.albedo.value_from_hit(record),
         ))
     }

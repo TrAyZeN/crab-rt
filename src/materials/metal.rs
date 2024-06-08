@@ -35,15 +35,15 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
-        let reflected = reflect(&ray.get_direction().unit(), record.get_normal());
+        let reflected = reflect(&ray.direction().unit(), record.normal());
         let scattered = Ray::new(
-            *record.get_hit_point(),
+            *record.hit_point(),
             reflected + self.fuzziness * random_in_unit_sphere(),
-            ray.get_time(),
+            ray.time(),
         );
         let attenuation = self.albedo;
 
-        if scattered.get_direction().dot(record.get_normal()) > 0. {
+        if scattered.direction().dot(record.normal()) > 0. {
             Some((scattered, attenuation))
         } else {
             None

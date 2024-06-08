@@ -35,7 +35,7 @@ impl Scene {
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_bvh(&self) -> &BvhNode {
+    pub const fn bvh(&self) -> &BvhNode {
         &self.bvh
     }
 
@@ -48,7 +48,7 @@ impl Scene {
     ///
     /// let scene = Scene::new(Vec::new(), Background::Color(Vec3::new(0.1, 0.2, 0.3)));
     /// assert_eq!(
-    ///     scene.get_background(),
+    ///     scene.background(),
     ///     &Background::Color(Vec3::new(0.1, 0.2, 0.3))
     /// );
     ///
@@ -57,13 +57,13 @@ impl Scene {
     ///     Background::Gradient(Vec3::new(0.1, 0.2, 0.3), Vec3::new(1., 1., 1.)),
     /// );
     /// assert_eq!(
-    ///     scene.get_background(),
+    ///     scene.background(),
     ///     &Background::Gradient(Vec3::new(0.1, 0.2, 0.3), Vec3::new(1., 1., 1.))
     /// );
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_background(&self) -> &Background {
+    pub const fn background(&self) -> &Background {
         &self.background
     }
 }
@@ -85,7 +85,7 @@ impl SceneBuilder {
     ///
     /// let scene_builder = SceneBuilder::new(Background::Color(Vec3::zero()));
     /// assert_eq!(
-    ///     scene_builder.build().get_background(),
+    ///     scene_builder.build().background(),
     ///     &Background::Color(Vec3::zero())
     /// );
     /// ```

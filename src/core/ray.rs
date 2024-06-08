@@ -45,11 +45,11 @@ impl Ray {
     /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
-    /// assert_eq!(ray.get_origin(), &Vec3::new(0., 0., 0.));
+    /// assert_eq!(ray.origin(), &Vec3::new(0., 0., 0.));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_origin(&self) -> &Point3 {
+    pub const fn origin(&self) -> &Point3 {
         &self.origin
     }
 
@@ -61,11 +61,11 @@ impl Ray {
     /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
-    /// assert_eq!(ray.get_direction(), &Vec3::new(1., 2., 3.));
+    /// assert_eq!(ray.direction(), &Vec3::new(1., 2., 3.));
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_direction(&self) -> &Vec3 {
+    pub const fn direction(&self) -> &Vec3 {
         &self.direction
     }
 
@@ -77,11 +77,11 @@ impl Ray {
     /// use crab_rt::vec::{Point3, Vec3};
     ///
     /// let ray = Ray::new(Point3::new(0., 0., 0.), Vec3::new(1., 2., 3.), 0.);
-    /// assert_eq!(ray.get_time(), 0.);
+    /// assert_eq!(ray.time(), 0.);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_time(&self) -> f32 {
+    pub const fn time(&self) -> f32 {
         self.time
     }
 

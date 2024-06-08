@@ -10,6 +10,6 @@ pub trait Texture: Debug + Send + Sync {
     #[inline(always)]
     #[must_use]
     fn value_from_hit(&self, record: &HitRecord<'_>) -> Vec3 {
-        self.value(record.get_texture_coordinates(), record.get_hit_point())
+        self.value(record.texture_coordinates(), record.hit_point())
     }
 }

@@ -36,35 +36,33 @@ impl<M: Material> ConstantMedium<M> {
 impl<M: Material> Hitable for ConstantMedium<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
         let mut rec1 = self.boundary.hit(ray, f32::NEG_INFINITY, f32::INFINITY)?;
-        let mut rec2 = self
-            .boundary
-            .hit(ray, rec1.get_t() + 0.0001, f32::INFINITY)?;
+        let mut rec2 = self.boundary.hit(ray, rec1.t() + 0.0001, f32::INFINITY)?;
 
-        if rec1.get_t() < t_min {
+        if rec1.t() < t_min {
             rec1.set_t(t_min);
         }
 
-        if rec2.get_t() > t_max {
+        if rec2.t() > t_max {
             rec2.set_t(t_max);
         }
 
-        if rec1.get_t() >= rec2.get_t() {
+        if rec1.t() >= rec2.t() {
             return None;
         }
 
-        if rec1.get_t() < 0. {
+        if rec1.t() < 0. {
             rec1.set_t(0.);
         }
 
-        let ray_length = ray.get_direction().length();
-        let distance_inside_boundary = (rec2.get_t() - rec1.get_t()) * ray_length;
+        let ray_length = ray.direction().length();
+        let distance_inside_boundary = (rec2.t() - rec1.t()) * ray_length;
         let hit_distance = self.neg_inv_density * rng().gen::<f32>().ln();
 
         if hit_distance > distance_inside_boundary {
             return None;
         }
 
-        let t = rec1.get_t() + hit_distance / ray_length;
+        let t = rec1.t() + hit_distance / ray_length;
         Some(HitRecord::new(
             t,
             ray.point(t),

@@ -24,14 +24,14 @@ impl<M: Material> XyRect<M> {
 
 impl<M: Material> Hitable for XyRect<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let t = (self.k - ray.get_origin().z) / ray.get_direction().z;
+        let t = (self.k - ray.origin().z) / ray.direction().z;
         // Checks if the ray hits the plane
         if t < t_min || t > t_max {
             return None;
         }
 
-        let x = t.mul_add(ray.get_direction().x, ray.get_origin().x);
-        let y = t.mul_add(ray.get_direction().y, ray.get_origin().y);
+        let x = t.mul_add(ray.direction().x, ray.origin().x);
+        let y = t.mul_add(ray.direction().y, ray.origin().y);
         // Checks if the ray hits the rectangle
         if x < self.x.0 || x > self.x.1 || y < self.y.0 || y > self.y.1 {
             return None;
@@ -80,13 +80,13 @@ impl<M: Material> XzRect<M> {
 
 impl<M: Material> Hitable for XzRect<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let t = (self.k - ray.get_origin().y) / ray.get_direction().y;
+        let t = (self.k - ray.origin().y) / ray.direction().y;
         if t < t_min || t > t_max {
             return None;
         }
 
-        let x = t.mul_add(ray.get_direction().x, ray.get_origin().x);
-        let z = t.mul_add(ray.get_direction().z, ray.get_origin().z);
+        let x = t.mul_add(ray.direction().x, ray.origin().x);
+        let z = t.mul_add(ray.direction().z, ray.origin().z);
         if x < self.x.0 || x > self.x.1 || z < self.z.0 || z > self.z.1 {
             return None;
         }
@@ -132,13 +132,13 @@ impl<M: Material> YzRect<M> {
 
 impl<M: Material> Hitable for YzRect<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let t = (self.k - ray.get_origin().x) / ray.get_direction().x;
+        let t = (self.k - ray.origin().x) / ray.direction().x;
         if t < t_min || t > t_max {
             return None;
         }
 
-        let y = t.mul_add(ray.get_direction().y, ray.get_origin().y);
-        let z = t.mul_add(ray.get_direction().z, ray.get_origin().z);
+        let y = t.mul_add(ray.direction().y, ray.origin().y);
+        let z = t.mul_add(ray.direction().z, ray.origin().z);
         if y < self.y.0 || y > self.y.1 || z < self.z.0 || z > self.z.1 {
             return None;
         }

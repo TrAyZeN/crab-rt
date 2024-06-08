@@ -21,16 +21,12 @@ impl Translate {
 impl Hitable for Translate {
     #[must_use]
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let translated_ray = Ray::new(
-            ray.get_origin() - self.offset,
-            *ray.get_direction(),
-            ray.get_time(),
-        );
+        let translated_ray = Ray::new(ray.origin() - self.offset, *ray.direction(), ray.time());
 
         self.hitable
             .hit(&translated_ray, t_min, t_max)
             .map(|mut r| {
-                r.set_hit_point(r.get_hit_point() + self.offset);
+                r.set_hit_point(r.hit_point() + self.offset);
                 r.set_face_normal(&translated_ray);
                 r
             })
@@ -40,6 +36,6 @@ impl Hitable for Translate {
     fn bounding_box(&self, time_interval: (f32, f32)) -> Option<Aabb> {
         self.hitable
             .bounding_box(time_interval)
-            .map(|aabb| Aabb::new(aabb.get_min() + self.offset, aabb.get_max() + self.offset))
+            .map(|aabb| Aabb::new(aabb.min() + self.offset, aabb.max() + self.offset))
     }
 }

@@ -73,7 +73,7 @@ impl<M: Material> Hitable for AaBox<M> {
         let mut closest_t = t_max;
         for i in 0..6 {
             if let Some(record) = self.faces[i].hit(ray, t_min, closest_t) {
-                closest_t = record.get_t();
+                closest_t = record.t();
                 closest_record = Some(record);
             }
         }

@@ -171,7 +171,7 @@ impl Camera {
     }
 
     #[must_use]
-    pub fn get_ray(&self, s: f32, t: f32) -> Ray {
+    pub fn ray(&self, s: f32, t: f32) -> Ray {
         let mut rng = rng();
         let rd = self.lens_radius * random_in_unit_disk();
         let offset = self.u * rd.x + self.v * rd.y;

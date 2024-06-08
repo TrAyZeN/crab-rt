@@ -40,10 +40,10 @@ impl<M: Material> MovingSphere<M> {
 
 impl<M: Material> Hitable for MovingSphere<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let center = self.center(ray.get_time());
-        let oc = ray.get_origin() - center;
-        let a = ray.get_direction().square();
-        let half_b = oc.dot(ray.get_direction()); // We use b/2 to avoid useless divisions and mutliplications by 2
+        let center = self.center(ray.time());
+        let oc = ray.origin() - center;
+        let a = ray.direction().square();
+        let half_b = oc.dot(ray.direction()); // We use b/2 to avoid useless divisions and mutliplications by 2
         let c = oc.square() - self.radius * self.radius;
         let discriminant_over_4 = half_b * half_b - a * c;
 

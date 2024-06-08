@@ -22,22 +22,21 @@ fn bench_singlethreaded(c: &mut Criterion) {
 
 fn singlethread() {
     let raytracer = sample_raytracer();
-    let mut image: RgbImage =
-        ImageBuffer::new(raytracer.get_width() as u32, raytracer.get_height() as u32);
+    let mut image: RgbImage = ImageBuffer::new(raytracer.width() as u32, raytracer.height() as u32);
 
     let mut rng = thread_rng();
-    for y in (0..raytracer.get_height()).rev() {
-        for x in 0..raytracer.get_width() {
+    for y in (0..raytracer.height()).rev() {
+        for x in 0..raytracer.width() {
             let mut col = Vec3::default();
-            for _ in 0..raytracer.get_samples() {
-                let u = (x as f32 + rng.gen::<f32>()) / raytracer.get_width() as f32;
-                let v = ((raytracer.get_height() - y - 1) as f32 + rng.gen::<f32>())
-                    / raytracer.get_height() as f32;
+            for _ in 0..raytracer.samples() {
+                let u = (x as f32 + rng.gen::<f32>()) / raytracer.width() as f32;
+                let v = ((raytracer.height() - y - 1) as f32 + rng.gen::<f32>())
+                    / raytracer.height() as f32;
 
-                let r = raytracer.get_camera().get_ray(u, v);
+                let r = raytracer.camera().ray(u, v);
                 col += raytracer.cast(&r, 0);
             }
-            col /= raytracer.get_samples() as f32;
+            col /= raytracer.samples() as f32;
 
             image.put_pixel(
                 x as u32,
@@ -76,8 +75,8 @@ fn bench_multithreaded(c: &mut Criterion) {
 fn multithread_write_chunk(nb_threads: usize) {
     let raytracer = Arc::new(sample_raytracer());
     let image: Arc<Mutex<RgbImage>> = Arc::new(Mutex::new(ImageBuffer::new(
-        raytracer.get_width() as u32,
-        raytracer.get_height() as u32,
+        raytracer.width() as u32,
+        raytracer.height() as u32,
     )));
 
     let mut workers = Vec::with_capacity(nb_threads);
@@ -89,24 +88,24 @@ fn multithread_write_chunk(nb_threads: usize) {
         workers.push(thread::spawn(move || {
             let mut rng = thread_rng();
             let mut colors =
-                vec![Vec3::default(); raytracer.get_width() * raytracer.get_height() / nb_threads];
+                vec![Vec3::default(); raytracer.width() * raytracer.height() / nb_threads];
 
             let mut ci = 0;
-            for y in ((i * raytracer.get_height() / nb_threads)
-                ..((i + 1) * raytracer.get_height() / nb_threads))
+            for y in ((i * raytracer.height() / nb_threads)
+                ..((i + 1) * raytracer.height() / nb_threads))
                 .rev()
             {
-                for x in 0..raytracer.get_width() {
+                for x in 0..raytracer.width() {
                     let mut col = Vec3::default();
-                    for _ in 0..raytracer.get_samples() {
-                        let u = (x as f32 + rng.gen::<f32>()) / raytracer.get_width() as f32;
-                        let v = ((raytracer.get_height() - y - 1) as f32 + rng.gen::<f32>())
-                            / raytracer.get_height() as f32;
+                    for _ in 0..raytracer.samples() {
+                        let u = (x as f32 + rng.gen::<f32>()) / raytracer.width() as f32;
+                        let v = ((raytracer.height() - y - 1) as f32 + rng.gen::<f32>())
+                            / raytracer.height() as f32;
 
-                        let r = raytracer.get_camera().get_ray(u, v);
+                        let r = raytracer.camera().ray(u, v);
                         col += raytracer.cast(&r, 0);
                     }
-                    col /= raytracer.get_samples() as f32;
+                    col /= raytracer.samples() as f32;
 
                     colors[ci] = Vec3::new(f32::sqrt(col.x), f32::sqrt(col.y), f32::sqrt(col.z));
                     ci += 1;
@@ -114,12 +113,12 @@ fn multithread_write_chunk(nb_threads: usize) {
             }
 
             let mut x = 0;
-            let mut y = ((i + 1) * raytracer.get_height() / nb_threads) - 1;
+            let mut y = ((i + 1) * raytracer.height() / nb_threads) - 1;
             let mut image = image.lock().unwrap();
             for ci in 0..colors.len() {
                 image.put_pixel(x as u32, y as u32, colors[ci].into());
                 x += 1;
-                if x == raytracer.get_width() {
+                if x == raytracer.width() {
                     x = 0;
                     y -= 1;
                 }
@@ -135,8 +134,8 @@ fn multithread_write_chunk(nb_threads: usize) {
 fn multithread_write_line(nb_threads: usize) {
     let raytracer = Arc::new(sample_raytracer());
     let image: Arc<Mutex<RgbImage>> = Arc::new(Mutex::new(ImageBuffer::new(
-        raytracer.get_width() as u32,
-        raytracer.get_height() as u32,
+        raytracer.width() as u32,
+        raytracer.height() as u32,
     )));
 
     let mut workers = Vec::with_capacity(nb_threads);
@@ -148,28 +147,28 @@ fn multithread_write_line(nb_threads: usize) {
         workers.push(thread::spawn(move || {
             let mut rng = thread_rng();
 
-            let mut colors = vec![Vec3::default(); raytracer.get_width()];
+            let mut colors = vec![Vec3::default(); raytracer.width()];
 
-            for y in ((i * raytracer.get_height() / nb_threads)
-                ..((i + 1) * raytracer.get_height() / nb_threads))
+            for y in ((i * raytracer.height() / nb_threads)
+                ..((i + 1) * raytracer.height() / nb_threads))
                 .rev()
             {
-                for x in 0..raytracer.get_width() {
+                for x in 0..raytracer.width() {
                     let mut col = Vec3::default();
-                    for _ in 0..raytracer.get_samples() {
-                        let u = (x as f32 + rng.gen::<f32>()) / raytracer.get_width() as f32;
-                        let v = ((raytracer.get_height() - y - 1) as f32 + rng.gen::<f32>())
-                            / raytracer.get_height() as f32;
+                    for _ in 0..raytracer.samples() {
+                        let u = (x as f32 + rng.gen::<f32>()) / raytracer.width() as f32;
+                        let v = ((raytracer.height() - y - 1) as f32 + rng.gen::<f32>())
+                            / raytracer.height() as f32;
 
-                        let r = raytracer.get_camera().get_ray(u, v);
+                        let r = raytracer.camera().ray(u, v);
                         col += raytracer.cast(&r, 0);
                     }
-                    col /= raytracer.get_samples() as f32;
+                    col /= raytracer.samples() as f32;
                     colors[x] = Vec3::new(f32::sqrt(col.x), f32::sqrt(col.y), f32::sqrt(col.z));
                 }
 
                 let mut image = image.lock().unwrap();
-                for x in 0..raytracer.get_width() {
+                for x in 0..raytracer.width() {
                     image.put_pixel(x as u32, y as u32, colors[x].into());
                 }
             }

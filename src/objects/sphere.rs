@@ -47,7 +47,7 @@ impl<M: Material> Sphere<M> {
     }
 
     /// Maps a point on the sphere to texture coordinates in range [0, 1].
-    fn get_texture_coordinates(p: &Point3) -> (f32, f32) {
+    fn texture_coordinates(p: &Point3) -> (f32, f32) {
         // We want to map spherical coordinates to 2D texture coordinates in range [0, 1].
         // theta is defined as the angle up from the bottom pole
         // so theta is in range [0, PI]
@@ -75,9 +75,9 @@ impl<M: Material> Sphere<M> {
 
 impl<M: Material> Hitable for Sphere<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord<'_>> {
-        let oc = ray.get_origin() - self.center;
-        let a = ray.get_direction().square();
-        let half_b = oc.dot(ray.get_direction()); // We use b/2 to avoid useless divisions and mutliplications by 2
+        let oc = ray.origin() - self.center;
+        let a = ray.direction().square();
+        let half_b = oc.dot(ray.direction()); // We use b/2 to avoid useless divisions and mutliplications by 2
         let c = oc.square() - self.radius * self.radius;
         let discriminant_over_4 = half_b * half_b - a * c;
 
@@ -105,7 +105,7 @@ impl<M: Material> Hitable for Sphere<M> {
             root,
             hit_point,
             outward_normal,
-            Self::get_texture_coordinates(&outward_normal),
+            Self::texture_coordinates(&outward_normal),
             self.material.as_ref(),
         );
         record.set_face_normal(ray);
@@ -151,13 +151,7 @@ mod tests {
         assert!(bounding_box.is_some());
 
         let bounding_box = bounding_box.unwrap();
-        assert_eq!(
-            bounding_box.get_min(),
-            &Vec3::new(1. - 1., 2. - 1., 3. - 1.)
-        );
-        assert_eq!(
-            bounding_box.get_max(),
-            &Vec3::new(1. + 1., 2. + 1., 3. + 1.)
-        );
+        assert_eq!(bounding_box.min(), &Vec3::new(1. - 1., 2. - 1., 3. - 1.));
+        assert_eq!(bounding_box.max(), &Vec3::new(1. + 1., 2. + 1., 3. + 1.));
     }
 }

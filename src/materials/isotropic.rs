@@ -24,11 +24,7 @@ impl Material for Isotropic {
     #[inline]
     fn scatter(&self, ray: &Ray, record: &HitRecord<'_>) -> Option<(Ray, Vec3)> {
         Some((
-            Ray::new(
-                *record.get_hit_point(),
-                random_in_unit_sphere(),
-                ray.get_time(),
-            ),
+            Ray::new(*record.hit_point(), random_in_unit_sphere(), ray.time()),
             self.albedo.value_from_hit(record),
         ))
     }

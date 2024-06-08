@@ -60,13 +60,13 @@ impl RayTracer {
         let raytracer = Arc::new(self);
         // let image_pixels: Arc<Mutex<Vec<Rgb<u8>>>> = Arc::new(Mutex::new(vec![
         //     Rgb([0, 0, 0]);
-        //     raytracer.get_width()
+        //     raytracer.width()
         //         * raytracer
-        //             .get_height()
+        //             .height()
         // ]));
         let image_pixels = Arc::new(Mutex::new(ImageBuffer::new(
-            raytracer.get_width(),
-            raytracer.get_height(),
+            raytracer.width(),
+            raytracer.height(),
         )));
 
         let mut workers = Vec::with_capacity(NB_THREADS);
@@ -81,10 +81,10 @@ impl RayTracer {
                     core_affinity::set_for_current(id);
                 }
 
-                let mut line_pixels = vec![Vec3::default(); raytracer.get_width() as usize];
+                let mut line_pixels = vec![Vec3::default(); raytracer.width() as usize];
 
-                for y in (i * raytracer.get_height() as usize / NB_THREADS)
-                    ..((i + 1) * raytracer.get_height() as usize / NB_THREADS)
+                for y in (i * raytracer.height() as usize / NB_THREADS)
+                    ..((i + 1) * raytracer.height() as usize / NB_THREADS)
                 {
                     for (x, pixel) in line_pixels.iter_mut().enumerate() {
                         *pixel = raytracer.pixel(x, y);
@@ -92,7 +92,7 @@ impl RayTracer {
 
                     let mut image_pixels = image_pixels.lock().unwrap();
                     for (x, pixel) in line_pixels.iter().enumerate() {
-                        // image_pixels[x + y * raytracer.get_width()] = line_pixels[x].into();
+                        // image_pixels[x + y * raytracer.width()] = line_pixels[x].into();
                         image_pixels.put_pixel(x as u32, y as u32, pixel.into());
                     }
                 }
@@ -106,9 +106,9 @@ impl RayTracer {
         // Maybe perf lost :thinking:
         // let image_pixels = image_pixels.lock().unwrap();
         // ImageBuffer::from_fn(
-        //     raytracer.get_width() as u32,
-        //     raytracer.get_height() as u32,
-        //     move |x, y| image_pixels[x as usize + y as usize * raytracer.get_width()],
+        //     raytracer.width() as u32,
+        //     raytracer.height() as u32,
+        //     move |x, y| image_pixels[x as usize + y as usize * raytracer.width()],
         // )
         image_pixels
     }
@@ -125,7 +125,7 @@ impl RayTracer {
                 let u = (x as f32 + rng.gen::<f32>()) / self.width as f32;
                 let v = (y as f32 + rng.gen::<f32>()) / self.height as f32;
 
-                let ray = self.camera.get_ray(u, v);
+                let ray = self.camera.ray(u, v);
 
                 self.cast(&ray, 0)
             })
@@ -146,19 +146,19 @@ impl RayTracer {
             return Color3::zero();
         }
 
-        let record = self.scene.get_bvh().hit(ray, 0.001, f32::INFINITY);
+        let record = self.scene.bvh().hit(ray, 0.001, f32::INFINITY);
         if record.is_none() {
-            let unit_direction = ray.get_direction().unit();
+            let unit_direction = ray.direction().unit();
             let t = 0.5 * (unit_direction.y + 1.);
-            return self.scene.get_background().color(t);
+            return self.scene.background().color(t);
         }
 
         let record = record.unwrap();
         let emitted = record
-            .get_material()
-            .emitted(record.get_texture_coordinates(), record.get_hit_point());
+            .material()
+            .emitted(record.texture_coordinates(), record.hit_point());
 
-        let record = record.get_material().scatter(ray, &record);
+        let record = record.material().scatter(ray, &record);
         if record.is_none() {
             return emitted;
         }
@@ -176,11 +176,11 @@ impl RayTracer {
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_width(), 200);
+    /// assert_eq!(raytracer.width(), 200);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_width(&self) -> u32 {
+    pub const fn width(&self) -> u32 {
         self.width
     }
 
@@ -193,11 +193,11 @@ impl RayTracer {
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_height(), 100);
+    /// assert_eq!(raytracer.height(), 100);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_height(&self) -> u32 {
+    pub const fn height(&self) -> u32 {
         self.height
     }
 
@@ -210,11 +210,11 @@ impl RayTracer {
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_samples(), 50);
+    /// assert_eq!(raytracer.samples(), 50);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_samples(&self) -> usize {
+    pub const fn samples(&self) -> usize {
         self.samples
     }
 
@@ -227,11 +227,11 @@ impl RayTracer {
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_max_reflections(), 20);
+    /// assert_eq!(raytracer.max_reflections(), 20);
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_max_reflections(&self) -> usize {
+    pub const fn max_reflections(&self) -> usize {
         self.max_reflections
     }
 
@@ -244,11 +244,11 @@ impl RayTracer {
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_camera(), &Camera::default());
+    /// assert_eq!(raytracer.camera(), &Camera::default());
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_camera(&self) -> &Camera {
+    pub const fn camera(&self) -> &Camera {
         &self.camera
     }
 
@@ -261,11 +261,11 @@ impl RayTracer {
     /// use crab_rt::scene::Scene;
     ///
     /// let raytracer = RayTracer::new(200, 100, 50, 20, Camera::default(), Scene::default());
-    /// assert_eq!(raytracer.get_scene(), &Scene::default());
+    /// assert_eq!(raytracer.scene(), &Scene::default());
     /// ```
     #[inline]
     #[must_use]
-    pub const fn get_scene(&self) -> &Scene {
+    pub const fn scene(&self) -> &Scene {
         &self.scene
     }
 }

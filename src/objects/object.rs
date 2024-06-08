@@ -37,7 +37,7 @@ impl Object {
     }
 
     // #[inline]
-    // fn get_volume(&self) -> Box<dyn Hitable> {
+    // fn volume(&self) -> Box<dyn Hitable> {
     //     self.volume
     // }
 }
@@ -56,7 +56,7 @@ impl Hitable for Object {
 
 // impl PartialEq for Object {
 //     fn eq(&self, other: &Self) -> bool {
-//         self.get_volume() == other.get_volume()
+//         self.volume() == other.volume()
 //     }
 // }
 
