@@ -114,8 +114,6 @@ fn main() {
         scene,
     )
     .raytrace()
-    .lock()
-    .unwrap()
     .save("rt_nextweek.jpg")
     .unwrap();
 

@@ -11,7 +11,7 @@ use crate::vec::{Color3, Vec3};
 use {
     alloc::{vec, vec::Vec},
     core_affinity,
-    image::{ImageBuffer, RgbImage},
+    image::{ImageBuffer, Rgb, RgbImage},
     std::println,
     std::sync::{Arc, Mutex},
     std::thread,
@@ -53,33 +53,27 @@ impl RayTracer {
         }
     }
 
-    // Seems faster when returning Arc<Mutex
-    // pub fn raytrace(self) -> RgbImage {
     #[cfg(feature = "std")]
     #[must_use]
-    pub fn raytrace(self) -> Arc<Mutex<RgbImage>> {
+    pub fn raytrace(self) -> RgbImage {
         let core_ids = core_affinity::get_core_ids();
         if core_ids.is_none() {
             println!("Failed to get core ids");
         }
 
         let raytracer = Arc::new(self);
-        // let image_pixels: Arc<Mutex<Vec<Rgb<u8>>>> = Arc::new(Mutex::new(vec![
-        //     Rgb([0, 0, 0]);
-        //     raytracer.width()
-        //         * raytracer
-        //             .height()
-        // ]));
-        let image_pixels = Arc::new(Mutex::new(ImageBuffer::new(
-            raytracer.width(),
-            raytracer.height(),
-        )));
+        let image_buffer = Arc::new(Mutex::new(vec![
+            0u8;
+            raytracer.width() as usize
+                * raytracer.height() as usize
+                * 3
+        ]));
 
         let mut workers = Vec::with_capacity(NB_THREADS);
 
         for i in 0..NB_THREADS {
             let raytracer = Arc::clone(&raytracer);
-            let image_pixels = Arc::clone(&image_pixels);
+            let image_buffer = Arc::clone(&image_buffer);
             let core_id = core_ids.as_ref().map(|ids| ids[i]);
 
             workers.push(thread::spawn(move || {
@@ -96,10 +90,12 @@ impl RayTracer {
                         *pixel = raytracer.pixel(x, y);
                     }
 
-                    let mut image_pixels = image_pixels.lock().unwrap();
+                    let mut image_buffer = image_buffer.lock().unwrap();
                     for (x, pixel) in line_pixels.iter().enumerate() {
-                        // image_pixels[x + y * raytracer.width()] = line_pixels[x].into();
-                        image_pixels.put_pixel(x as u32, y as u32, pixel.into());
+                        let pixel = Rgb::from(pixel);
+                        image_buffer[(x + y * raytracer.width() as usize) * 3] = pixel[0];
+                        image_buffer[(x + y * raytracer.width() as usize) * 3 + 1] = pixel[1];
+                        image_buffer[(x + y * raytracer.width() as usize) * 3 + 2] = pixel[2];
                     }
                 }
             }));
@@ -109,14 +105,12 @@ impl RayTracer {
             worker.join().expect("Failed to join thread.");
         }
 
-        // Maybe perf lost :thinking:
-        // let image_pixels = image_pixels.lock().unwrap();
-        // ImageBuffer::from_fn(
-        //     raytracer.width() as u32,
-        //     raytracer.height() as u32,
-        //     move |x, y| image_pixels[x as usize + y as usize * raytracer.width()],
-        // )
-        image_pixels
+        ImageBuffer::from_vec(
+            raytracer.width(),
+            raytracer.height(),
+            Arc::try_unwrap(image_buffer).unwrap().into_inner().unwrap(),
+        )
+        .unwrap()
     }
 
     #[inline(always)]

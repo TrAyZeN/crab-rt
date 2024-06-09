@@ -17,12 +17,7 @@ fn main() {
 
     let raytracer = raytracer1();
 
-    raytracer
-        .raytrace()
-        .lock()
-        .unwrap()
-        .save("out.jpg")
-        .unwrap();
+    raytracer.raytrace().save("out.jpg").unwrap();
 
     println!("Done in {:?}", start.elapsed());
 }
