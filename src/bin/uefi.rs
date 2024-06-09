@@ -14,7 +14,7 @@ use crab_rt::objects::Sphere;
 use crab_rt::raytracer::RayTracer;
 use crab_rt::scene::{Background, SceneBuilder};
 use crab_rt::textures::Checker;
-use crab_rt::utils::{gamma_encode, rng};
+use crab_rt::utils::{gamma_encode, partial_row_views_mut, rng, PartialRowViewMut};
 use crab_rt::vec::{Color3, Point3, Vec3};
 use rand::Rng;
 use uefi::data_types::Event;
@@ -22,56 +22,6 @@ use uefi::prelude::*;
 use uefi::proto::console::gop::{BltOp, BltPixel, BltRegion, GraphicsOutput};
 use uefi::proto::pi::mp::MpServices;
 use uefi::table::boot::{EventType, Tpl};
-
-/// Return the `num_views` [`PartialRowViewMut`] of the given slice.
-///
-/// # Panics
-/// Panics if given slice's length is not a multiple of width.
-fn partial_row_views_mut<'a, T>(
-    slice: &'a mut [T],
-    width: usize,
-    num_views: usize,
-) -> Vec<PartialRowViewMut<'a, T>> {
-    assert!(slice.len() % width == 0);
-
-    (0..num_views)
-        .map(|view_id| PartialRowViewMut {
-            // SAFETY: Each view of the slice do not overlap. See [`PartialRowViewMut`].
-            slice: unsafe { &mut *(slice as *mut _) },
-            width,
-            view_id,
-            num_views,
-        })
-        .collect()
-}
-
-/// A mutable view of a slice by rows that has access to every `view_id`th rows out of `num_views`.
-///
-/// This is useful to share a buffer view between threads with a fairer work distribution than
-/// contiguous buffer parts.
-///
-/// It is assumed that the stride is equal to the width.
-#[derive(Debug)]
-struct PartialRowViewMut<'a, T> {
-    /// Underlying slice.
-    slice: &'a mut [T],
-    /// Length of the rows.
-    width: usize,
-    view_id: usize,
-    /// Number of views.
-    num_views: usize,
-}
-
-impl<'a, T> PartialRowViewMut<'a, T> {
-    /// Return the `row_idx`'th row of the slice if this view has access to it.
-    fn row(&mut self, row_idx: usize) -> Option<&mut [T]> {
-        if row_idx % self.num_views != self.view_id {
-            None
-        } else {
-            Some(&mut self.slice[row_idx * self.width..(row_idx + 1) * self.width])
-        }
-    }
-}
 
 struct WorkerArg<'a> {
     proc_id: usize,

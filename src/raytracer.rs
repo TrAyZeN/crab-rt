@@ -9,12 +9,11 @@ use crate::vec::{Color3, Vec3};
 
 #[cfg(feature = "std")]
 use {
-    alloc::{vec, vec::Vec},
+    crate::utils::partial_row_views_mut,
+    alloc::vec,
     core_affinity,
     image::{ImageBuffer, Rgb, RgbImage},
-    std::println,
-    std::sync::{Arc, Mutex},
-    std::thread,
+    std::{iter::zip, println, sync::Arc, thread},
 };
 
 const NB_THREADS: usize = 8;
@@ -62,55 +61,46 @@ impl RayTracer {
         }
 
         let raytracer = Arc::new(self);
-        let image_buffer = Arc::new(Mutex::new(vec![
-            0u8;
-            raytracer.width() as usize
-                * raytracer.height() as usize
-                * 3
-        ]));
 
-        let mut workers = Vec::with_capacity(NB_THREADS);
+        let mut image_buffer =
+            vec![0u8; raytracer.width() as usize * raytracer.height() as usize * 3];
+        let image_buffer_views = partial_row_views_mut(
+            &mut image_buffer[..],
+            raytracer.width() as usize * 3,
+            NB_THREADS,
+        );
 
-        for i in 0..NB_THREADS {
-            let raytracer = Arc::clone(&raytracer);
-            let image_buffer = Arc::clone(&image_buffer);
-            let core_id = core_ids.as_ref().map(|ids| ids[i]);
+        thread::scope(|s| {
+            for (i, mut image_buffer_view) in zip(0..NB_THREADS, image_buffer_views) {
+                let raytracer = Arc::clone(&raytracer);
+                let core_id = core_ids.as_ref().map(|ids| ids[i]);
 
-            workers.push(thread::spawn(move || {
-                if let Some(id) = core_id {
-                    core_affinity::set_for_current(id);
-                }
-
-                let mut line_pixels = vec![Vec3::default(); raytracer.width() as usize];
-
-                for y in (i * raytracer.height() as usize / NB_THREADS)
-                    ..((i + 1) * raytracer.height() as usize / NB_THREADS)
-                {
-                    for (x, pixel) in line_pixels.iter_mut().enumerate() {
-                        *pixel = raytracer.pixel(x, y);
+                s.spawn(move || {
+                    if let Some(id) = core_id {
+                        core_affinity::set_for_current(id);
                     }
 
-                    let mut image_buffer = image_buffer.lock().unwrap();
-                    for (x, pixel) in line_pixels.iter().enumerate() {
-                        let pixel = Rgb::from(pixel);
-                        image_buffer[(x + y * raytracer.width() as usize) * 3] = pixel[0];
-                        image_buffer[(x + y * raytracer.width() as usize) * 3 + 1] = pixel[1];
-                        image_buffer[(x + y * raytracer.width() as usize) * 3 + 2] = pixel[2];
+                    let mut line_pixels = vec![Vec3::default(); raytracer.width() as usize];
+
+                    for y in (i..raytracer.height() as usize).step_by(NB_THREADS) {
+                        for (x, pixel) in line_pixels.iter_mut().enumerate() {
+                            *pixel = raytracer.pixel(x, y);
+                        }
+
+                        let image_buffer_row = image_buffer_view.row(y).unwrap();
+                        for (x, pixel) in line_pixels.iter().enumerate() {
+                            let pixel = Rgb::from(pixel);
+
+                            image_buffer_row[x * 3] = pixel[0];
+                            image_buffer_row[x * 3 + 1] = pixel[1];
+                            image_buffer_row[x * 3 + 2] = pixel[2];
+                        }
                     }
-                }
-            }));
-        }
+                });
+            }
+        });
 
-        for worker in workers {
-            worker.join().expect("Failed to join thread.");
-        }
-
-        ImageBuffer::from_vec(
-            raytracer.width(),
-            raytracer.height(),
-            Arc::try_unwrap(image_buffer).unwrap().into_inner().unwrap(),
-        )
-        .unwrap()
+        ImageBuffer::from_vec(raytracer.width(), raytracer.height(), image_buffer).unwrap()
     }
 
     #[inline(always)]

@@ -1,5 +1,7 @@
 use alloc::rc::Rc;
+use alloc::vec::Vec;
 use core::cell::UnsafeCell;
+use core::ptr;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::{Error, Rng, RngCore, SeedableRng};
@@ -192,4 +194,54 @@ pub fn gamma_encode(x: f32) -> f32 {
 #[must_use]
 pub fn gamma_decode(x: f32) -> f32 {
     x.powf(GAMMA)
+}
+
+/// Return the `num_views` [`PartialRowViewMut`] of the given slice.
+///
+/// # Panics
+/// Panics if given slice's length is not a multiple of width.
+pub fn partial_row_views_mut<T>(
+    slice: &mut [T],
+    width: usize,
+    num_views: usize,
+) -> Vec<PartialRowViewMut<'_, T>> {
+    assert!(slice.len() % width == 0);
+
+    (0..num_views)
+        .map(|view_id| PartialRowViewMut {
+            // SAFETY: Each view of the slice do not overlap. See [`PartialRowViewMut`].
+            slice: unsafe { &mut *ptr::from_mut(slice) },
+            width,
+            view_id,
+            num_views,
+        })
+        .collect()
+}
+
+/// A mutable view of a slice by rows that has access to every `view_id`th rows out of `num_views`.
+///
+/// This is useful to share a buffer view between threads with a fairer work distribution than
+/// contiguous buffer parts.
+///
+/// It is assumed that the stride is equal to the width.
+#[derive(Debug)]
+pub struct PartialRowViewMut<'a, T> {
+    /// Underlying slice.
+    slice: &'a mut [T],
+    /// Length of the rows.
+    width: usize,
+    view_id: usize,
+    /// Number of views.
+    num_views: usize,
+}
+
+impl<'a, T> PartialRowViewMut<'a, T> {
+    /// Return the `row_idx`'th row of the slice if this view has access to it.
+    pub fn row(&mut self, row_idx: usize) -> Option<&mut [T]> {
+        if row_idx % self.num_views != self.view_id {
+            None
+        } else {
+            Some(&mut self.slice[row_idx * self.width..(row_idx + 1) * self.width])
+        }
+    }
 }
