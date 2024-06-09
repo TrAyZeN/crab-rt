@@ -2,6 +2,9 @@ use super::Texture;
 use crate::vec::{Point3, Vec3};
 use alloc::vec::Vec;
 
+#[cfg(feature = "std")]
+use anyhow::Result;
+
 // For now the image only support RGB
 #[derive(Debug)]
 pub struct Image {
@@ -12,6 +15,8 @@ pub struct Image {
 }
 
 impl Image {
+    /// # Panics
+    /// Panics if the data length is not equal to `width * height * 3`.
     #[inline]
     #[must_use]
     pub fn new(width: usize, height: usize, data: Vec<u8>) -> Self {
@@ -25,14 +30,16 @@ impl Image {
     }
 
     #[cfg(feature = "std")]
-    #[must_use]
-    pub fn load(filename: &str) -> Self {
-        // TODO: Handle error
-        let image_buffer = image::open(filename).unwrap().into_rgb8();
+    pub fn load(filename: &str) -> Result<Self> {
+        let image_buffer = image::open(filename)?.into_rgb8();
         let width = image_buffer.width();
         let height = image_buffer.height();
 
-        Self::new(width as usize, height as usize, image_buffer.into_raw())
+        Ok(Self::new(
+            width as usize,
+            height as usize,
+            image_buffer.into_raw(),
+        ))
     }
 }
 
@@ -55,9 +62,9 @@ impl Texture for Image {
         let color_scale = 1. / 255.;
         let pixel = i * 3 + j * 3 * self.width;
         Vec3::new(
-            color_scale * self.data[pixel] as f32,
-            color_scale * self.data[pixel + 1] as f32,
-            color_scale * self.data[pixel + 2] as f32,
+            color_scale * f32::from(self.data[pixel]),
+            color_scale * f32::from(self.data[pixel + 1]),
+            color_scale * f32::from(self.data[pixel + 2]),
         )
     }
 }

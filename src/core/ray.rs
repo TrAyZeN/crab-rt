@@ -14,7 +14,7 @@ pub struct Ray {
 impl Ray {
     /// Constructs a new `Ray` from the given origin, direction and time.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics in `debug` mode if `direction == Vec3::new(0., 0., 0.)`.
     ///
     /// # Examples

@@ -8,6 +8,7 @@
     clippy::nursery,
     clippy::cargo
 )]
+#![allow(clippy::inline_always)]
 
 extern crate alloc;
 #[cfg(feature = "std")]

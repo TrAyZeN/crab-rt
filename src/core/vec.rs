@@ -1,5 +1,5 @@
 use core::{
-    convert, iter,
+    iter,
     ops::{self, Add, Sub},
 };
 
@@ -370,7 +370,7 @@ macro_rules! forward_ref_binop {
     };
 }
 
-impl ops::Add<Vec3> for Vec3 {
+impl ops::Add<Self> for Vec3 {
     type Output = Self;
 
     #[inline(always)]
@@ -381,7 +381,7 @@ impl ops::Add<Vec3> for Vec3 {
 
 forward_ref_binop! { impl Add, add for Vec3, Vec3 }
 
-impl ops::AddAssign<Vec3> for Vec3 {
+impl ops::AddAssign<Self> for Vec3 {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
@@ -408,7 +408,7 @@ impl ops::Neg for &Vec3 {
     }
 }
 
-impl ops::Sub<Vec3> for Vec3 {
+impl ops::Sub<Self> for Vec3 {
     type Output = Self;
 
     #[inline(always)]
@@ -420,7 +420,7 @@ impl ops::Sub<Vec3> for Vec3 {
 
 forward_ref_binop! { impl Sub, sub for Vec3, Vec3 }
 
-impl ops::SubAssign<Vec3> for Vec3 {
+impl ops::SubAssign<Self> for Vec3 {
     #[inline]
     fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
@@ -429,7 +429,7 @@ impl ops::SubAssign<Vec3> for Vec3 {
     }
 }
 
-impl ops::Mul<Vec3> for Vec3 {
+impl ops::Mul<Self> for Vec3 {
     type Output = Self;
 
     #[inline(always)]
@@ -508,7 +508,7 @@ impl ops::DivAssign<f32> for Vec3 {
     }
 }
 
-impl ops::Div<Vec3> for Vec3 {
+impl ops::Div<Self> for Vec3 {
     type Output = Self;
 
     #[inline(always)]
@@ -534,55 +534,63 @@ impl ops::IndexMut<usize> for Vec3 {
 }
 
 #[cfg(feature = "std")]
-impl convert::Into<Rgb<u8>> for Vec3 {
+impl From<Vec3> for Rgb<u8> {
     #[inline(always)]
-    fn into(self) -> Rgb<u8> {
-        Rgb([
-            (255. * self.x.clamp(0., 1.)) as u8,
-            (255. * self.y.clamp(0., 1.)) as u8,
-            (255. * self.z.clamp(0., 1.)) as u8,
+    fn from(vec: Vec3) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_sign_loss)]
+        Self([
+            (255. * vec.x.clamp(0., 1.)) as u8,
+            (255. * vec.y.clamp(0., 1.)) as u8,
+            (255. * vec.z.clamp(0., 1.)) as u8,
         ])
     }
 }
 
 #[cfg(feature = "std")]
-impl convert::Into<Rgb<u8>> for &Vec3 {
+impl From<&Vec3> for Rgb<u8> {
     #[inline(always)]
-    fn into(self) -> Rgb<u8> {
-        Rgb([
-            (255. * self.x.clamp(0., 1.)) as u8,
-            (255. * self.y.clamp(0., 1.)) as u8,
-            (255. * self.z.clamp(0., 1.)) as u8,
+    fn from(vec: &Vec3) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_sign_loss)]
+        Self([
+            (255. * vec.x.clamp(0., 1.)) as u8,
+            (255. * vec.y.clamp(0., 1.)) as u8,
+            (255. * vec.z.clamp(0., 1.)) as u8,
         ])
     }
 }
 
 #[cfg(feature = "uefi")]
-impl convert::Into<BltPixel> for Vec3 {
+impl From<Vec3> for BltPixel {
     #[inline(always)]
-    fn into(self) -> BltPixel {
-        BltPixel::new(
-            (255. * self.x.clamp(0., 1.)) as u8,
-            (255. * self.y.clamp(0., 1.)) as u8,
-            (255. * self.z.clamp(0., 1.)) as u8,
+    fn from(vec: Vec3) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_sign_loss)]
+        Self::new(
+            (255. * vec.x.clamp(0., 1.)) as u8,
+            (255. * vec.y.clamp(0., 1.)) as u8,
+            (255. * vec.z.clamp(0., 1.)) as u8,
         )
     }
 }
 
 #[cfg(feature = "uefi")]
-impl convert::Into<BltPixel> for &Vec3 {
+impl From<&Vec3> for BltPixel {
     #[inline(always)]
-    fn into(self) -> BltPixel {
-        BltPixel::new(
-            (255. * self.x.clamp(0., 1.)) as u8,
-            (255. * self.y.clamp(0., 1.)) as u8,
-            (255. * self.z.clamp(0., 1.)) as u8,
+    fn from(vec: &Vec3) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_sign_loss)]
+        Self::new(
+            (255. * vec.x.clamp(0., 1.)) as u8,
+            (255. * vec.y.clamp(0., 1.)) as u8,
+            (255. * vec.z.clamp(0., 1.)) as u8,
         )
     }
 }
 
 // Needed if using rayon
-impl iter::Sum<Vec3> for Vec3 {
+impl iter::Sum<Self> for Vec3 {
     #[inline(always)]
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::zero(), Add::add)
@@ -596,10 +604,10 @@ mod tests {
     use quickcheck::{Arbitrary, Gen, TestResult};
 
     impl Arbitrary for Vec3 {
-        fn arbitrary(g: &mut Gen) -> Vec3 {
+        fn arbitrary(g: &mut Gen) -> Self {
             let nan_to_default = |f: f32| if f.is_nan() { f32::default() } else { f };
 
-            Vec3::new(
+            Self::new(
                 nan_to_default(f32::arbitrary(g)),
                 nan_to_default(f32::arbitrary(g)),
                 nan_to_default(f32::arbitrary(g)),

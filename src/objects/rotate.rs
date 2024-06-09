@@ -95,6 +95,6 @@ impl Hitable for RotateY {
 
     #[must_use]
     fn bounding_box(&self, _time_interval: (f32, f32)) -> Option<Aabb> {
-        self.hasbox.then(|| self.bbox)
+        self.hasbox.then_some(self.bbox)
     }
 }

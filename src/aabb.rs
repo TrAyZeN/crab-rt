@@ -15,7 +15,7 @@ pub struct Aabb {
 impl Aabb {
     /// Constructs an AABB from two opposite points.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics in `debug` mode if `min.x > max.x || min.y > max.y || min.z > max.z`.
     ///
     /// # Examples

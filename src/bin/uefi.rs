@@ -25,7 +25,7 @@ use uefi::table::boot::{EventType, Tpl};
 
 /// Return the `num_views` [`PartialRowViewMut`] of the given slice.
 ///
-/// # Panic
+/// # Panics
 /// Panics if given slice's length is not a multiple of width.
 fn partial_row_views_mut<'a, T>(
     slice: &'a mut [T],

@@ -19,9 +19,9 @@ pub struct ConstantMedium<M: Material> {
 }
 
 impl<M: Material> ConstantMedium<M> {
-    /// Constructs a new ConstantMedium with the given boundary, density and phase function.
+    /// Constructs a new [`ConstantMedium`] with the given boundary, density and phase function.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `density == 0.`.
     #[inline]
     #[must_use]

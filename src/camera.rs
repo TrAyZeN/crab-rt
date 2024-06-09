@@ -24,7 +24,7 @@ pub struct Camera {
 impl Camera {
     /// Constructs a new `Camera` with the given lookfrom and lookat points and the vfov and aspect ratio.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `lookfrom == lookat`.
     /// Panics if `aspect_ratio <= 0.`.
     ///
@@ -71,7 +71,7 @@ impl Camera {
 
     /// Consumes the `Camera` and returns self after setting the vup.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `vup == Vec3::new(0., 0., 0.)`.
     ///
     /// # Example
@@ -107,7 +107,7 @@ impl Camera {
 
     /// Consumes the `Camera` and returns self after setting the aperture.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `aperture < 0.`.
     ///
     /// # Example
@@ -129,7 +129,7 @@ impl Camera {
 
     /// Consumes the `Camera` and returns self after setting the focus distance.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `focus_dist == 0.`.
     ///
     /// # Example

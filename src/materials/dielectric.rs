@@ -22,7 +22,7 @@ pub struct Dielectric {
 impl Dielectric {
     /// Constructs a new `Dielectric` material with the given refractive index.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `refractive_index < 1.`.
     ///
     /// # Examples

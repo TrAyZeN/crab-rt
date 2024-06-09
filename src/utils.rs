@@ -12,6 +12,7 @@ use std::thread_local;
 #[cfg(not(feature = "std"))]
 use core_maths::*;
 
+#[derive(Debug)]
 pub struct SmallThreadRng {
     rng: Rc<UnsafeCell<SmallRng>>,
 }
@@ -87,6 +88,7 @@ pub fn rng() -> impl Rng {
     SmallRng::from_seed([0; 32])
 }
 
+#[must_use]
 pub fn random_unit_vector() -> Vec3 {
     random_in_unit_sphere().unit()
 }
@@ -161,11 +163,12 @@ pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f32) -> Vec3 {
 }
 
 /// Computes the specular reflection coefficient by approximating the Fresnel equations.
-/// https://en.wikipedia.org/wiki/Schlick%27s_approximation
-/// R(theta) = R_0 + (1 - R_0)(1 - cos(theta))^5
+///
+/// [Schlick's approximation](https://en.wikipedia.org/wiki/Schlick%27s_approximation)
+/// `R(theta) = R_0 + (1 - R_0)(1 - cos(theta))^5`
 /// where
-/// R_0 = \frac{n_1 - n_2}{n_1 + n_2}^2
-/// Schlick-approximation is used to efficiently calculate vacuum-medium type of interactions.
+/// `R_0 = \frac{n_1 - n_2}{n_1 + n_2}^2`
+/// is used to efficiently calculate vacuum-medium type of interactions.
 #[inline]
 #[must_use]
 pub fn schlick(cosine: f32, refraction_index: f32) -> f32 {

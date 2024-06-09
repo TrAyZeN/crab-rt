@@ -242,7 +242,9 @@ fn earth() -> Scene {
         .add_sphere(Sphere::new(
             Point3::new(0., 0., 0.),
             2.,
-            Arc::new(Lambertian::new(Image::load("resources/earthmap.jpg"))),
+            Arc::new(Lambertian::new(
+                Image::load("resources/earthmap.jpg").unwrap(),
+            )),
         ))
         .build()
 }

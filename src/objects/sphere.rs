@@ -24,7 +24,7 @@ pub struct Sphere<M: Material> {
 impl<M: Material> Sphere<M> {
     /// Constructs a sphere from the given center, radius and material.
     ///
-    /// # Panic
+    /// # Panics
     /// Panics if `radius <= 0.`.
     ///
     /// # Examples
